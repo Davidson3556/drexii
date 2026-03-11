@@ -1,0 +1,40 @@
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/ui'
+  ],
+
+  devtools: {
+    enabled: true
+  },
+
+  css: ['~/assets/css/main.css'],
+
+  routeRules: {
+    '/': { prerender: true }
+  },
+
+  runtimeConfig: {
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+    googleAiApiKey: process.env.GOOGLE_AI_API_KEY || '',
+    databaseUrl: process.env.DATABASE_URL || '',
+    supabaseUrl: process.env.SUPABASE_URL || '',
+    supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+    public: {
+      appName: 'Drexii',
+      appDescription: 'AI agent that turns conversation into execution'
+    }
+  },
+
+  compatibilityDate: '2025-01-15',
+
+  eslint: {
+    config: {
+      stylistic: {
+        commaDangle: 'never',
+        braceStyle: '1tbs'
+      }
+    }
+  }
+})

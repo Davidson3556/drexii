@@ -1,0 +1,329 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+@theme {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Dark palette */
+  --color-drexii-bg: #0a0a0a;
+  --color-drexii-surface: rgba(30, 30, 30, 0.8);
+  --color-drexii-surface-hover: rgba(40, 40, 40, 0.9);
+  --color-drexii-border: rgba(255, 255, 255, 0.08);
+  --color-drexii-text: rgba(255, 255, 255, 0.92);
+  --color-drexii-text-muted: rgba(255, 255, 255, 0.45);
+  --color-drexii-accent: #e8c274;
+  --color-drexii-accent-soft: rgba(232, 194, 116, 0.15);
+  --color-drexii-amber: #f59e0b;
+  --color-drexii-green: #22c55e;
+}
+
+/* ============================================================
+   Global Styles
+   ============================================================ */
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-drexii-bg);
+  color: var(--color-drexii-text);
+  font-family: var(--font-sans);
+}
+
+/* ============================================================
+   Hero Section — Landscape Background
+   ============================================================ */
+
+.hero-bg {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 120% 60% at 50% 100%, rgba(74, 95, 60, 0.6) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 40% at 30% 90%, rgba(139, 69, 80, 0.4) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 40% at 70% 85%, rgba(167, 83, 90, 0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 50% at 50% 60%, rgba(60, 80, 50, 0.3) 0%, transparent 50%),
+    linear-gradient(
+      180deg,
+      #c4a882 0%,
+      #b8967a 8%,
+      #a68475 15%,
+      #8a7068 25%,
+      #6d5a58 35%,
+      #4a4540 45%,
+      #2a2520 60%,
+      #151210 75%,
+      #0a0a0a 100%
+    );
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, transparent 0%, rgba(0,0,0,0.2) 100%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   Glass Card
+   ============================================================ */
+
+.glass-card {
+  background: rgba(25, 25, 25, 0.75);
+  backdrop-filter: blur(40px) saturate(1.2);
+  -webkit-backdrop-filter: blur(40px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  color: var(--color-drexii-text);
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(232, 194, 116, 0.1);
+}
+
+.glass-input::placeholder {
+  color: var(--color-drexii-text-muted);
+}
+
+/* ============================================================
+   Category Pills
+   ============================================================ */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.pill-default {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-drexii-text-muted);
+}
+
+.pill-default:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-drexii-text);
+}
+
+.pill-active {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--color-drexii-text);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.pill-announcement {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-drexii-text-muted);
+  font-size: 13px;
+  gap: 6px;
+}
+
+/* ============================================================
+   Animations — Scroll-Driven
+   ============================================================ */
+
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fade-in-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stagger-1 { transition-delay: 0.1s; }
+.stagger-2 { transition-delay: 0.2s; }
+.stagger-3 { transition-delay: 0.3s; }
+.stagger-4 { transition-delay: 0.4s; }
+
+.scale-in {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scale-in.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.text-reveal {
+  color: rgba(255, 255, 255, 0.2);
+  transition: color 0.6s ease;
+}
+
+.text-reveal.visible {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ============================================================
+   Chat Components
+   ============================================================ */
+
+.message-bubble-user {
+  background: rgba(232, 194, 116, 0.1);
+  border: 1px solid rgba(232, 194, 116, 0.15);
+  border-radius: 18px 18px 4px 18px;
+  padding: 12px 18px;
+  max-width: 80%;
+  margin-left: auto;
+}
+
+.message-bubble-assistant {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px 18px 18px 4px;
+  padding: 12px 18px;
+  max-width: 85%;
+}
+
+/* Typing indicator */
+.typing-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-drexii-text-muted);
+  animation: typing-bounce 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Streaming cursor */
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.streaming-cursor::after {
+  content: '▋';
+  animation: cursor-blink 1s infinite;
+  color: var(--color-drexii-accent);
+  margin-left: 2px;
+}
+
+/* ============================================================
+   Model Status Indicator
+   ============================================================ */
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse-glow 2s infinite;
+}
+
+.status-dot-healthy {
+  background: var(--color-drexii-green);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+
+.status-dot-fallback {
+  background: var(--color-drexii-amber);
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================
+   Suggestion Row
+   ============================================================ */
+
+.suggestion-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  color: var(--color-drexii-text-muted);
+  font-size: 14px;
+}
+
+.suggestion-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-drexii-text);
+}
+
+/* ============================================================
+   Intro / About Section
+   ============================================================ */
+
+.intro-section {
+  background: var(--color-drexii-bg);
+  padding: 120px 0;
+}
+
+.intro-text {
+  font-size: 28px;
+  line-height: 1.5;
+  font-weight: 500;
+  max-width: 600px;
+}
+
+@media (max-width: 768px) {
+  .intro-text {
+    font-size: 20px;
+  }
+}
