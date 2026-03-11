@@ -20,7 +20,7 @@ export interface GeminiStreamOptions {
   systemPrompt?: string
 }
 
-const GEMINI_MODELS = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro-latest']
+const GEMINI_MODELS = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-2.5-flash']
 
 export async function* streamChat(
   messages: MessagePayload[],
@@ -63,8 +63,7 @@ export async function* streamChat(
         }
       }
       return
-    }
-    catch (error: unknown) {
+    } catch (error: unknown) {
       const errMsg = (error as Error).message || ''
       if (errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('Too Many Requests')) {
         console.warn(`[Gemini] ${modelName} rate limited, trying next model...`)
@@ -83,15 +82,31 @@ export async function healthCheck(): Promise<boolean> {
     const model = client.getGenerativeModel({ model: 'gemini-2.0-flash' })
     const result = await model.generateContent('ping')
     return result.response.text().length > 0
-  }
-  catch {
+  } catch {
     return false
   }
 }
 
-function getDefaultSystemPrompt(): string {
-  return `You are Drexii, an AI agent that turns conversation into execution.
+function getDefaultSystemPrompt(toolDescriptions?: string): string {
+  const toolSection = toolDescriptions
+    ? `
 
+You have access to the following external tools:
+${toolDescriptions}
+
+When the user asks you to do something that requires one of these tools, respond with a tool call using this exact format:
+[TOOL_CALL: tool_name({"param": "value"})]
+
+Rules:
+- Use ONLY the tools listed above. Do not invent tool names.
+- Always use valid JSON for tool arguments.
+- You can make multiple tool calls in one response if needed.
+- If the user asks about a service that is not connected, tell them it is not currently available.
+- After tool results are returned, summarize them clearly for the user.`
+    : ''
+
+  return `You are Drexii, an AI agent that turns conversation into execution.
+${toolSection}
 Your core behaviors:
 - Give clear, actionable answers
 - Always cite your sources when referencing documents or data
