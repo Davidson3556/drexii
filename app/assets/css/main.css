@@ -42,37 +42,32 @@ body {
 
 .hero-bg {
   position: relative;
-  min-height: 100vh;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse 120% 60% at 50% 100%, rgba(74, 95, 60, 0.6) 0%, transparent 70%),
-    radial-gradient(ellipse 80% 40% at 30% 90%, rgba(139, 69, 80, 0.4) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 40% at 70% 85%, rgba(167, 83, 90, 0.35) 0%, transparent 60%),
-    radial-gradient(ellipse 100% 50% at 50% 60%, rgba(60, 80, 50, 0.3) 0%, transparent 50%),
-    linear-gradient(
-      180deg,
-      #c4a882 0%,
-      #b8967a 8%,
-      #a68475 15%,
-      #8a7068 25%,
-      #6d5a58 35%,
-      #4a4540 45%,
-      #2a2520 60%,
-      #151210 75%,
-      #0a0a0a 100%
-    );
+  min-height: 120vh; /* Allow for scrolling overlap */
+  background: 
+    linear-gradient(to bottom, rgba(55,62,65,1) 0%, rgba(88,82,78,1) 40%, transparent 100%),
+    url('https://images.unsplash.com/photo-1506260408121-e353d10b87c7?q=80&w=2600&auto=format&fit=crop') center bottom / cover no-repeat;
+  margin-bottom: 200px; /* Space for the floating card */
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 30%, transparent 0%, rgba(0,0,0,0.2) 100%);
+  background: linear-gradient(to bottom, transparent 40%, rgba(10,10,10,0.4) 80%, rgba(10,10,10,1) 100%);
   pointer-events: none;
 }
 
 /* ============================================================
-   Glass Card
+   App Window Card (Hero)
    ============================================================ */
+
+.app-window {
+  background: #202020;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 40px 100px -20px rgba(0, 0, 0, 0.9),
+    0 10px 40px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
 
 .glass-card {
   background: rgba(25, 25, 25, 0.75);
@@ -84,6 +79,44 @@ body {
     0 8px 32px rgba(0, 0, 0, 0.4),
     0 2px 8px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.premium-card {
+  background: linear-gradient(180deg, rgba(30,30,30,0.4) 0%, rgba(15,15,15,0.8) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  box-shadow: 
+    0 4px 24px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255,255,255,0.02);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
+  background: linear-gradient(180deg, rgba(40,40,40,0.5) 0%, rgba(20,20,20,0.9) 100%);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.bg-accent-glow {
+  background: #E8C274;
+  box-shadow: 0 0 16px 3px rgba(232, 194, 116, 0.4);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.mask-edges {
+  -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
 }
 
 .glass-input {
@@ -326,4 +359,66 @@ body {
   .intro-text {
     font-size: 20px;
   }
+}
+
+/* ============================================================
+   Prose Chat — Markdown Rendering in Chat Bubbles
+   ============================================================ */
+
+.prose-chat {
+  color: rgba(255, 255, 255, 0.8);
+  word-break: break-word;
+}
+
+.prose-chat strong {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+}
+
+.prose-chat em {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.prose-chat a {
+  color: var(--color-drexii-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+
+.prose-chat a:hover {
+  color: #f0d59a;
+}
+
+.prose-chat ul,
+.prose-chat ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.prose-chat li {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.prose-chat pre {
+  margin: 8px 0;
+  border-radius: 10px;
+}
+
+.prose-chat code {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+.prose-chat hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 12px 0;
+}
+
+.prose-chat h1,
+.prose-chat h2,
+.prose-chat h3 {
+  color: rgba(255, 255, 255, 0.95);
 }

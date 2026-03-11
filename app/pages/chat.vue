@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { currentThread, messages, isStreaming, streamingContent, error, createThread, send } = useThread()
 const { provider, isFallback, startPolling, stopPolling } = useModelStatus()
+const { renderMarkdown } = useMarkdown()
 
 const inputValue = ref('')
 const messagesContainer = ref<HTMLElement>()
@@ -170,7 +171,8 @@ const hasMessages = computed(() => messages.value.length > 0)
             :class="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'"
           >
             <div :class="message.role === 'user' ? 'message-bubble-user' : 'message-bubble-assistant'">
-              <p class="text-sm leading-relaxed whitespace-pre-wrap">{{ message.content }}</p>
+              <div v-if="message.role === 'assistant'" class="text-sm leading-relaxed prose-chat" v-html="renderMarkdown(message.content)" />
+              <p v-else class="text-sm leading-relaxed whitespace-pre-wrap">{{ message.content }}</p>
               <div v-if="message.modelUsed && isFallback" class="mt-2 flex items-center gap-1.5">
                 <span class="text-xs text-white/20">via {{ message.modelUsed === 'gemini' ? 'Gemini' : 'Claude' }}</span>
               </div>
@@ -180,7 +182,7 @@ const hasMessages = computed(() => messages.value.length > 0)
           <!-- Streaming Message -->
           <div v-if="isStreaming && streamingContent" class="flex justify-start">
             <div class="message-bubble-assistant streaming-cursor">
-              <p class="text-sm leading-relaxed whitespace-pre-wrap">{{ streamingContent }}</p>
+              <div class="text-sm leading-relaxed prose-chat" v-html="renderMarkdown(streamingContent)" />
             </div>
           </div>
 
