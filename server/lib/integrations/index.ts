@@ -1,8 +1,10 @@
 import type { ToolSchema, ToolResult } from '../../../shared/types'
 import { notion } from './notion'
 import { slack } from './slack'
+import { discord } from './discord'
 import { zendesk } from './zendesk'
 import { salesforce } from './salesforce'
+import { logToolExecution } from '../audit'
 
 export interface IntegrationAdapter {
   name: string
@@ -12,7 +14,7 @@ export interface IntegrationAdapter {
   healthCheck(): Promise<boolean>
 }
 
-const adapters: IntegrationAdapter[] = [notion, slack, zendesk, salesforce]
+const adapters: IntegrationAdapter[] = [notion, slack, discord, zendesk, salesforce]
 
 export function getConfiguredAdapters(): IntegrationAdapter[] {
   return adapters.filter(a => a.isConfigured())
@@ -42,7 +44,12 @@ export async function executeTool(toolName: string, args: Record<string, unknown
     const hasTool = adapter.tools.some(t => t.name === toolName)
     if (hasTool) {
       console.info(`[Integrations] Executing ${toolName} via ${adapter.name}`)
-      return adapter.execute(toolName, args)
+      const result = await adapter.execute(toolName, args)
+
+      // Audit trail — log every tool execution
+      logToolExecution(adapter.name, toolName, args, result).catch(() => {})
+
+      return result
     }
   }
 

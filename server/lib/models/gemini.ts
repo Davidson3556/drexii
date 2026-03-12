@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { MessagePayload } from '../../../shared/types'
+import { getRecentMemories, formatMemoriesForPrompt, saveMemory } from '../memory'
 
 let _client: GoogleGenerativeAI | null = null
 
@@ -31,8 +32,19 @@ export async function* streamChat(
   const {
     maxTokens = 1024,
     temperature = 0.3,
-    systemPrompt = getDefaultSystemPrompt()
+    systemPrompt
   } = options
+
+  // Inject memories into system prompt
+  let finalSystemPrompt = systemPrompt || getDefaultSystemPrompt()
+  try {
+    const mems = await getRecentMemories(15)
+    if (mems.length > 0) {
+      finalSystemPrompt += formatMemoriesForPrompt(mems)
+    }
+  } catch {
+    // Memories are optional — don't break the pipeline
+  }
 
   const lastMessage = messages[messages.length - 1]
   if (!lastMessage) throw new Error('No messages provided')
@@ -46,7 +58,7 @@ export async function* streamChat(
     try {
       const model = client.getGenerativeModel({
         model: modelName,
-        systemInstruction: systemPrompt,
+        systemInstruction: finalSystemPrompt,
         generationConfig: {
           maxOutputTokens: maxTokens,
           temperature
@@ -102,7 +114,9 @@ Rules:
 - Always use valid JSON for tool arguments.
 - You can make multiple tool calls in one response if needed.
 - If the user asks about a service that is not connected, tell them it is not currently available.
-- After tool results are returned, summarize them clearly for the user.`
+- After tool results are returned, summarize them clearly for the user.
+- CROSS-TOOL WORKFLOWS: You can chain tools together. For example, search Notion for info then post a summary to Discord or Slack. Just include multiple [TOOL_CALL: ...] lines in your response and they will be executed in order.
+- MEMORY: When the user tells you a preference, fact, or important context, respond with [MEMORY: category|content] to remember it. Categories: fact, preference, context.`
     : ''
 
   return `You are Drexii, an AI agent that turns conversation into execution.
@@ -114,10 +128,15 @@ Your core behaviors:
 - Keep responses concise but thorough
 - Use a professional, friendly tone
 - When drafting documents, match the user's style preferences
+- Remember and use context from previous conversations when available
 
 You are powered by advanced AI and can help with:
 - Drafting documents, emails, and reports
-- Searching connected tools (Notion, Slack, Zendesk, etc.)
+- Searching connected tools (Notion, Slack, Discord, Zendesk, etc.)
 - Triggering actions in connected tools
-- Answering questions with source attribution`
+- Chaining workflows across multiple tools
+- Answering questions with source attribution
+- Remembering user preferences and important context`
 }
+
+export { saveMemory }

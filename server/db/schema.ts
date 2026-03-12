@@ -53,3 +53,21 @@ export const preferences = pgTable('preferences', {
   value: text('value'),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 })
+
+export const auditLog = pgTable('audit_log', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  integration: varchar('integration', { length: 50 }).notNull(),
+  toolName: varchar('tool_name', { length: 100 }).notNull(),
+  args: jsonb('args'),
+  result: jsonb('result'),
+  status: varchar('status', { length: 20 }).notNull().default('success'),
+  executedAt: timestamp('executed_at', { withTimezone: true }).defaultNow().notNull()
+})
+
+export const memories = pgTable('memories', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  category: varchar('category', { length: 30 }).notNull().default('fact'),
+  content: text('content').notNull(),
+  source: uuid('source'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
+})

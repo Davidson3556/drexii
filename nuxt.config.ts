@@ -23,6 +23,7 @@ export default defineNuxtConfig({
     supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
     notionApiKey: process.env.NOTION_API_KEY || '',
     slackBotToken: process.env.SLACK_BOT_TOKEN || '',
+    discordBotToken: process.env.DISCORD_BOT_TOKEN || '',
     zendeskSubdomain: process.env.ZENDESK_SUBDOMAIN || '',
     zendeskEmail: process.env.ZENDESK_EMAIL || '',
     zendeskApiToken: process.env.ZENDESK_API_TOKEN || '',
