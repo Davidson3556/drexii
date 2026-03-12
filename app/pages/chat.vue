@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { currentThread, messages, isStreaming, streamingContent, error, createThread, send } = useThread()
-const { provider, isFallback, startPolling, stopPolling } = useModelStatus()
+const { provider: _provider, isFallback, startPolling, stopPolling } = useModelStatus()
 const { renderMarkdown } = useMarkdown()
 
 const inputValue = ref('')
@@ -51,13 +51,23 @@ const hasMessages = computed(() => messages.value.length > 0)
 </script>
 
 <template>
-  <div class="h-screen flex flex-col" style="background: var(--color-drexii-bg);">
+  <div
+    class="h-screen flex flex-col"
+    style="background: var(--color-drexii-bg);"
+  >
     <!-- ======== HEADER ======== -->
     <header class="flex items-center justify-between px-6 py-4 border-b border-white/5">
       <div class="flex items-center gap-3">
-        <NuxtLink to="/" class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center">
-            <UIcon name="i-lucide-diamond" class="w-4 h-4 text-white/60" />
+        <NuxtLink
+          to="/"
+          class="flex items-center gap-2"
+        >
+          <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+            <img
+              src="/logo.png"
+              class="w-8 h-8 object-cover"
+              alt="Drexii Logo"
+            >
           </div>
           <span class="text-white font-semibold tracking-tight">Drexii</span>
         </NuxtLink>
@@ -82,7 +92,10 @@ const hasMessages = computed(() => messages.value.length > 0)
         </div>
 
         <button class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/8 transition-colors">
-          <UIcon name="i-lucide-settings" class="w-4 h-4 text-white/40" />
+          <UIcon
+            name="i-lucide-settings"
+            class="w-4 h-4 text-white/40"
+          />
         </button>
       </div>
     </header>
@@ -95,8 +108,12 @@ const hasMessages = computed(() => messages.value.length > 0)
         class="flex-1 flex flex-col items-center justify-center px-6"
       >
         <div class="w-full max-w-2xl mx-auto text-center">
-          <h1 class="text-2xl font-semibold text-white mb-2">Welcome back</h1>
-          <p class="text-white/40 text-sm mb-10">How can I help you today?</p>
+          <h1 class="text-2xl font-semibold text-white mb-2">
+            Welcome back
+          </h1>
+          <p class="text-white/40 text-sm mb-10">
+            How can I help you today?
+          </p>
 
           <!-- Input -->
           <div class="glass-card p-1 mb-6">
@@ -107,23 +124,38 @@ const hasMessages = computed(() => messages.value.length > 0)
                 placeholder="Ask anything. Type @ for mentions and / for shortcuts."
                 class="w-full bg-transparent outline-none text-sm text-white/80 placeholder:text-white/30"
                 @keyup.enter="handleSend"
-              />
+              >
               <div class="flex items-center justify-between mt-3">
                 <div class="flex items-center gap-3">
-                  <UIcon name="i-lucide-paperclip" class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors" />
-                  <UIcon name="i-lucide-bar-chart-2" class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors" />
-                  <UIcon name="i-lucide-map-pin" class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors" />
+                  <UIcon
+                    name="i-lucide-paperclip"
+                    class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors"
+                  />
+                  <UIcon
+                    name="i-lucide-bar-chart-2"
+                    class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors"
+                  />
+                  <UIcon
+                    name="i-lucide-map-pin"
+                    class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors"
+                  />
                 </div>
                 <div class="flex items-center gap-2">
                   <button class="w-7 h-7 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/12 transition-colors">
-                    <UIcon name="i-lucide-sparkles" class="w-3.5 h-3.5 text-white/40" />
+                    <UIcon
+                      name="i-lucide-sparkles"
+                      class="w-3.5 h-3.5 text-white/40"
+                    />
                   </button>
                   <button
                     class="w-7 h-7 rounded-full bg-amber-500/80 flex items-center justify-center hover:bg-amber-500 transition-colors disabled:opacity-30"
                     :disabled="!inputValue.trim() || isStreaming"
                     @click="handleSend"
                   >
-                    <UIcon name="i-lucide-arrow-up" class="w-3.5 h-3.5 text-white" />
+                    <UIcon
+                      name="i-lucide-arrow-up"
+                      class="w-3.5 h-3.5 text-white"
+                    />
                   </button>
                 </div>
               </div>
@@ -150,9 +182,15 @@ const hasMessages = computed(() => messages.value.length > 0)
               class="suggestion-row group"
               @click="handleSuggestion(suggestion.text)"
             >
-              <UIcon :name="suggestion.icon" class="w-4 h-4 text-white/20 shrink-0" />
+              <UIcon
+                :name="suggestion.icon"
+                class="w-4 h-4 text-white/20 shrink-0"
+              />
               <span class="flex-1">{{ suggestion.text }}</span>
-              <UIcon name="i-lucide-arrow-right" class="w-4 h-4 opacity-0 group-hover:opacity-50 transition-opacity shrink-0" />
+              <UIcon
+                name="i-lucide-arrow-right"
+                class="w-4 h-4 opacity-0 group-hover:opacity-50 transition-opacity shrink-0"
+              />
             </div>
           </div>
         </div>
@@ -171,23 +209,44 @@ const hasMessages = computed(() => messages.value.length > 0)
             :class="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'"
           >
             <div :class="message.role === 'user' ? 'message-bubble-user' : 'message-bubble-assistant'">
-              <div v-if="message.role === 'assistant'" class="text-sm leading-relaxed prose-chat" v-html="renderMarkdown(message.content)" />
-              <p v-else class="text-sm leading-relaxed whitespace-pre-wrap">{{ message.content }}</p>
-              <div v-if="message.modelUsed && isFallback" class="mt-2 flex items-center gap-1.5">
+              <div
+                v-if="message.role === 'assistant'"
+                class="text-sm leading-relaxed prose-chat"
+                v-html="renderMarkdown(message.content)"
+              />
+              <p
+                v-else
+                class="text-sm leading-relaxed whitespace-pre-wrap"
+              >
+                {{ message.content }}
+              </p>
+              <div
+                v-if="message.modelUsed && isFallback"
+                class="mt-2 flex items-center gap-1.5"
+              >
                 <span class="text-xs text-white/20">via {{ message.modelUsed === 'gemini' ? 'Gemini' : 'Claude' }}</span>
               </div>
             </div>
           </div>
 
           <!-- Streaming Message -->
-          <div v-if="isStreaming && streamingContent" class="flex justify-start">
+          <div
+            v-if="isStreaming && streamingContent"
+            class="flex justify-start"
+          >
             <div class="message-bubble-assistant streaming-cursor">
-              <div class="text-sm leading-relaxed prose-chat" v-html="renderMarkdown(streamingContent)" />
+              <div
+                class="text-sm leading-relaxed prose-chat"
+                v-html="renderMarkdown(streamingContent)"
+              />
             </div>
           </div>
 
           <!-- Typing Indicator -->
-          <div v-if="isStreaming && !streamingContent" class="flex justify-start">
+          <div
+            v-if="isStreaming && !streamingContent"
+            class="flex justify-start"
+          >
             <div class="message-bubble-assistant">
               <div class="flex items-center gap-1.5 py-1">
                 <span class="typing-dot" />
@@ -198,7 +257,10 @@ const hasMessages = computed(() => messages.value.length > 0)
           </div>
 
           <!-- Error -->
-          <div v-if="error" class="flex justify-center">
+          <div
+            v-if="error"
+            class="flex justify-center"
+          >
             <div class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
               {{ error }}
             </div>
@@ -207,11 +269,17 @@ const hasMessages = computed(() => messages.value.length > 0)
       </div>
 
       <!-- Bottom Input (when messages exist) -->
-      <div v-if="hasMessages" class="px-6 pb-6 pt-2">
+      <div
+        v-if="hasMessages"
+        class="px-6 pb-6 pt-2"
+      >
         <div class="max-w-3xl mx-auto">
           <div class="glass-input p-4 flex items-center gap-3">
             <div class="flex items-center gap-2">
-              <UIcon name="i-lucide-paperclip" class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors" />
+              <UIcon
+                name="i-lucide-paperclip"
+                class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors"
+              />
             </div>
             <input
               v-model="inputValue"
@@ -220,13 +288,16 @@ const hasMessages = computed(() => messages.value.length > 0)
               class="flex-1 bg-transparent outline-none text-sm text-white/80 placeholder:text-white/30"
               :disabled="isStreaming"
               @keyup.enter="handleSend"
-            />
+            >
             <button
               class="w-8 h-8 rounded-full bg-amber-500/80 flex items-center justify-center hover:bg-amber-500 transition-colors disabled:opacity-30 shrink-0"
               :disabled="!inputValue.trim() || isStreaming"
               @click="handleSend"
             >
-              <UIcon name="i-lucide-arrow-up" class="w-4 h-4 text-white" />
+              <UIcon
+                name="i-lucide-arrow-up"
+                class="w-4 h-4 text-white"
+              />
             </button>
           </div>
         </div>

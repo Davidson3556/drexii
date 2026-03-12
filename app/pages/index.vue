@@ -63,7 +63,7 @@ const heroParallax = computed(() => {
   }
 })
 
-function setIntroRef(el: any, index: number) {
+function setIntroRef(el: HTMLElement | null, index: number) {
   if (el) introRefs.value[index] = el
 }
 
@@ -123,11 +123,11 @@ async function handleSuggestion(text: string) {
           to="/"
           class="flex items-center gap-2 group"
         >
-          <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
+          <div class="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform">
             <img
               src="/logo.png"
-              class="w-4 h-4 object-contain brightness-0 invert"
-              alt="Logo"
+              class="w-9 h-9 object-cover"
+              alt="Drexii Logo"
             >
           </div>
           <span class="text-white font-medium text-[16px] md:text-lg tracking-tight">Drexii</span>
@@ -137,23 +137,23 @@ async function handleSuggestion(text: string) {
           <a
             href="#about"
             class="text-white/50 hover:text-white text-[13px] font-medium transition-colors"
-          >Platform</a>
+          >How It Works</a>
           <a
             href="#features"
             class="text-white/50 hover:text-white text-[13px] font-medium transition-colors"
           >Features</a>
-          <a
-            href="#"
+          <NuxtLink
+            to="/chat"
             class="text-white/50 hover:text-white text-[13px] font-medium transition-colors"
-          >Changelog</a>
+          >Try Drexii</NuxtLink>
         </div>
 
-        <button
+        <NuxtLink
+          to="/chat"
           class="px-5 py-2 rounded-full bg-white text-black text-[13px] font-semibold hover:bg-white/90 transition-all shadow-lg"
-          @click="handleStartChat"
         >
-          Join Waitlist
-        </button>
+          Open Chat
+        </NuxtLink>
       </nav>
 
       <!-- Hero Content -->
@@ -161,7 +161,7 @@ async function handleSuggestion(text: string) {
         <!-- Announcement Pill -->
         <div class="fade-in-up flex items-center justify-center px-4 py-1.5 mb-6 md:mb-8 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[12px] md:text-[13px] text-white/70 hover:bg-white/10 transition-colors cursor-pointer">
           <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse mr-2" />
-          <span class="hidden sm:inline">New: </span>Verified answers with sources
+          <span class="hidden sm:inline">Now live: </span>Notion + Slack + Discord connected
           <UIcon
             name="i-lucide-arrow-right"
             class="w-3.5 h-3.5 ml-2 opacity-60"
@@ -169,32 +169,33 @@ async function handleSuggestion(text: string) {
         </div>
 
         <!-- Headline -->
-        <h1 class="fade-in-up stagger-1 text-[36px] sm:text-[48px] md:text-[68px] font-medium tracking-tight leading-[1.1] max-w-4xl mb-6">
-          <span class="text-white/60">Solid AI agent that turns</span>
+        <h1 class="fade-in-up stagger-1 text-[32px] sm:text-[44px] md:text-[64px] font-medium tracking-tight leading-[1.1] max-w-4xl mb-6">
+          <span class="text-white/60">One chat to search, write,</span>
           <br>
-          <span class="text-white drop-shadow-sm">chats into outcomes</span>
+          <span class="text-white drop-shadow-sm">and act across your stack</span>
         </h1>
 
         <!-- Subtitle -->
-        <p class="fade-in-up stagger-2 text-white/50 text-[14px] sm:text-base max-w-sm mb-8 leading-relaxed font-normal">
-          Ask anything, get verified answers,
+        <p class="fade-in-up stagger-2 text-white/50 text-[14px] sm:text-base max-w-md mb-8 leading-relaxed font-normal">
+          Drexii connects to Notion, Slack, and Discord.
           <br class="hidden sm:block">
-          and trigger actions in seconds.
+          Ask a question — get answers, drafts, and actions.
         </p>
 
         <!-- CTAs -->
-        <div class="fade-in-up stagger-3 flex items-center gap-3 mb-16 z-20">
-          <button
+        <div class="fade-in-up stagger-3 flex flex-col sm:flex-row items-center gap-3 mb-12 md:mb-16 z-20">
+          <NuxtLink
+            to="/chat"
             class="px-6 py-2.5 rounded-full bg-white text-black text-[14px] font-semibold hover:bg-white/90 transition-all shadow-lg"
           >
-            Join Waitlist
-          </button>
-          <button class="w-[38px] h-[38px] rounded-full bg-[#4a4a4a] flex items-center justify-center hover:bg-[#5a5a5a] transition-all border border-white/5">
-            <UIcon
-              name="i-lucide-play"
-              class="w-3.5 h-3.5 text-white ml-0.5 fill-white"
-            />
-          </button>
+            Start Chatting
+          </NuxtLink>
+          <a
+            href="#features"
+            class="px-6 py-2.5 rounded-full bg-white/5 text-white text-[14px] font-medium hover:bg-white/10 transition-all border border-white/10"
+          >
+            See What It Does
+          </a>
         </div>
 
         <!-- Floating Chat Card (Centered Interface) -->
@@ -329,29 +330,29 @@ async function handleSuggestion(text: string) {
           class="intro-text text-reveal mb-8 mx-auto text-[24px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
           style="color: rgba(255,255,255,0.15);"
         >
-          Drexii is an AI agent that turns conversation
-          into execution, delivering clear answers
-          and ready-to-use drafts in seconds.
+          You ask a question in plain language.
+          Drexii pulls context from Notion, searches
+          Slack, and gives you the answer — with sources.
         </p>
 
         <p
           :ref="(el) => setIntroRef(el as HTMLElement, 1)"
-          class="intro-text text-reveal stagger-2 mb-8 mx-auto text-[24px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
+          class="intro-text text-reveal stagger-2 mb-8 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
           style="color: rgba(255,255,255,0.15);"
         >
-          It connects to your docs and tools, keeps
-          context across threads, and surfaces
-          sources so teams can trust what they ship.
+          Need a draft? A message sent? A ticket created?
+          Just say it. Drexii executes across your
+          connected tools without you leaving the chat.
         </p>
 
         <p
           :ref="(el) => setIntroRef(el as HTMLElement, 2)"
-          class="intro-text text-reveal stagger-3 mx-auto text-[24px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
+          class="intro-text text-reveal stagger-3 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
           style="color: rgba(255,255,255,0.15);"
         >
-          From support to ops to sales, Drexii handles
-          the busywork and triggers real actions so
-          work keeps moving without tab switching.
+          It remembers what you told it yesterday,
+          logs every action it takes, and never acts
+          without your knowledge.
         </p>
       </div>
     </section>
@@ -367,8 +368,8 @@ async function handleSuggestion(text: string) {
             <span class="w-2 h-2 rounded-full bg-accent-glow" />
             <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40">Capabilities</span>
           </div>
-          <h2 class="fade-in-up stagger-1 text-3xl md:text-[40px] font-medium text-white tracking-tight leading-tight max-w-2xl">
-            Everything you need to <br><span class="text-white/50">ship faster</span>
+          <h2 class="fade-in-up stagger-1 text-[28px] md:text-[40px] font-medium text-white tracking-tight leading-tight max-w-2xl">
+            What makes Drexii <br><span class="text-white/50">different</span>
           </h2>
         </div>
 
@@ -381,10 +382,10 @@ async function handleSuggestion(text: string) {
               />
             </div>
             <h3 class="text-white font-medium text-lg mb-3">
-              Dual AI Engine
+              Always-On AI
             </h3>
             <p class="text-white/50 text-[15px] leading-relaxed">
-              Claude Opus acts as your primary brain, with Gemini automatically handling fallbacks. Zero interruptions.
+              Two AI engines under the hood. If one goes down, the other picks up instantly — you never notice a thing.
             </p>
           </div>
 
@@ -396,10 +397,10 @@ async function handleSuggestion(text: string) {
               />
             </div>
             <h3 class="text-white font-medium text-lg mb-3">
-              Connected Stack
+              5 Integrations, 15 Tools
             </h3>
             <p class="text-white/50 text-[15px] leading-relaxed">
-              Notion, Slack, Zendesk, Salesforce. Pull live data and trigger complex workflows instantly.
+              Notion, Slack, Discord, Zendesk, Salesforce — search, send messages, create records, all from one chat.
             </p>
           </div>
 
@@ -411,47 +412,47 @@ async function handleSuggestion(text: string) {
               />
             </div>
             <h3 class="text-white font-medium text-lg mb-3">
-              Verified Sources
+              Traceable Answers
             </h3>
             <p class="text-white/50 text-[15px] leading-relaxed">
-              Every answer is rigorously traced back to your internal docs. Clickable citations build trust.
+              Every response cites exactly where the information came from — a Notion page, a Slack thread, a record.
             </p>
           </div>
 
           <div class="fade-in-up stagger-1 premium-card p-8 group">
             <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500/20 to-fuchsia-500/5 border border-purple-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <UIcon
-                name="i-lucide-pen-tool"
+                name="i-lucide-workflow"
                 class="w-6 h-6 text-purple-400"
               />
             </div>
             <h3 class="text-white font-medium text-lg mb-3">
-              One-Click Drafts
+              Cross-Tool Workflows
             </h3>
             <p class="text-white/50 text-[15px] leading-relaxed">
-              Turn bullet points into PRDs, customer emails, or Jira tickets instantly.
+              Chain actions across services in one request. "Find the bug report in Notion and post a summary to Discord."
             </p>
           </div>
 
           <div class="fade-in-up stagger-2 premium-card p-8 group">
             <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500/20 to-pink-500/5 border border-rose-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <UIcon
-                name="i-lucide-shield-check"
+                name="i-lucide-scroll-text"
                 class="w-6 h-6 text-rose-400"
               />
             </div>
             <h3 class="text-white font-medium text-lg mb-3">
-              Safe Execution
+              Full Audit Trail
             </h3>
             <p class="text-white/50 text-[15px] leading-relaxed">
-              Human-in-the-loop validation before Drexii updates records or sends messages externally.
+              Every action Drexii takes is logged — what tool, what arguments, what result. Complete transparency.
             </p>
           </div>
 
           <div class="fade-in-up stagger-3 premium-card p-8 group">
             <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/5 border border-cyan-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <UIcon
-                name="i-lucide-database"
+                name="i-lucide-brain"
                 class="w-6 h-6 text-cyan-400"
               />
             </div>
@@ -459,7 +460,7 @@ async function handleSuggestion(text: string) {
               Persistent Memory
             </h3>
             <p class="text-white/50 text-[15px] leading-relaxed">
-              Drexii remembers conversation history, user preferences, and project context across sessions.
+              Tell Drexii something once and it remembers — your preferences, your projects, your context.
             </p>
           </div>
         </div>
@@ -467,18 +468,24 @@ async function handleSuggestion(text: string) {
     </section>
 
     <!-- ======== PRE-FOOTER CTA ======== -->
-    <section class="py-32 px-6 relative z-20 bg-[#060606] border-t border-white/5">
+    <section class="py-20 md:py-32 px-4 md:px-6 relative z-20 bg-[#060606] border-t border-white/5">
       <div class="max-w-4xl mx-auto text-center">
-        <h2 class="fade-in-up text-[40px] md:text-[56px] font-medium text-white mb-8 tracking-tight leading-[1.1]">
-          Ready to turn your <br>conversations into <span class="text-white/40">execution?</span>
+        <h2 class="fade-in-up text-[32px] md:text-[56px] font-medium text-white mb-8 tracking-tight leading-[1.1]">
+          Stop switching tabs. <br><span class="text-white/40">Start asking Drexii.</span>
         </h2>
         <div class="fade-in-up stagger-1 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button class="px-8 py-3.5 rounded-full bg-white text-black text-[15px] font-semibold hover:bg-white/90 transition-all shadow-lg shadow-white/10">
-            Join Waitlist
-          </button>
-          <button class="px-8 py-3.5 rounded-full bg-white/5 text-white text-[15px] font-medium hover:bg-white/10 transition-all border border-white/10">
-            Book a Demo
-          </button>
+          <NuxtLink
+            to="/chat"
+            class="px-8 py-3.5 rounded-full bg-white text-black text-[15px] font-semibold hover:bg-white/90 transition-all shadow-lg shadow-white/10"
+          >
+            Open Chat Now
+          </NuxtLink>
+          <a
+            href="#about"
+            class="px-8 py-3.5 rounded-full bg-white/5 text-white text-[15px] font-medium hover:bg-white/10 transition-all border border-white/10"
+          >
+            Learn More
+          </a>
         </div>
       </div>
     </section>
@@ -487,11 +494,11 @@ async function handleSuggestion(text: string) {
     <footer class="py-12 px-6 bg-[#060606] relative z-20">
       <div class="max-w-[1100px] mx-auto border-t border-white/10 pt-12 flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
+          <div class="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center">
             <img
               src="/logo.png"
-              class="w-4 h-4 object-contain brightness-0 invert opacity-60"
-              alt="Logo"
+              class="w-9 h-9 object-cover opacity-70"
+              alt="Drexii Logo"
             >
           </div>
           <span class="text-white/40 text-[14px] font-medium">Drexii © {{ new Date().getFullYear() }}</span>
