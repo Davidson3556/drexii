@@ -6,12 +6,28 @@ export default defineNuxtConfig({
   ],
 
   devtools: {
-    enabled: true
+    enabled: process.env.NODE_ENV === 'development'
   },
 
   css: ['~/assets/css/main.css'],
 
   routeRules: {
+    '/**': {
+      headers: {
+        'Content-Security-Policy':
+          "default-src 'self'; " +
+          "script-src 'self' 'unsafe-inline'; " +
+          "style-src 'self' 'unsafe-inline'; " +
+          "img-src 'self' data: https:; " +
+          "font-src 'self' https://fonts.gstatic.com; " +
+          "connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com; " +
+          "frame-ancestors 'none'",
+        'X-Frame-Options': 'DENY',
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
+      }
+    },
     '/': { prerender: true }
   },
 
