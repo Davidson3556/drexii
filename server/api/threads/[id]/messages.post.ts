@@ -4,6 +4,7 @@ import { useDB, schema } from '../../../db'
 import * as modelRouter from '../../../lib/models/model-router'
 import { getAvailableTools, getToolDescriptionsText, executeTool, isWriteTool } from '../../../lib/integrations'
 import { createPendingAction } from '../../../lib/actions'
+import { sanitizeToolOutput } from '../../../lib/sanitize'
 
 const TOOL_CALL_REGEX = /\[TOOL_CALL:\s*(\w+)\(([\s\S]*?)\)\]/g
 
@@ -160,7 +161,7 @@ export default defineEventHandler(async (event) => {
             {
               role: 'user' as const,
               content: `Tool results:\n${toolResults.map(tr =>
-                `<tool_context source="${tr.call.name}">${tr.result.content}</tool_context>`
+                `<tool_context source="${tr.call.name}">${sanitizeToolOutput(tr.result.content)}</tool_context>`
               ).join('\n\n')}\n\nPlease summarize these results for the user in a clear, helpful way. Do not use any [TOOL_CALL:...] syntax in your response.`
             }
           ]
