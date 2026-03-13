@@ -23,6 +23,7 @@
     "@supabase/supabase-js": "^2.49.1",
     "drizzle-orm": "^0.38.0",
     "nuxt": "^4.3.1",
+    "nuxt-security": "^2.5.1",
     "pinia": "^3.0.2",
     "postgres": "^3.4.5",
     "tailwindcss": "^4.2.1"

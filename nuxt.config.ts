@@ -2,7 +2,8 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui'
+    '@nuxt/ui',
+    'nuxt-security'
   ],
 
   devtools: {
@@ -12,24 +13,47 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   routeRules: {
-    '/**': {
-      headers: {
-        'Content-Security-Policy':
-          "default-src 'self'; " +
-          "script-src 'self'; " +
-          "style-src 'self' 'unsafe-inline'; " +
-          "img-src 'self' https:; " +
-          "font-src 'self' https://fonts.gstatic.com; " +
-          "connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com; " +
-          "object-src 'none'; " +
-          "frame-ancestors 'none'",
-        'X-Frame-Options': 'DENY',
-        'X-Content-Type-Options': 'nosniff',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
+    '/': { prerender: true }
+  },
+
+  
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        'default-src': ["'self'"],
+        'script-src': ["'self'", "'nonce-{{nonce}}'"],
+        'style-src': ["'self'", "'unsafe-inline'"],
+        'img-src': ["'self'", 'https:', 'data:'],
+        'font-src': ["'self'", 'https://fonts.gstatic.com'],
+        'connect-src': [
+          "'self'",
+          'https://api.anthropic.com',
+          'https://generativelanguage.googleapis.com'
+        ],
+        'object-src': ["'none'"],
+        'frame-ancestors': ["'none'"]
+      },
+      xFrameOptions: 'DENY',
+      xContentTypeOptions: 'nosniff',
+      referrerPolicy: 'strict-origin-when-cross-origin',
+      permissionsPolicy: {
+        camera: [],
+        microphone: [],
+        geolocation: []
       }
     },
-    '/': { prerender: true }
+    // Blocks API abuse and runaway AI credit usage
+    rateLimiter: {
+      tokensPerInterval: 60,
+      interval: 'minute',
+      headers: true,
+      driver: { name: 'lruCache' }
+    },
+    // Blocks oversized request attacks
+    requestSizeLimiter: {
+      maxRequestSizeInBytes: 2_000_000,
+      maxUploadFileRequestInBytes: 8_000_000
+    }
   },
 
   runtimeConfig: {
