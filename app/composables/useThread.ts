@@ -1,5 +1,11 @@
 import type { Thread, Message } from '~/shared/types'
 
+export interface PendingAction {
+  actionId: string
+  tool: string
+  params: Record<string, unknown>
+}
+
 interface ThreadState {
   currentThread: Thread | null
   threads: Thread[]
@@ -7,6 +13,7 @@ interface ThreadState {
   isStreaming: boolean
   streamingContent: string
   error: string | null
+  pendingActions: PendingAction[]
 }
 
 export function useThread() {
@@ -16,7 +23,8 @@ export function useThread() {
     messages: [],
     isStreaming: false,
     streamingContent: '',
-    error: null
+    error: null,
+    pendingActions: []
   }))
 
   const currentThread = computed(() => state.value.currentThread)
@@ -25,6 +33,7 @@ export function useThread() {
   const streamingContent = computed(() => state.value.streamingContent)
   const error = computed(() => state.value.error)
   const threads = computed(() => state.value.threads)
+  const pendingActions = computed(() => state.value.pendingActions)
 
   async function createThread(title?: string): Promise<Thread> {
     const { thread } = await $fetch<{ thread: Thread }>('/api/threads', {
@@ -111,6 +120,15 @@ export function useThread() {
                 case 'model_info':
                   modelUsed = data.provider
                   break
+                case 'action':
+                  if (data.status === 'pending_confirmation') {
+                    state.value.pendingActions.push({
+                      actionId: data.actionId,
+                      tool: data.tool,
+                      params: data.params
+                    })
+                  }
+                  break
                 case 'done':
                   modelUsed = data.modelUsed
                   break
@@ -149,6 +167,29 @@ export function useThread() {
     }
   }
 
+  async function confirmAction(actionId: string) {
+    try {
+      const result = await $fetch<{ success: boolean, result: string }>(`/api/actions/${actionId}/confirm`, {
+        method: 'POST'
+      })
+      state.value.pendingActions = state.value.pendingActions.filter(a => a.actionId !== actionId)
+      return result
+    } catch (err) {
+      state.value.error = (err as Error).message || 'Failed to confirm action'
+      throw err
+    }
+  }
+
+  async function cancelAction(actionId: string) {
+    try {
+      await $fetch(`/api/actions/${actionId}/cancel`, { method: 'POST' })
+      state.value.pendingActions = state.value.pendingActions.filter(a => a.actionId !== actionId)
+    } catch (err) {
+      state.value.error = (err as Error).message || 'Failed to cancel action'
+      throw err
+    }
+  }
+
   return {
     currentThread,
     threads,
@@ -156,8 +197,11 @@ export function useThread() {
     isStreaming,
     streamingContent,
     error,
+    pendingActions,
     createThread,
     loadThread,
-    send
+    send,
+    confirmAction,
+    cancelAction
   }
 }

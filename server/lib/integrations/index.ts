@@ -16,6 +16,19 @@ export interface IntegrationAdapter {
 
 const adapters: IntegrationAdapter[] = [notion, slack, discord, zendesk, salesforce]
 
+// Tools that perform write/create/send operations — require confirmation before execution
+const WRITE_TOOLS = new Set([
+  'slack_send_message',
+  'discord_send_message',
+  'notion_create_page',
+  'zendesk_create_ticket',
+  'salesforce_create_record'
+])
+
+export function isWriteTool(toolName: string): boolean {
+  return WRITE_TOOLS.has(toolName)
+}
+
 export function getConfiguredAdapters(): IntegrationAdapter[] {
   return adapters.filter(a => a.isConfigured())
 }
