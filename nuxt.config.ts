@@ -16,11 +16,12 @@ export default defineNuxtConfig({
       headers: {
         'Content-Security-Policy':
           "default-src 'self'; " +
-          "script-src 'self' 'unsafe-inline'; " +
+          "script-src 'self'; " +
           "style-src 'self' 'unsafe-inline'; " +
-          "img-src 'self' data: https:; " +
+          "img-src 'self' https:; " +
           "font-src 'self' https://fonts.gstatic.com; " +
           "connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com; " +
+          "object-src 'none'; " +
           "frame-ancestors 'none'",
         'X-Frame-Options': 'DENY',
         'X-Content-Type-Options': 'nosniff',
