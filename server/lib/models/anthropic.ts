@@ -48,7 +48,7 @@ export async function* streamChat(
 
   for await (const event of stream) {
     if (event.type === 'content_block_delta') {
-      const delta = event.delta as { type: string; text?: string }
+      const delta = event.delta as { type: string, text?: string }
       if (delta.type === 'text_delta' && delta.text) {
         yield delta.text
       }
@@ -65,8 +65,7 @@ export async function healthCheck(): Promise<boolean> {
       messages: [{ role: 'user', content: 'ping' }]
     })
     return response.id !== undefined
-  }
-  catch {
+  } catch {
     return false
   }
 }

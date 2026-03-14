@@ -20,8 +20,7 @@ export function useModelStatus() {
     try {
       const data = await $fetch<ProviderStatus>('/api/model/status')
       status.value = data
-    }
-    catch {
+    } catch {
       // Silently fail — don't interrupt user
     }
   }

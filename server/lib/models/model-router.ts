@@ -21,7 +21,7 @@ const circuitBreaker: CircuitBreakerState = {
 const CIRCUIT_BREAKER_THRESHOLD = 5
 const CIRCUIT_BREAKER_WINDOW = 60_000
 const CIRCUIT_BREAKER_COOLDOWN = 300_000
-const HEALTH_CHECK_INTERVAL = 30_000
+const _HEALTH_CHECK_INTERVAL = 30_000
 const RESPONSE_TIMEOUT = 15_000
 
 function hasAnthropicKey(): boolean {
@@ -53,8 +53,7 @@ export function forceProvider(provider: AIProvider): void {
   if (provider === 'gemini') {
     circuitBreaker.state = 'FALLBACK'
     circuitBreaker.fallbackUntil = Date.now() + CIRCUIT_BREAKER_COOLDOWN
-  }
-  else {
+  } else {
     circuitBreaker.state = 'HEALTHY'
     circuitBreaker.errorCount = 0
     circuitBreaker.fallbackUntil = 0
@@ -72,8 +71,7 @@ function recordError(reason: string): void {
     circuitBreaker.fallbackUntil = Date.now() + CIRCUIT_BREAKER_COOLDOWN
     circuitBreaker.errorCount = 0
     console.warn('[ModelRouter] Circuit breaker OPEN — switching to Gemini')
-  }
-  else if (circuitBreaker.errorCount >= 2) {
+  } else if (circuitBreaker.errorCount >= 2) {
     circuitBreaker.state = 'DEGRADED'
   }
 }
@@ -84,8 +82,7 @@ function recordSuccess(): void {
     circuitBreaker.errorCount = 0
     circuitBreaker.fallbackUntil = 0
     console.info('[ModelRouter] Anthropic recovered — switching back to primary')
-  }
-  else if (circuitBreaker.state === 'DEGRADED') {
+  } else if (circuitBreaker.state === 'DEGRADED') {
     circuitBreaker.errorCount = Math.max(0, circuitBreaker.errorCount - 1)
     if (circuitBreaker.errorCount === 0) {
       circuitBreaker.state = 'HEALTHY'
@@ -100,7 +97,7 @@ function recordSuccess(): void {
 
 export async function* streamChat(
   messages: MessagePayload[],
-  options: { maxTokens?: number; temperature?: number; systemPrompt?: string } = {}
+  options: { maxTokens?: number, temperature?: number, systemPrompt?: string } = {}
 ): AsyncGenerator<string> {
   const provider = getActiveProvider()
 
@@ -111,7 +108,7 @@ export async function* streamChat(
 
   if (provider === 'anthropic') {
     try {
-      const timeoutPromise = new Promise<never>((_, reject) => {
+      const _timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Response timeout')), RESPONSE_TIMEOUT)
       })
 
@@ -125,9 +122,8 @@ export async function* streamChat(
         recordSuccess()
         yield chunk
       }
-    }
-    catch (error: unknown) {
-      const err = error as { status?: number; message?: string }
+    } catch (error: unknown) {
+      const err = error as { status?: number, message?: string }
       const status = err.status
       const reason = err.message || 'Unknown Anthropic error'
 
@@ -146,13 +142,12 @@ export async function* streamChat(
       recordError(reason)
       yield* gemini.streamChat(messages, options)
     }
-  }
-  else {
+  } else {
     yield* gemini.streamChat(messages, options)
   }
 }
 
-export async function runHealthCheck(): Promise<{ anthropic: boolean; gemini: boolean }> {
+export async function runHealthCheck(): Promise<{ anthropic: boolean, gemini: boolean }> {
   circuitBreaker.lastHealthCheck = Date.now()
 
   const [anthropicOk, geminiOk] = await Promise.all([

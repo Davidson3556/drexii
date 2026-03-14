@@ -12,50 +12,6 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/': { prerender: true }
-  },
-
-  
-  security: {
-    headers: {
-      contentSecurityPolicy: {
-        'default-src': ["'self'"],
-        'script-src': ["'self'", "'nonce-{{nonce}}'"],
-        'style-src': ["'self'", "'unsafe-inline'"],
-        'img-src': ["'self'", 'https:', 'data:'],
-        'font-src': ["'self'", 'https://fonts.gstatic.com'],
-        'connect-src': [
-          "'self'",
-          'https://api.anthropic.com',
-          'https://generativelanguage.googleapis.com'
-        ],
-        'object-src': ["'none'"],
-        'frame-ancestors': ["'none'"]
-      },
-      xFrameOptions: 'DENY',
-      xContentTypeOptions: 'nosniff',
-      referrerPolicy: 'strict-origin-when-cross-origin',
-      permissionsPolicy: {
-        camera: [],
-        microphone: [],
-        geolocation: []
-      }
-    },
-    // Blocks API abuse and runaway AI credit usage
-    rateLimiter: {
-      tokensPerInterval: 60,
-      interval: 'minute',
-      headers: true,
-      driver: { name: 'lruCache' }
-    },
-    // Blocks oversized request attacks
-    requestSizeLimiter: {
-      maxRequestSizeInBytes: 2_000_000,
-      maxUploadFileRequestInBytes: 8_000_000
-    }
-  },
-
   runtimeConfig: {
     anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
     googleAiApiKey: process.env.GOOGLE_AI_API_KEY || '',
@@ -77,6 +33,10 @@ export default defineNuxtConfig({
     }
   },
 
+  routeRules: {
+    '/': { prerender: true }
+  },
+
   compatibilityDate: '2025-01-15',
 
   eslint: {
@@ -85,6 +45,45 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        'default-src': ['\'self\''],
+        'script-src': ['\'self\'', '\'nonce-{{nonce}}\''],
+        'style-src': ['\'self\'', '\'unsafe-inline\''],
+        'img-src': ['\'self\'', 'https:', 'data:'],
+        'font-src': ['\'self\'', 'https://fonts.gstatic.com'],
+        'connect-src': [
+          '\'self\'',
+          'https://api.anthropic.com',
+          'https://generativelanguage.googleapis.com'
+        ],
+        'object-src': ['\'none\''],
+        'frame-ancestors': ['\'none\'']
+      },
+      xFrameOptions: 'DENY',
+      xContentTypeOptions: 'nosniff',
+      referrerPolicy: 'strict-origin-when-cross-origin',
+      permissionsPolicy: {
+        camera: [],
+        microphone: [],
+        geolocation: []
+      }
+    },
+    // Blocks API abuse and runaway AI credit usage
+    rateLimiter: {
+      tokensPerInterval: 60,
+      interval: 'minute',
+      headers: true,
+      driver: { name: 'lruCache' }
+    },
+    // Blocks oversized request attacks
+    requestSizeLimiter: {
+      maxRequestSizeInBytes: 2_000_000,
+      maxUploadFileRequestInBytes: 8_000_000
     }
   }
 })

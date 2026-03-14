@@ -49,12 +49,11 @@ export function useThread() {
 
   async function loadThread(id: string) {
     try {
-      const data = await $fetch<{ thread: Thread; messages: Message[] }>(`/api/threads/${id}`)
+      const data = await $fetch<{ thread: Thread, messages: Message[] }>(`/api/threads/${id}`)
       state.value.currentThread = data.thread
       state.value.messages = data.messages
       state.value.error = null
-    }
-    catch (err) {
+    } catch (err) {
       state.value.error = 'Failed to load thread'
       console.error('[useThread] Load error:', err)
     }
@@ -107,8 +106,7 @@ export function useThread() {
         for (const line of lines) {
           if (line.startsWith('event: ')) {
             eventType = line.slice(7).trim()
-          }
-          else if (line.startsWith('data: ')) {
+          } else if (line.startsWith('data: ')) {
             const dataStr = line.slice(6)
             try {
               const data = JSON.parse(dataStr)
@@ -136,8 +134,7 @@ export function useThread() {
                   state.value.error = data.message
                   break
               }
-            }
-            catch {
+            } catch {
               // Skip malformed data
             }
           }
@@ -156,12 +153,10 @@ export function useThread() {
         }
         state.value.messages.push(assistantMessage)
       }
-    }
-    catch (err) {
+    } catch (err) {
       state.value.error = (err as Error).message || 'Failed to send message'
       console.error('[useThread] Send error:', err)
-    }
-    finally {
+    } finally {
       state.value.isStreaming = false
       state.value.streamingContent = ''
     }

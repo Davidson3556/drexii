@@ -150,7 +150,7 @@ export interface SSEDoneEvent {
 
 export interface SSEErrorEvent {
   type: 'error'
-  data: { message: string; code?: string }
+  data: { message: string, code?: string }
 }
 
 export type SSEEvent = SSETextEvent | SSESourceEvent | SSEActionEvent | SSEDoneEvent | SSEErrorEvent
