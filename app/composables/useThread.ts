@@ -14,6 +14,7 @@ interface ThreadState {
   streamingContent: string
   error: string | null
   pendingActions: PendingAction[]
+  lastMessageContent: string | null
 }
 
 export function useThread() {
@@ -24,7 +25,8 @@ export function useThread() {
     isStreaming: false,
     streamingContent: '',
     error: null,
-    pendingActions: []
+    pendingActions: [],
+    lastMessageContent: null
   }))
 
   const currentThread = computed(() => state.value.currentThread)
@@ -34,6 +36,7 @@ export function useThread() {
   const error = computed(() => state.value.error)
   const threads = computed(() => state.value.threads)
   const pendingActions = computed(() => state.value.pendingActions)
+  const lastMessageContent = computed(() => state.value.lastMessageContent)
 
   async function createThread(title?: string): Promise<Thread> {
     const { thread } = await $fetch<{ thread: Thread }>('/api/threads', {
@@ -61,6 +64,7 @@ export function useThread() {
 
   async function send(content: string) {
     if (!state.value.currentThread || state.value.isStreaming) return
+    state.value.lastMessageContent = content
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -163,24 +167,61 @@ export function useThread() {
   }
 
   async function confirmAction(actionId: string) {
+    const action = state.value.pendingActions.find(a => a.actionId === actionId)
+    // Remove immediately to prevent double-clicks
+    state.value.pendingActions = state.value.pendingActions.filter(a => a.actionId !== actionId)
     try {
       const result = await $fetch<{ success: boolean, result: string }>(`/api/actions/${actionId}/confirm`, {
         method: 'POST'
       })
-      state.value.pendingActions = state.value.pendingActions.filter(a => a.actionId !== actionId)
+      if (state.value.currentThread) {
+        let parsed: unknown = null
+        try {
+          parsed = JSON.parse(result.result)
+        } catch {
+          parsed = null
+        }
+        const summary = parsed
+          ? `**Action completed:** ${action?.tool ?? 'Tool'}\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\``
+          : `**Action completed:** ${result.result}`
+        state.value.messages.push({
+          id: crypto.randomUUID(),
+          threadId: state.value.currentThread.id,
+          role: 'assistant',
+          content: summary,
+          modelUsed: null,
+          toolCalls: null,
+          createdAt: new Date().toISOString()
+        })
+      }
       return result
     } catch (err) {
       state.value.error = (err as Error).message || 'Failed to confirm action'
+      // Restore pending action on failure
+      if (action) state.value.pendingActions.push(action)
       throw err
     }
   }
 
   async function cancelAction(actionId: string) {
+    const action = state.value.pendingActions.find(a => a.actionId === actionId)
+    state.value.pendingActions = state.value.pendingActions.filter(a => a.actionId !== actionId)
     try {
       await $fetch(`/api/actions/${actionId}/cancel`, { method: 'POST' })
-      state.value.pendingActions = state.value.pendingActions.filter(a => a.actionId !== actionId)
+      if (state.value.currentThread && action) {
+        state.value.messages.push({
+          id: crypto.randomUUID(),
+          threadId: state.value.currentThread.id,
+          role: 'assistant',
+          content: `**Action cancelled:** ${action.tool}`,
+          modelUsed: null,
+          toolCalls: null,
+          createdAt: new Date().toISOString()
+        })
+      }
     } catch (err) {
       state.value.error = (err as Error).message || 'Failed to cancel action'
+      if (action) state.value.pendingActions.push(action)
       throw err
     }
   }
@@ -193,6 +234,7 @@ export function useThread() {
     streamingContent,
     error,
     pendingActions,
+    lastMessageContent,
     createThread,
     loadThread,
     send,

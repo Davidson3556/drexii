@@ -54,6 +54,8 @@ export async function* streamChat(
     parts: [{ text: m.content }]
   }))
 
+  let maxRetrySeconds = 60
+
   for (const modelName of GEMINI_MODELS) {
     try {
       const model = client.getGenerativeModel({
@@ -78,6 +80,12 @@ export async function* streamChat(
     } catch (error: unknown) {
       const errMsg = (error as Error).message || ''
       if (errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('Too Many Requests')) {
+        // Try to extract retryDelay from the API error body (e.g. "retryDelay":"120s")
+        const delayMatch = errMsg.match(/retryDelay['":\s]+(\d+)s/i)
+        if (delayMatch?.[1]) {
+          const seconds = parseInt(delayMatch[1], 10)
+          if (seconds > maxRetrySeconds) maxRetrySeconds = seconds
+        }
         console.warn(`[Gemini] ${modelName} rate limited, trying next model...`)
         continue
       }
@@ -85,7 +93,7 @@ export async function* streamChat(
     }
   }
 
-  throw new Error('All Gemini models are rate limited. Please wait a moment and try again.')
+  throw new Error(`All Gemini models are rate limited. retry_after:${maxRetrySeconds}`)
 }
 
 export async function healthCheck(): Promise<boolean> {

@@ -1,5 +1,5 @@
 import { defineEventHandler, createError } from 'h3'
-import { confirmAction } from '../../lib/actions'
+import { confirmAction } from '../../../lib/actions'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')

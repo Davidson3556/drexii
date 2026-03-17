@@ -39,7 +39,7 @@ export async function* streamChat(
   }))
 
   const stream = client.messages.stream({
-    model: 'claude-opus-4-20250514',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: maxTokens,
     temperature,
     system: systemPrompt,
@@ -60,7 +60,7 @@ export async function healthCheck(): Promise<boolean> {
   try {
     const client = getClient()
     const response = await client.messages.create({
-      model: 'claude-opus-4-20250514',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 10,
       messages: [{ role: 'user', content: 'ping' }]
     })

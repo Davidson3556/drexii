@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { currentThread, messages, isStreaming, streamingContent, error, createThread, send } = useThread()
+const { currentThread, messages, isStreaming, streamingContent, error, pendingActions, lastMessageContent, createThread, send, confirmAction, cancelAction } = useThread()
 const { provider: _provider, isFallback, startPolling, stopPolling } = useModelStatus()
 const { renderMarkdown } = useMarkdown()
 
@@ -25,6 +25,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   stopPolling()
+  if (countdownTimer) clearInterval(countdownTimer)
 })
 
 watch([messages, streamingContent], () => {
@@ -48,6 +49,35 @@ function handleSuggestion(text: string) {
 }
 
 const hasMessages = computed(() => messages.value.length > 0)
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+const isRateLimit = computed(() => !!error.value?.toLowerCase().includes('rate limit'))
+const errorDisplay = computed(() => error.value?.replace(/retry_after:\d+/i, '').trim() ?? '')
+const retryCountdown = ref(0)
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
+watch(error, (val) => {
+  if (val?.toLowerCase().includes('rate limit')) {
+    const match = val.match(/retry_after:(\d+)/i)
+    retryCountdown.value = match?.[1] ? parseInt(match[1], 10) : 60
+    if (countdownTimer) clearInterval(countdownTimer)
+    countdownTimer = setInterval(() => {
+      retryCountdown.value--
+      if (retryCountdown.value <= 0) {
+        clearInterval(countdownTimer!)
+        countdownTimer = null
+      }
+    }, 1000)
+  }
+})
+
+async function handleRetry() {
+  if (!lastMessageContent.value) return
+  await send(lastMessageContent.value)
+}
 </script>
 
 <template>
@@ -220,11 +250,53 @@ const hasMessages = computed(() => messages.value.length > 0)
               >
                 {{ message.content }}
               </p>
-              <div
-                v-if="message.modelUsed && isFallback"
-                class="mt-2 flex items-center gap-1.5"
-              >
-                <span class="text-xs text-white/20">via {{ message.modelUsed === 'gemini' ? 'Gemini' : 'Claude' }}</span>
+              <div class="mt-1.5 flex items-center gap-2">
+                <span class="text-xs text-white/20">{{ formatTime(message.createdAt) }}</span>
+                <span
+                  v-if="message.modelUsed && isFallback"
+                  class="text-xs text-white/20"
+                >· via {{ message.modelUsed === 'gemini' ? 'Gemini' : 'Claude' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending Action Confirmations -->
+          <div
+            v-for="action in pendingActions"
+            :key="action.actionId"
+            class="flex justify-start"
+          >
+            <div
+              class="message-bubble-assistant border border-amber-500/30 bg-amber-500/5"
+            >
+              <div class="flex items-start gap-3">
+                <UIcon
+                  name="i-lucide-shield-alert"
+                  class="w-4 h-4 text-amber-400 mt-0.5 shrink-0"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-amber-300 mb-1">
+                    Action requires confirmation
+                  </p>
+                  <p class="text-xs text-white/50 mb-1">
+                    Tool: <span class="text-white/70 font-mono">{{ action.tool }}</span>
+                  </p>
+                  <pre class="text-xs text-white/40 font-mono bg-white/5 rounded p-2 overflow-x-auto mb-3">{{ JSON.stringify(action.params, null, 2) }}</pre>
+                  <div class="flex gap-2">
+                    <button
+                      class="px-3 py-1.5 rounded-lg bg-amber-500/80 hover:bg-amber-500 text-white text-xs font-medium transition-colors"
+                      @click="confirmAction(action.actionId)"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      class="px-3 py-1.5 rounded-lg bg-white/8 hover:bg-white/12 text-white/60 text-xs font-medium transition-colors"
+                      @click="cancelAction(action.actionId)"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -261,8 +333,24 @@ const hasMessages = computed(() => messages.value.length > 0)
             v-if="error"
             class="flex justify-center"
           >
-            <div class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-              {{ error }}
+            <div class="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex flex-col items-center gap-2">
+              <span>{{ errorDisplay }}</span>
+              <div
+                v-if="isRateLimit"
+                class="flex items-center gap-2"
+              >
+                <span
+                  v-if="retryCountdown > 0"
+                  class="text-xs text-red-400/60"
+                >Retry in {{ retryCountdown }}s</span>
+                <button
+                  class="px-3 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-medium transition-colors disabled:opacity-40"
+                  :disabled="retryCountdown > 0 || isStreaming"
+                  @click="handleRetry"
+                >
+                  Retry
+                </button>
+              </div>
             </div>
           </div>
         </div>

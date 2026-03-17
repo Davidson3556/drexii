@@ -481,10 +481,13 @@ async function handleSuggestion(text: string) {
             Open Chat Now
           </NuxtLink>
           <a
-            href="#about"
-            class="px-8 py-3.5 rounded-full bg-white/5 text-white text-[15px] font-medium hover:bg-white/10 transition-all border border-white/10"
+            href="https://discord.gg/3vg69uJP4n"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-8 py-3.5 rounded-full bg-white/5 text-white text-[15px] font-medium hover:bg-white/10 transition-all border border-white/10 flex items-center gap-2"
           >
-            Learn More
+            <UIcon name="i-lucide-message-circle" class="w-4 h-4" />
+            Join Discord
           </a>
         </div>
       </div>
@@ -505,6 +508,12 @@ async function handleSuggestion(text: string) {
         </div>
 
         <div class="flex items-center gap-8">
+          <a
+            href="https://discord.gg/3vg69uJP4n"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-white/40 hover:text-white text-[14px] font-medium transition-colors"
+          >Discord</a>
           <a
             href="#"
             class="text-white/40 hover:text-white text-[14px] font-medium transition-colors"
