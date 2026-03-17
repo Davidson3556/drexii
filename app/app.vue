@@ -40,6 +40,7 @@ useSeoMeta({
 
 <template>
   <div class="min-h-screen bg-[var(--color-drexii-bg)]">
+    <AppNav />
     <NuxtPage />
   </div>
 </template>

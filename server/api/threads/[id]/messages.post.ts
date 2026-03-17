@@ -12,18 +12,18 @@ function parseToolCalls(text: string): Array<{ name: string, args: Record<string
   let match = TOOL_CALL_REGEX.exec(text)
   while (match) {
     try {
-      const args = JSON.parse(match[2])
-      calls.push({ name: match[1], args })
+      const args = JSON.parse(match[2]!)
+      calls.push({ name: match[1]!, args })
     } catch {
       try {
         const simpleArgs: Record<string, unknown> = {}
-        match[2].split(',').forEach((pair) => {
+        match[2]!.split(',').forEach((pair) => {
           const [key, ...rest] = pair.split(':')
           if (key && rest.length) {
             simpleArgs[key.trim().replace(/"/g, '')] = rest.join(':').trim().replace(/^"|"$/g, '')
           }
         })
-        calls.push({ name: match[1], args: simpleArgs })
+        calls.push({ name: match[1]!, args: simpleArgs })
       } catch {
         console.warn(`[ToolCall] Failed to parse args for ${match[1]}`)
       }

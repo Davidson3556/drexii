@@ -71,3 +71,13 @@ export const memories = pgTable('memories', {
   source: uuid('source'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
 })
+
+export const workflows = pgTable('workflows', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 100 }).notNull(),
+  description: text('description'),
+  prompt: text('prompt').notNull(),
+  runCount: integer('run_count').notNull().default(0),
+  lastRunAt: timestamp('last_run_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
+})

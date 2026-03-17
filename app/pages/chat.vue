@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const { currentThread, messages, isStreaming, streamingContent, error, pendingActions, lastMessageContent, createThread, loadThread, send, confirmAction, cancelAction } = useThread()
-const { provider: _provider, isFallback, startPolling, stopPolling } = useModelStatus()
+const { isFallback, startPolling, stopPolling } = useModelStatus()
 const { renderMarkdown } = useMarkdown()
+const route = useRoute()
 
 const inputValue = ref('')
 const messagesContainer = ref<HTMLElement>()
@@ -18,6 +19,9 @@ const suggestions = [
 
 onMounted(async () => {
   startPolling()
+
+  const autorun = route.query.autorun as string | undefined
+
   if (!currentThread.value) {
     const savedId = import.meta.client ? localStorage.getItem('drexii_thread_id') : null
     if (savedId) {
@@ -25,6 +29,10 @@ onMounted(async () => {
     } else {
       await createThread()
     }
+  }
+
+  if (autorun) {
+    await send(decodeURIComponent(autorun))
   }
 })
 
@@ -90,51 +98,6 @@ async function handleRetry() {
     class="h-screen flex flex-col"
     style="background: var(--color-drexii-bg);"
   >
-    <!-- ======== HEADER ======== -->
-    <header class="flex items-center justify-between px-6 py-4 border-b border-white/5">
-      <div class="flex items-center gap-3">
-        <NuxtLink
-          to="/"
-          class="flex items-center gap-2"
-        >
-          <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
-            <img
-              src="/logo.png"
-              class="w-8 h-8 object-cover"
-              alt="Drexii Logo"
-            >
-          </div>
-          <span class="text-white font-semibold tracking-tight">Drexii</span>
-        </NuxtLink>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <!-- Model Status Indicator -->
-        <div
-          v-if="isFallback"
-          class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20"
-          :title="'Claude is temporarily unavailable. Gemini is handling your requests.'"
-        >
-          <span class="status-dot status-dot-fallback" />
-          <span class="text-amber-400 text-xs font-medium">Backup AI active</span>
-        </div>
-        <div
-          v-else
-          class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5"
-        >
-          <span class="status-dot status-dot-healthy" />
-          <span class="text-white/40 text-xs">AI Online</span>
-        </div>
-
-        <button class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/8 transition-colors">
-          <UIcon
-            name="i-lucide-settings"
-            class="w-4 h-4 text-white/40"
-          />
-        </button>
-      </div>
-    </header>
-
     <!-- ======== MAIN CHAT AREA ======== -->
     <div class="flex-1 flex flex-col overflow-hidden">
       <!-- Empty State (Welcome Screen) -->

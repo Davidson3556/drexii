@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ComponentPublicInstance } from 'vue'
+import type { ComponentPublicInstance } from '#imports'
 
 const router = useRouter()
 
@@ -18,7 +18,6 @@ const inputValue = ref('')
 const heroRef = ref<HTMLElement>()
 const chatCardRef = ref<HTMLElement>()
 const introRefs = ref<HTMLElement[]>([])
-const navRef = ref<HTMLElement>()
 
 const scrollY = ref(0)
 
@@ -119,48 +118,6 @@ async function handleSuggestion(text: string) {
         class="hero-overlay"
         :style="heroParallax"
       />
-
-      <!-- Premium Navigation -->
-      <nav
-        ref="navRef"
-        class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 py-4 transition-all duration-500 backdrop-blur-xl bg-[#0a0a0a]/40 border-b border-white/5"
-      >
-        <NuxtLink
-          to="/"
-          class="flex items-center gap-2 group"
-        >
-          <div class="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform">
-            <img
-              src="/logo.png"
-              class="w-9 h-9 object-cover"
-              alt="Drexii Logo"
-            >
-          </div>
-          <span class="text-white font-medium text-[16px] md:text-lg tracking-tight">Drexii</span>
-        </NuxtLink>
-
-        <div class="hidden md:flex items-center gap-8 bg-white/5 px-6 py-2 rounded-full border border-white/5 backdrop-blur-md">
-          <a
-            href="#about"
-            class="text-white/50 hover:text-white text-[13px] font-medium transition-colors"
-          >How It Works</a>
-          <a
-            href="#features"
-            class="text-white/50 hover:text-white text-[13px] font-medium transition-colors"
-          >Features</a>
-          <NuxtLink
-            to="/chat"
-            class="text-white/50 hover:text-white text-[13px] font-medium transition-colors"
-          >Try Drexii</NuxtLink>
-        </div>
-
-        <NuxtLink
-          to="/chat"
-          class="px-5 py-2 rounded-full bg-white text-black text-[13px] font-semibold hover:bg-white/90 transition-all shadow-lg"
-        >
-          Open Chat
-        </NuxtLink>
-      </nav>
 
       <!-- Hero Content -->
       <div class="relative z-10 flex flex-col items-center pt-24 md:pt-32 pb-24 md:pb-32 px-4 md:px-6 text-center min-h-[90vh] justify-start mt-[8vh]">
