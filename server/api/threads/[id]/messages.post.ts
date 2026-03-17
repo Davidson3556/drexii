@@ -1,4 +1,3 @@
-import { defineEventHandler, readBody, createError, setResponseHeader } from 'h3'
 import { eq } from 'drizzle-orm'
 import { useDB, schema } from '../../../db'
 import * as modelRouter from '../../../lib/models/model-router'
@@ -120,7 +119,7 @@ export default defineEventHandler(async (event) => {
             modelUsed: modelRouter.getActiveProvider(),
             toolCalls: JSON.stringify(toolCalls)
           }).returning({ id: schema.messages.id })
-          assistantMessageId = savedMsg.id
+          assistantMessageId = savedMsg?.id ?? null
         }
 
         if (toolCalls.length > 0) {

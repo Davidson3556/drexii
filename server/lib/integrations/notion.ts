@@ -2,7 +2,7 @@ import type { ToolSchema, ToolResult } from '../../../shared/types'
 import type { IntegrationAdapter } from './index'
 
 function getApiKey(): string | undefined {
-  return process.env.NOTION_API_KEY || useRuntimeConfig().notionApiKey
+  return process.env.NOTION_API_KEY || useRuntimeConfig().notionApiKey as string | undefined
 }
 
 const NOTION_API = 'https://api.notion.com/v1'

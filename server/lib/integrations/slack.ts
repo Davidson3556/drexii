@@ -2,7 +2,7 @@ import type { ToolSchema, ToolResult } from '../../../shared/types'
 import type { IntegrationAdapter } from './index'
 
 function getBotToken(): string | undefined {
-  return process.env.SLACK_BOT_TOKEN || useRuntimeConfig().slackBotToken
+  return process.env.SLACK_BOT_TOKEN || useRuntimeConfig().slackBotToken as string | undefined
 }
 
 const SLACK_API = 'https://slack.com/api'

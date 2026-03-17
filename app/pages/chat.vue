@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { currentThread, messages, isStreaming, streamingContent, error, pendingActions, lastMessageContent, createThread, send, confirmAction, cancelAction } = useThread()
+const { currentThread, messages, isStreaming, streamingContent, error, pendingActions, lastMessageContent, createThread, loadThread, send, confirmAction, cancelAction } = useThread()
 const { provider: _provider, isFallback, startPolling, stopPolling } = useModelStatus()
 const { renderMarkdown } = useMarkdown()
 
@@ -19,7 +19,12 @@ const suggestions = [
 onMounted(async () => {
   startPolling()
   if (!currentThread.value) {
-    await createThread()
+    const savedId = import.meta.client ? localStorage.getItem('drexii_thread_id') : null
+    if (savedId) {
+      await loadThread(savedId).catch(() => createThread())
+    } else {
+      await createThread()
+    }
   }
 })
 

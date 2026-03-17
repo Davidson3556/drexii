@@ -1,4 +1,3 @@
-import { defineEventHandler, createError } from 'h3'
 import { eq } from 'drizzle-orm'
 import { useDB, schema } from '../../db'
 

@@ -5,7 +5,7 @@ let _client: Anthropic | null = null
 
 function getClient(): Anthropic {
   if (!_client) {
-    const apiKey = process.env.ANTHROPIC_API_KEY || useRuntimeConfig().anthropicApiKey
+    const apiKey = process.env.ANTHROPIC_API_KEY || useRuntimeConfig().anthropicApiKey as string | undefined
     if (!apiKey) {
       throw new Error('ANTHROPIC_API_KEY is not set')
     }

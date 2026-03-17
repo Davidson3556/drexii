@@ -1,4 +1,3 @@
-import { defineEventHandler } from 'h3'
 import { getProviderStatus, runHealthCheck } from '../../lib/models/model-router'
 
 export default defineEventHandler(async () => {

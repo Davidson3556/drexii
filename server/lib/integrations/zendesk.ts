@@ -2,9 +2,9 @@ import type { ToolSchema, ToolResult } from '../../../shared/types'
 import type { IntegrationAdapter } from './index'
 
 function getConfig(): { subdomain: string, email: string, token: string } | undefined {
-  const subdomain = process.env.ZENDESK_SUBDOMAIN || useRuntimeConfig().zendeskSubdomain
-  const email = process.env.ZENDESK_EMAIL || useRuntimeConfig().zendeskEmail
-  const token = process.env.ZENDESK_API_TOKEN || useRuntimeConfig().zendeskApiToken
+  const subdomain = process.env.ZENDESK_SUBDOMAIN || useRuntimeConfig().zendeskSubdomain as string | undefined
+  const email = process.env.ZENDESK_EMAIL || useRuntimeConfig().zendeskEmail as string | undefined
+  const token = process.env.ZENDESK_API_TOKEN || useRuntimeConfig().zendeskApiToken as string | undefined
   if (!subdomain || !email || !token) return undefined
   return { subdomain, email, token }
 }

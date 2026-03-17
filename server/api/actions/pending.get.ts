@@ -1,4 +1,3 @@
-import { defineEventHandler } from 'h3'
 import { getPendingActions } from '../../lib/actions'
 
 export default defineEventHandler(async () => {

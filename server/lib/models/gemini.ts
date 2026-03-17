@@ -6,7 +6,7 @@ let _client: GoogleGenerativeAI | null = null
 
 function getClient(): GoogleGenerativeAI {
   if (!_client) {
-    const apiKey = process.env.GOOGLE_AI_API_KEY || useRuntimeConfig().googleAiApiKey
+    const apiKey = process.env.GOOGLE_AI_API_KEY || useRuntimeConfig().googleAiApiKey as string | undefined
     if (!apiKey) {
       throw new Error('GOOGLE_AI_API_KEY is not set')
     }

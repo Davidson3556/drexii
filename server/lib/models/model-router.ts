@@ -108,20 +108,17 @@ export async function* streamChat(
 
   if (provider === 'anthropic') {
     try {
-      const _timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Response timeout')), RESPONSE_TIMEOUT)
-      })
-
       const streamGen = anthropic.streamChat(messages, options)
-      let firstChunk = true
+      const timeoutId = setTimeout(() => {
+        throw new Error('Response timeout')
+      }, RESPONSE_TIMEOUT)
 
       for await (const chunk of streamGen) {
-        if (firstChunk) {
-          firstChunk = false
-        }
         recordSuccess()
         yield chunk
       }
+
+      clearTimeout(timeoutId)
     } catch (error: unknown) {
       const err = error as { status?: number, message?: string }
       const status = err.status

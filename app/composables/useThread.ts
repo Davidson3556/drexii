@@ -47,6 +47,9 @@ export function useThread() {
     state.value.currentThread = thread
     state.value.messages = []
     state.value.error = null
+    if (import.meta.client) {
+      localStorage.setItem('drexii_thread_id', thread.id)
+    }
     return thread
   }
 

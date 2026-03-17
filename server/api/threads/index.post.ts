@@ -1,4 +1,3 @@
-import { defineEventHandler, readBody, createError } from 'h3'
 import { useDB, schema } from '../../db'
 
 export default defineEventHandler(async (event) => {

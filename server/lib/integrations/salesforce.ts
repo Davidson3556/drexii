@@ -10,9 +10,9 @@ interface SalesforceAuth {
 let cachedAuth: SalesforceAuth | null = null
 
 function getConfig(): { loginUrl: string, clientId: string, clientSecret: string } | undefined {
-  const loginUrl = process.env.SALESFORCE_LOGIN_URL || useRuntimeConfig().salesforceLoginUrl
-  const clientId = process.env.SALESFORCE_CLIENT_ID || useRuntimeConfig().salesforceClientId
-  const clientSecret = process.env.SALESFORCE_CLIENT_SECRET || useRuntimeConfig().salesforceClientSecret
+  const loginUrl = process.env.SALESFORCE_LOGIN_URL || useRuntimeConfig().salesforceLoginUrl as string | undefined
+  const clientId = process.env.SALESFORCE_CLIENT_ID || useRuntimeConfig().salesforceClientId as string | undefined
+  const clientSecret = process.env.SALESFORCE_CLIENT_SECRET || useRuntimeConfig().salesforceClientSecret as string | undefined
   if (!loginUrl || !clientId || !clientSecret) return undefined
   return { loginUrl, clientId, clientSecret }
 }

@@ -1,4 +1,3 @@
-import { defineEventHandler } from 'h3'
 import { getIntegrationStatus, getAvailableTools } from '../lib/integrations'
 
 export default defineEventHandler(() => {

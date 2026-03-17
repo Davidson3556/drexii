@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ComponentPublicInstance } from 'vue'
+
 const router = useRouter()
 
 const categories = ['Research', 'Support Ops', 'Writing', 'Actions']
@@ -66,6 +68,10 @@ const heroParallax = computed(() => {
 function setIntroRef(el: HTMLElement | null, index: number) {
   if (el) introRefs.value[index] = el
 }
+
+const introRef0 = (el: Element | ComponentPublicInstance | null) => setIntroRef(el as HTMLElement | null, 0)
+const introRef1 = (el: Element | ComponentPublicInstance | null) => setIntroRef(el as HTMLElement | null, 1)
+const introRef2 = (el: Element | ComponentPublicInstance | null) => setIntroRef(el as HTMLElement | null, 2)
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
@@ -326,7 +332,7 @@ async function handleSuggestion(text: string) {
 
         <!-- Intro Paragraphs — staggered text reveal -->
         <p
-          :ref="(el) => setIntroRef(el as HTMLElement, 0)"
+          :ref="introRef0"
           class="intro-text text-reveal mb-8 mx-auto text-[24px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
           style="color: rgba(255,255,255,0.15);"
         >
@@ -336,7 +342,7 @@ async function handleSuggestion(text: string) {
         </p>
 
         <p
-          :ref="(el) => setIntroRef(el as HTMLElement, 1)"
+          :ref="introRef1"
           class="intro-text text-reveal stagger-2 mb-8 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
           style="color: rgba(255,255,255,0.15);"
         >
@@ -346,7 +352,7 @@ async function handleSuggestion(text: string) {
         </p>
 
         <p
-          :ref="(el) => setIntroRef(el as HTMLElement, 2)"
+          :ref="introRef2"
           class="intro-text text-reveal stagger-3 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
           style="color: rgba(255,255,255,0.15);"
         >

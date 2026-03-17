@@ -1,4 +1,3 @@
-import { defineEventHandler, createError } from 'h3'
 import { cancelAction } from '../../../lib/actions'
 
 export default defineEventHandler(async (event) => {

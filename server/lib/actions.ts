@@ -17,6 +17,7 @@ export async function createPendingAction(
     params,
     status: 'pending'
   }).returning({ id: actions.id })
+  if (!action) throw new Error('Failed to create action')
   return action.id
 }
 
