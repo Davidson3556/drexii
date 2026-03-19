@@ -27,6 +27,8 @@ export interface Message {
 
 export type AIProvider = 'anthropic' | 'gemini'
 
+export type TaskComplexity = 'lite' | 'heavy'
+
 export type RouterState = 'HEALTHY' | 'DEGRADED' | 'FALLBACK' | 'RECOVERING'
 
 export interface ProviderStatus {

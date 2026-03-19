@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { currentThread, messages, isStreaming, streamingContent, error, pendingActions, lastMessageContent, createThread, loadThread, send, confirmAction, cancelAction } = useThread()
+const { currentThread, messages, isStreaming, streamingContent, agentSteps, error, pendingActions, lastMessageContent, createThread, loadThread, send, confirmAction, cancelAction } = useThread()
 const { isFallback, startPolling, stopPolling } = useModelStatus()
 const { renderMarkdown } = useMarkdown()
 const route = useRoute()
@@ -90,6 +90,23 @@ watch(error, (val) => {
 async function handleRetry() {
   if (!lastMessageContent.value) return
   await send(lastMessageContent.value)
+}
+
+const TOOL_LABELS: Record<string, string> = {
+  notion_search: 'Searching Notion',
+  notion_create_page: 'Creating Notion page',
+  notion_update_page: 'Updating Notion page',
+  slack_send_message: 'Sending Slack message',
+  slack_list_channels: 'Listing Slack channels',
+  salesforce_query: 'Querying Salesforce',
+  salesforce_update: 'Updating Salesforce',
+  zendesk_search: 'Searching Zendesk',
+  zendesk_create_ticket: 'Creating Zendesk ticket',
+  zendesk_update_ticket: 'Updating Zendesk ticket'
+}
+
+function toolLabel(name: string): string {
+  return TOOL_LABELS[name] ?? name.replace(/_/g, ' ')
 }
 </script>
 
@@ -271,24 +288,55 @@ async function handleRetry() {
 
           <!-- Streaming Message -->
           <div
-            v-if="isStreaming && streamingContent"
+            v-if="isStreaming"
             class="flex justify-start"
           >
-            <div class="message-bubble-assistant streaming-cursor">
+            <div class="message-bubble-assistant" :class="{ 'streaming-cursor': streamingContent }">
+              <!-- Agent activity steps -->
               <div
+                v-if="agentSteps.length > 0"
+                class="flex flex-wrap gap-1.5 mb-3"
+              >
+                <span
+                  v-for="(step, i) in agentSteps"
+                  :key="i"
+                  class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium border transition-all"
+                  :class="step.status === 'executing'
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                    : step.status === 'done'
+                      ? 'bg-white/5 border-white/10 text-white/30'
+                      : 'bg-red-500/10 border-red-500/20 text-red-400'"
+                >
+                  <span
+                    v-if="step.status === 'executing'"
+                    class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0"
+                  />
+                  <UIcon
+                    v-else-if="step.status === 'done'"
+                    name="i-lucide-check"
+                    class="w-3 h-3 shrink-0"
+                  />
+                  <UIcon
+                    v-else
+                    name="i-lucide-x"
+                    class="w-3 h-3 shrink-0"
+                  />
+                  {{ toolLabel(step.tool) }}
+                </span>
+              </div>
+
+              <!-- Streamed text -->
+              <div
+                v-if="streamingContent"
                 class="text-sm leading-relaxed prose-chat"
                 v-html="renderMarkdown(streamingContent)"
               />
-            </div>
-          </div>
 
-          <!-- Typing Indicator -->
-          <div
-            v-if="isStreaming && !streamingContent"
-            class="flex justify-start"
-          >
-            <div class="message-bubble-assistant">
-              <div class="flex items-center gap-1.5 py-1">
+              <!-- Typing dots (no content yet) -->
+              <div
+                v-else
+                class="flex items-center gap-1.5 py-1"
+              >
                 <span class="typing-dot" />
                 <span class="typing-dot" />
                 <span class="typing-dot" />

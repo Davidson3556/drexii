@@ -5,11 +5,10 @@ import { getAvailableTools, getToolDescriptionsText, executeTool, isWriteTool } 
 import { createPendingAction } from '../../../lib/actions'
 import { sanitizeToolOutput } from '../../../lib/sanitize'
 
-const TOOL_CALL_REGEX = /\[TOOL_CALL:\s*(\w+)\(([\s\S]*?)\)\]/g
-
 function parseToolCalls(text: string): Array<{ name: string, args: Record<string, unknown> }> {
+  const regex = /\[TOOL_CALL:\s*(\w+)\(([\s\S]*?)\)\]/g
   const calls: Array<{ name: string, args: Record<string, unknown> }> = []
-  let match = TOOL_CALL_REGEX.exec(text)
+  let match = regex.exec(text)
   while (match) {
     try {
       const args = JSON.parse(match[2]!)
@@ -28,7 +27,7 @@ function parseToolCalls(text: string): Array<{ name: string, args: Record<string
         console.warn(`[ToolCall] Failed to parse args for ${match[1]}`)
       }
     }
-    match = TOOL_CALL_REGEX.exec(text)
+    match = regex.exec(text)
   }
   return calls
 }
@@ -77,7 +76,7 @@ export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'X-Accel-Buffering', 'no')
 
   const encoder = new TextEncoder()
-  const activeProvider = modelRouter.getActiveProvider()
+  const activeProvider = modelRouter.getProviderForMessages(messagePayloads)
   const availableTools = getAvailableTools()
   const toolDescriptions = getToolDescriptionsText()
 
@@ -87,124 +86,138 @@ export default defineEventHandler(async (event) => {
 
   const stream = new ReadableStream({
     async start(controller) {
+      const MAX_AGENT_ITERATIONS = 5
       let fullContent = ''
+      let assistantMessageId: string | null = null
+      const allToolCalls: Array<{ name: string, args: Record<string, unknown> }> = []
+
+      const send = (eventName: string, data: unknown) =>
+        controller.enqueue(encoder.encode(`event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`))
 
       try {
-        controller.enqueue(encoder.encode(`event: model_info\ndata: ${JSON.stringify({ provider: activeProvider })}\n\n`))
-
+        send('model_info', { provider: activeProvider })
         if (availableTools.length > 0) {
-          controller.enqueue(encoder.encode(`event: model_info\ndata: ${JSON.stringify({ tools: availableTools.map(t => t.name) })}\n\n`))
+          send('model_info', { tools: availableTools.map(t => t.name) })
         }
 
-        const chatStream = modelRouter.streamChat(messagePayloads, {
+        // === FIRST LLM CALL (heavy model, initial reasoning) ===
+        let currentIterContent = ''
+        const firstStream = modelRouter.streamChat(messagePayloads, {
           maxTokens: 2048,
           temperature: 0.3,
           ...(systemPrompt && { systemPrompt })
         })
 
-        for await (const chunk of chatStream) {
+        for await (const chunk of firstStream) {
+          currentIterContent += chunk
           fullContent += chunk
-          controller.enqueue(encoder.encode(`event: text\ndata: ${JSON.stringify({ text: chunk })}\n\n`))
+          send('text', { text: chunk })
         }
 
-        const toolCalls = parseToolCalls(fullContent)
+        let currentToolCalls = parseToolCalls(currentIterContent)
+        allToolCalls.push(...currentToolCalls)
 
-        // Save the assistant message early so we have a messageId for pending actions
-        let assistantMessageId: string | null = null
-        if (toolCalls.length > 0) {
+        // Save early so write tools can reference a messageId
+        if (currentToolCalls.length > 0) {
           const [savedMsg] = await db.insert(schema.messages).values({
             threadId: id,
             role: 'assistant',
-            content: fullContent,
+            content: currentIterContent,
             modelUsed: modelRouter.getActiveProvider(),
-            toolCalls: JSON.stringify(toolCalls)
+            toolCalls: JSON.stringify(currentToolCalls)
           }).returning({ id: schema.messages.id })
           assistantMessageId = savedMsg?.id ?? null
         }
 
-        if (toolCalls.length > 0) {
-          const toolResults = []
+        // === AGENT LOOP ===
+        let agentMessages = [...messagePayloads]
+        let iteration = 0
 
-          for (const call of toolCalls) {
-            // Write tools require user confirmation before execution
+        while (currentToolCalls.length > 0 && iteration < MAX_AGENT_ITERATIONS) {
+          const toolResults: Array<{ call: { name: string, args: Record<string, unknown> }, result: { content: string, isError?: boolean } }> = []
+
+          for (const call of currentToolCalls) {
             if (isWriteTool(call.name)) {
               const actionId = await createPendingAction(assistantMessageId!, call.name, call.args)
-              controller.enqueue(encoder.encode(`event: action\ndata: ${JSON.stringify({
-                tool: call.name,
-                status: 'pending_confirmation',
-                params: call.args,
-                actionId
-              })}\n\n`))
+              send('action', { tool: call.name, status: 'pending_confirmation', params: call.args, actionId })
               toolResults.push({
                 call,
-                result: {
-                  toolCallId: call.name,
-                  content: `Action "${call.name}" requires user confirmation before execution. Action ID: ${actionId}`
-                }
+                result: { content: `Action "${call.name}" requires user confirmation. Action ID: ${actionId}` }
               })
               continue
             }
 
-            controller.enqueue(encoder.encode(`event: action\ndata: ${JSON.stringify({ tool: call.name, status: 'executing', params: call.args })}\n\n`))
-
+            send('action', { tool: call.name, status: 'executing', params: call.args })
             const result = await executeTool(call.name, call.args)
             toolResults.push({ call, result })
-
-            const eventType = result.isError ? 'error' : 'source'
-            controller.enqueue(encoder.encode(`event: ${eventType}\ndata: ${JSON.stringify({ tool: call.name, result: result.content })}\n\n`))
+            send(result.isError ? 'error' : 'source', { tool: call.name, result: result.content })
           }
 
-          const followUpMessages = [
-            ...messagePayloads,
-            { role: 'assistant' as const, content: fullContent },
+          // Build conversation history with tool results
+          const isLastIteration = iteration >= MAX_AGENT_ITERATIONS - 1
+          const toolResultsContent = toolResults.map(tr =>
+            `<tool_context source="${tr.call.name}">${sanitizeToolOutput(tr.result.content)}</tool_context>`
+          ).join('\n\n')
+
+          agentMessages = [
+            ...agentMessages,
+            { role: 'assistant' as const, content: currentIterContent },
             {
               role: 'user' as const,
-              content: `Tool results:\n${toolResults.map(tr =>
-                `<tool_context source="${tr.call.name}">${sanitizeToolOutput(tr.result.content)}</tool_context>`
-              ).join('\n\n')}\n\nPlease summarize these results for the user in a clear, helpful way. Do not use any [TOOL_CALL:...] syntax in your response.`
+              content: isLastIteration
+                ? `Tool results:\n${toolResultsContent}\n\nPlease summarize these results for the user in a clear, helpful way. Do not use any [TOOL_CALL:...] syntax in your response.`
+                : `Tool results:\n${toolResultsContent}\n\nContinue with the task. If you need more information or actions, use additional tool calls. Otherwise, summarize the results for the user.`
             }
           ]
 
-          let followUpContent = ''
-          const followUpStream = modelRouter.streamChat(followUpMessages, {
-            maxTokens: 1024,
-            temperature: 0.3
+          iteration++
+
+          // Stream separator between iterations
+          const separator = '\n\n---\n\n'
+          send('text', { text: separator })
+          fullContent += separator
+
+          // Next LLM call — lite model for final summary, heavy for intermediate steps
+          currentIterContent = ''
+          const nextStream = modelRouter.streamChat(agentMessages, {
+            maxTokens: isLastIteration ? 1024 : 2048,
+            temperature: 0.3,
+            forceComplexity: isLastIteration ? 'lite' : undefined,
+            ...(!isLastIteration && systemPrompt ? { systemPrompt } : {})
           })
 
-          controller.enqueue(encoder.encode(`event: text\ndata: ${JSON.stringify({ text: '\n\n---\n\n' })}\n\n`))
-
-          for await (const chunk of followUpStream) {
-            followUpContent += chunk
-            controller.enqueue(encoder.encode(`event: text\ndata: ${JSON.stringify({ text: chunk })}\n\n`))
+          for await (const chunk of nextStream) {
+            currentIterContent += chunk
+            fullContent += chunk
+            send('text', { text: chunk })
           }
 
-          fullContent += '\n\n---\n\n' + followUpContent
+          currentToolCalls = isLastIteration ? [] : parseToolCalls(currentIterContent)
+          if (currentToolCalls.length > 0) allToolCalls.push(...currentToolCalls)
         }
 
         const usedProvider = modelRouter.getActiveProvider()
 
-        // Only save if we didn't already save early for pending actions
         if (!assistantMessageId) {
           await db.insert(schema.messages).values({
             threadId: id,
             role: 'assistant',
             content: fullContent,
             modelUsed: usedProvider,
-            toolCalls: toolCalls.length > 0 ? JSON.stringify(toolCalls) : null
+            toolCalls: allToolCalls.length > 0 ? JSON.stringify(allToolCalls) : null
           })
-        } else if (fullContent) {
-          // Update the early-saved message with the full content (including follow-up)
+        } else {
           await db.update(schema.messages)
             .set({ content: fullContent })
             .where(eq(schema.messages.id, assistantMessageId))
         }
 
-        controller.enqueue(encoder.encode(`event: done\ndata: ${JSON.stringify({ modelUsed: usedProvider })}\n\n`))
+        send('done', { modelUsed: usedProvider })
         controller.close()
       } catch (error: unknown) {
         const errorMessage = (error as Error).message || 'Stream error'
         console.error('[SSE] Stream error:', errorMessage)
-        controller.enqueue(encoder.encode(`event: error\ndata: ${JSON.stringify({ message: errorMessage })}\n\n`))
+        send('error', { message: errorMessage })
 
         if (fullContent) {
           await db.insert(schema.messages).values({

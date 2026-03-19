@@ -1,60 +1,152 @@
-# Nuxt Starter Template
+# Drexii
 
-[![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+An AI agent that turns conversation into execution. Connect your SaaS tools and let Drexii act on natural language — searching Notion, sending Slack messages, updating Salesforce records, managing Zendesk tickets, and more.
 
-Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
+## What it does
 
-- [Live demo](https://starter-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
+Drexii is a chat interface powered by Claude and Gemini. Instead of just answering questions, it can take real actions across your connected tools. When a task requires multiple steps across multiple apps, the agent loop chains them together automatically.
 
-<a href="https://starter-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-    <img alt="Nuxt Starter Template" src="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png" width="830" height="466">
-  </picture>
-</a>
+**Example:**
+> "Find our top open Zendesk ticket, check if there's a related Notion doc, and post a summary to #support on Slack."
 
-> The starter template for Vue is on https://github.com/nuxt-ui-templates/starter-vue.
+Drexii handles each step in sequence — no manual hand-off between tools.
 
-## Quick Start
+## Features
 
-```bash [Terminal]
-npm create nuxt@latest -- -t github:nuxt-ui-templates/starter
-```
+- **Agentic loop** — multi-step tool execution until the task is complete (up to 5 iterations)
+- **Smart model routing** — Claude for complex reasoning, Gemini for lite tasks and summaries
+- **Action confirmation gate** — write operations (send message, create record) require explicit user approval before executing
+- **Circuit breaker** — automatic fallback to Gemini if Claude is unavailable
+- **Prompt injection protection** — tool outputs are sandboxed; the model cannot be hijacked by external content
+- **Real-time streaming** — responses and agent activity stream via SSE
+- **Thread history** — full conversation persistence with message and tool call records
+- **Audit log** — every tool execution is recorded
 
-## Deploy your own
+## Integrations
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=starter&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fstarter&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fstarter-dark.png&demo-url=https%3A%2F%2Fstarter-template.nuxt.dev%2F&demo-title=Nuxt%20Starter%20Template&demo-description=A%20minimal%20template%20to%20get%20started%20with%20Nuxt%20UI.)
+| App | Capabilities |
+|-----|-------------|
+| **Notion** | Search pages, read content, create pages |
+| **Slack** | Send messages, search conversations, list channels |
+| **Zendesk** | Search tickets, create tickets, add comments |
+| **Salesforce** | Search records, create records, update records |
+| **Discord** | Send messages, fetch channels |
 
-## Setup
+Integrations are opt-in — only connect what you use. Unconfigured integrations are simply unavailable to the agent.
 
-Make sure to install the dependencies:
+## Tech stack
+
+- **Framework:** Nuxt 4 (Vue 3, Nitro server)
+- **Database:** InsForge (PostgreSQL) via Drizzle ORM
+- **AI:** Anthropic Claude Haiku 4.5 (primary) + Google Gemini (fallback)
+- **UI:** Nuxt UI + Tailwind CSS v4
+- **Deployment:** Vercel
+
+## Getting started
+
+### Prerequisites
+
+- Node.js 22+
+- pnpm
+- [InsForge](https://insforge.com) account (provides the PostgreSQL database)
+
+### Setup
 
 ```bash
+# Install dependencies
 pnpm install
-```
 
-## Development Server
+# Copy and fill in environment variables
+cp .env.example .env
 
-Start the development server on `http://localhost:3000`:
+# Push the database schema
+pnpm db:push
 
-```bash
+# Start the dev server
 pnpm dev
 ```
 
-## Production
+Open http://localhost:3000.
 
-Build the application for production:
+### Environment variables
 
-```bash
-pnpm build
+```env
+# AI models (at least one required)
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_AI_API_KEY=AIzaSy...
+
+# Database (from InsForge project settings)
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+
+# Integrations (optional — leave blank to disable)
+NOTION_API_KEY=
+SLACK_BOT_TOKEN=
+DISCORD_BOT_TOKEN=
+ZENDESK_SUBDOMAIN=
+ZENDESK_EMAIL=
+ZENDESK_API_TOKEN=
+SALESFORCE_LOGIN_URL=
+SALESFORCE_CLIENT_ID=
+SALESFORCE_CLIENT_SECRET=
 ```
 
-Locally preview production build:
+All keys are server-side only and never exposed to the browser.
+
+## Database
+
+The database is hosted on [InsForge](https://insforge.com). Copy your `DATABASE_URL` from your InsForge project settings and add it to `.env`.
 
 ```bash
-pnpm preview
+pnpm db:generate   # Generate migration files from schema changes
+pnpm db:migrate    # Run pending migrations
+pnpm db:push       # Push schema directly (dev only)
+pnpm db:studio     # Open Drizzle Studio GUI
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Development
+
+```bash
+pnpm dev           # Start dev server with hot reload
+pnpm lint          # ESLint
+pnpm typecheck     # Vue TSC + Nuxt type checking
+pnpm build         # Production build
+pnpm preview       # Preview production build locally
+```
+
+## Project structure
+
+```
+app/
+  pages/           # Chat UI, workflows, login
+  composables/     # useThread, useMarkdown, useModelStatus
+  components/      # AppNav, AppLogo
+
+server/
+  api/             # Nitro route handlers
+    threads/       # Chat thread CRUD + message streaming
+    actions/       # Confirm/cancel pending write operations
+    workflows/     # Workflow management
+  lib/
+    integrations/  # Notion, Slack, Zendesk, Salesforce, Discord adapters
+    models/        # Model router, Anthropic + Gemini clients
+    actions.ts     # Pending action lifecycle
+    sanitize.ts    # Tool output sanitization
+    audit.ts       # Execution audit logging
+    memory.ts      # Agent memory persistence
+
+shared/
+  types/           # TypeScript interfaces shared across app and server
+```
+
+## How the agent loop works
+
+1. User sends a message — full thread history is passed to Claude
+2. Claude responds; if it needs a tool, it emits `[TOOL_CALL: tool_name({...})]`
+3. Write tools (send, create, update) are held for user confirmation; read tools execute immediately
+4. Results are fed back to the model, which decides whether to call more tools or summarize
+5. Steps repeat up to 5 times; the final summary is generated by Gemini (lite model) to save tokens
+6. The complete response — including all tool results — is saved to the thread
+
+## License
+
+MIT

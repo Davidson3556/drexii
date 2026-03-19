@@ -6,6 +6,11 @@ export interface PendingAction {
   params: Record<string, unknown>
 }
 
+export interface AgentStep {
+  tool: string
+  status: 'executing' | 'done' | 'error'
+}
+
 interface ThreadState {
   currentThread: Thread | null
   threads: Thread[]
@@ -14,6 +19,7 @@ interface ThreadState {
   streamingContent: string
   error: string | null
   pendingActions: PendingAction[]
+  agentSteps: AgentStep[]
   lastMessageContent: string | null
 }
 
@@ -26,6 +32,7 @@ export function useThread() {
     streamingContent: '',
     error: null,
     pendingActions: [],
+    agentSteps: [],
     lastMessageContent: null
   }))
 
@@ -36,6 +43,7 @@ export function useThread() {
   const error = computed(() => state.value.error)
   const threads = computed(() => state.value.threads)
   const pendingActions = computed(() => state.value.pendingActions)
+  const agentSteps = computed(() => state.value.agentSteps)
   const lastMessageContent = computed(() => state.value.lastMessageContent)
 
   async function createThread(title?: string): Promise<Thread> {
@@ -81,6 +89,7 @@ export function useThread() {
     state.value.messages.push(userMessage)
     state.value.isStreaming = true
     state.value.streamingContent = ''
+    state.value.agentSteps = []
     state.value.error = null
 
     try {
@@ -119,9 +128,12 @@ export function useThread() {
               const data = JSON.parse(dataStr)
 
               switch (eventType) {
-                case 'text':
-                  state.value.streamingContent += data.text
+                case 'text': {
+                  // Strip raw [TOOL_CALL:...] syntax from displayed content
+                  const clean = data.text.replace(/\[TOOL_CALL:[^\]]*\]/g, '')
+                  state.value.streamingContent += clean
                   break
+                }
                 case 'model_info':
                   modelUsed = data.provider
                   break
@@ -132,8 +144,15 @@ export function useThread() {
                       tool: data.tool,
                       params: data.params
                     })
+                  } else if (data.status === 'executing') {
+                    state.value.agentSteps.push({ tool: data.tool, status: 'executing' })
                   }
                   break
+                case 'source': {
+                  const step = state.value.agentSteps.slice().reverse().find(s => s.tool === data.tool && s.status === 'executing')
+                  if (step) step.status = 'done'
+                  break
+                }
                 case 'done':
                   modelUsed = data.modelUsed
                   break
@@ -166,6 +185,7 @@ export function useThread() {
     } finally {
       state.value.isStreaming = false
       state.value.streamingContent = ''
+      state.value.agentSteps = []
     }
   }
 
@@ -235,6 +255,7 @@ export function useThread() {
     messages,
     isStreaming,
     streamingContent,
+    agentSteps,
     error,
     pendingActions,
     lastMessageContent,
