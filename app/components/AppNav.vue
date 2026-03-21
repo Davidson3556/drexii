@@ -2,9 +2,10 @@
 const route = useRoute()
 const router = useRouter()
 const { isFallback } = useModelStatus()
+const { signOut, user } = useAuth()
 
 async function logout() {
-  await $fetch('/api/auth/logout', { method: 'POST' })
+  await signOut()
   await router.push('/login')
 }
 
@@ -182,16 +183,21 @@ const isOnChat = computed(() => route.path === '/chat')
           <span class="status-dot status-dot--green" />
           <span>AI Online</span>
         </div>
-        <button class="icon-btn" aria-label="Settings">
-          <UIcon name="i-lucide-settings" class="w-4 h-4" />
-        </button>
         <button
-          class="icon-btn"
-          aria-label="Sign out"
-          title="Sign out"
+          class="user-avatar-btn"
+          :title="`Signed in as ${user?.email ?? ''} · Click to sign out`"
           @click="logout"
         >
-          <UIcon name="i-lucide-log-out" class="w-4 h-4" />
+          <img
+            v-if="user?.avatar_url"
+            :src="user.avatar_url"
+            :alt="user?.name ?? 'User'"
+            class="w-full h-full object-cover rounded-full"
+          >
+          <span
+            v-else
+            class="text-xs font-semibold text-white/70"
+          >{{ (user?.name ?? user?.email ?? '?').charAt(0).toUpperCase() }}</span>
         </button>
       </template>
     </div>
@@ -429,6 +435,25 @@ const isOnChat = computed(() => route.path === '/chat')
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.45; }
+}
+
+.user-avatar-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+  flex-shrink: 0;
+}
+.user-avatar-btn:hover {
+  border-color: rgba(232, 194, 116, 0.5);
+  transform: scale(1.05);
 }
 
 .icon-btn {

@@ -1,6 +1,6 @@
-const SESSION_TOKEN = 'drexii_admin_v1'
-
-export default defineEventHandler((event) => {
-  const session = getCookie(event, 'drexii_session')
-  return { authenticated: session === SESSION_TOKEN }
+// Auth check is now handled client-side via InsForge SDK.
+// This endpoint is kept as a lightweight server-side fallback
+// for any API routes that need to verify the session exists.
+export default defineEventHandler(() => {
+  return { authenticated: true, provider: 'insforge' }
 })

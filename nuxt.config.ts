@@ -16,8 +16,6 @@ export default defineNuxtConfig({
     anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
     googleAiApiKey: process.env.GOOGLE_AI_API_KEY || '',
     databaseUrl: process.env.DATABASE_URL || '',
-    supabaseUrl: process.env.SUPABASE_URL || '',
-    supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
     notionApiKey: process.env.NOTION_API_KEY || '',
     slackBotToken: process.env.SLACK_BOT_TOKEN || '',
     discordBotToken: process.env.DISCORD_BOT_TOKEN || '',
@@ -29,7 +27,9 @@ export default defineNuxtConfig({
     salesforceClientSecret: process.env.SALESFORCE_CLIENT_SECRET || '',
     public: {
       appName: 'Drexii',
-      appDescription: 'AI agent that turns conversation into execution'
+      appDescription: 'AI agent that turns conversation into execution',
+      insforgeUrl: process.env.NUXT_PUBLIC_INSFORGE_URL || 'https://ce3wqa6u.us-east.insforge.app',
+      insforgeAnonKey: process.env.NUXT_PUBLIC_INSFORGE_ANON_KEY || ''
     }
   },
 
@@ -59,7 +59,9 @@ export default defineNuxtConfig({
         'connect-src': [
           '\'self\'',
           'https://api.anthropic.com',
-          'https://generativelanguage.googleapis.com'
+          'https://generativelanguage.googleapis.com',
+          'https://ce3wqa6u.us-east.insforge.app',
+          'wss://ce3wqa6u.us-east.insforge.app'
         ],
         'object-src': ['\'none\''],
         'frame-ancestors': ['\'none\'']
