@@ -656,6 +656,7 @@ function toolLabel(name: string): string {
 /* Full-height that accounts for mobile browser chrome */
 .chat-root {
   height: 100dvh;
+  padding-top: 64px; /* offset for fixed AppNav */
 }
 
 /* Textarea resets */

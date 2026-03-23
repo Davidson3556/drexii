@@ -1,4 +1,4 @@
-const PROTECTED_ROUTES = ['/chat', '/workflows']
+const PROTECTED_ROUTES = ['/chat', '/workflows', '/integrations']
 
 export default defineNuxtRouteMiddleware(async (to) => {
   // InsForge SDK is client-only — skip auth check on server side

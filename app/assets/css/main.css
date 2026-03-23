@@ -107,6 +107,200 @@ body {
   box-shadow: 0 0 16px 3px rgba(232, 194, 116, 0.4);
 }
 
+/* ─── Feature Cards (Bento) ──────────────────────────────── */
+.feature-card {
+  position: relative;
+  padding: 2rem;
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(22,22,26,0.9) 0%, rgba(12,12,14,0.95) 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.03);
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* top accent line */
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--fc-accent-line, rgba(255,255,255,0.08));
+  transition: opacity 0.35s ease;
+}
+
+/* subtle corner glow on hover */
+.feature-card::after {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 120px;
+  background: var(--fc-glow, transparent);
+  filter: blur(40px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--fc-border-hover, rgba(255,255,255,0.12));
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45), 0 0 0 1px var(--fc-border-hover, rgba(255,255,255,0.04)), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.feature-card:hover::after { opacity: 1; }
+
+/* number badge */
+.fc-num {
+  position: absolute;
+  top: 1.25rem; right: 1.5rem;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.12);
+  font-variant-numeric: tabular-nums;
+}
+
+/* icon container */
+.fc-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.feature-card:hover .fc-icon { transform: scale(1.1); }
+
+.fc-icon::after {
+  content: '';
+  position: absolute; inset: -1px;
+  border-radius: 15px;
+  background: var(--fc-icon-glow, transparent);
+  filter: blur(10px);
+  opacity: 0.5;
+  z-index: -1;
+}
+
+.fc-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.625rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.fc-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.65;
+}
+
+/* small tech badge at bottom */
+.fc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 1.5rem;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.03em;
+}
+.fc-badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+.fc-badge-dot--amber { background: #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,0.7); }
+
+/* memory chips */
+.memory-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.memory-chip:hover { border-color: rgba(34,211,238,0.2); color: rgba(255,255,255,0.75); }
+.memory-chip--faded { opacity: 0.4; }
+
+/* ── Color variants ────────────────────────── */
+.feature-card--amber {
+  --fc-accent-line: linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.5) 40%, rgba(251,191,36,0.2) 70%, transparent 100%);
+  --fc-glow: rgba(251,191,36,0.25);
+  --fc-border-hover: rgba(251,191,36,0.2);
+}
+.fc-icon--amber {
+  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,191,36,0.04));
+  border: 1px solid rgba(251,191,36,0.2);
+  --fc-icon-glow: rgba(251,191,36,0.4);
+}
+
+.feature-card--blue {
+  --fc-accent-line: linear-gradient(90deg, transparent 0%, rgba(96,165,250,0.5) 40%, rgba(96,165,250,0.2) 70%, transparent 100%);
+  --fc-glow: rgba(96,165,250,0.2);
+  --fc-border-hover: rgba(96,165,250,0.2);
+}
+.fc-icon--blue {
+  background: linear-gradient(135deg, rgba(96,165,250,0.15), rgba(96,165,250,0.04));
+  border: 1px solid rgba(96,165,250,0.2);
+  --fc-icon-glow: rgba(96,165,250,0.4);
+}
+
+.feature-card--emerald {
+  --fc-accent-line: linear-gradient(90deg, transparent 0%, rgba(52,211,153,0.5) 40%, rgba(52,211,153,0.2) 70%, transparent 100%);
+  --fc-glow: rgba(52,211,153,0.2);
+  --fc-border-hover: rgba(52,211,153,0.2);
+}
+.fc-icon--emerald {
+  background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(52,211,153,0.04));
+  border: 1px solid rgba(52,211,153,0.2);
+  --fc-icon-glow: rgba(52,211,153,0.4);
+}
+
+.feature-card--purple {
+  --fc-accent-line: linear-gradient(90deg, transparent 0%, rgba(167,139,250,0.5) 40%, rgba(167,139,250,0.2) 70%, transparent 100%);
+  --fc-glow: rgba(167,139,250,0.2);
+  --fc-border-hover: rgba(167,139,250,0.2);
+}
+.fc-icon--purple {
+  background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(167,139,250,0.04));
+  border: 1px solid rgba(167,139,250,0.2);
+  --fc-icon-glow: rgba(167,139,250,0.4);
+}
+
+.feature-card--rose {
+  --fc-accent-line: linear-gradient(90deg, transparent 0%, rgba(251,113,133,0.5) 40%, rgba(251,113,133,0.2) 70%, transparent 100%);
+  --fc-glow: rgba(251,113,133,0.2);
+  --fc-border-hover: rgba(251,113,133,0.2);
+}
+.fc-icon--rose {
+  background: linear-gradient(135deg, rgba(251,113,133,0.15), rgba(251,113,133,0.04));
+  border: 1px solid rgba(251,113,133,0.2);
+  --fc-icon-glow: rgba(251,113,133,0.4);
+}
+
+.feature-card--cyan {
+  --fc-accent-line: linear-gradient(90deg, transparent 0%, rgba(34,211,238,0.5) 40%, rgba(34,211,238,0.2) 70%, transparent 100%);
+  --fc-glow: rgba(34,211,238,0.2);
+  --fc-border-hover: rgba(34,211,238,0.2);
+}
+.fc-icon--cyan {
+  background: linear-gradient(135deg, rgba(34,211,238,0.15), rgba(34,211,238,0.04));
+  border: 1px solid rgba(34,211,238,0.2);
+  --fc-icon-glow: rgba(34,211,238,0.4);
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

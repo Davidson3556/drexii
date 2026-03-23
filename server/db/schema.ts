@@ -72,6 +72,16 @@ export const memories = pgTable('memories', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
 })
 
+export const userIntegrations = pgTable('user_integrations', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: varchar('user_id', { length: 255 }).notNull(),
+  integration: varchar('integration', { length: 50 }).notNull(),
+  credentials: jsonb('credentials').notNull(),
+  isActive: integer('is_active').notNull().default(1),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+})
+
 export const workflows = pgTable('workflows', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),

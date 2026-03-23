@@ -1,7 +1,8 @@
 import { eq } from 'drizzle-orm'
 import { useDB, schema } from '../../../db'
 import * as modelRouter from '../../../lib/models/model-router'
-import { getAvailableTools, getToolDescriptionsText, executeTool, isWriteTool } from '../../../lib/integrations'
+import { getAvailableTools, getToolDescriptionsText, executeTool, isWriteTool, getConfiguredAdapters, type IntegrationAdapter } from '../../../lib/integrations'
+import { getUserAdapters } from '../../../lib/user-integrations'
 import { createPendingAction } from '../../../lib/actions'
 import { sanitizeToolOutput } from '../../../lib/sanitize'
 
@@ -75,14 +76,23 @@ export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'Connection', 'keep-alive')
   setResponseHeader(event, 'X-Accel-Buffering', 'no')
 
+  // Resolve per-user integrations (fall back to env-based defaults)
+  const userId = getHeader(event, 'x-user-id')
+  let resolvedAdapters: IntegrationAdapter[] = []
+  if (userId) {
+    resolvedAdapters = await getUserAdapters(userId)
+  }
+  // If user has no integrations, fall back to global env-based adapters
+  if (resolvedAdapters.length === 0) {
+    resolvedAdapters = getConfiguredAdapters()
+  }
+
   const encoder = new TextEncoder()
   const activeProvider = modelRouter.getProviderForMessages(messagePayloads)
-  const availableTools = getAvailableTools()
-  const toolDescriptions = getToolDescriptionsText()
+  const availableTools = getAvailableTools(resolvedAdapters)
+  const toolDescriptions = getToolDescriptionsText(resolvedAdapters)
 
-  const systemPrompt = toolDescriptions
-    ? buildToolAwarePrompt(toolDescriptions)
-    : undefined
+  const systemPrompt = buildToolAwarePrompt(toolDescriptions)
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -105,7 +115,7 @@ export default defineEventHandler(async (event) => {
         const firstStream = modelRouter.streamChat(messagePayloads, {
           maxTokens: 2048,
           temperature: 0.3,
-          ...(systemPrompt && { systemPrompt })
+          systemPrompt
         })
 
         for await (const chunk of firstStream) {
@@ -148,7 +158,7 @@ export default defineEventHandler(async (event) => {
             }
 
             send('action', { tool: call.name, status: 'executing', params: call.args })
-            const result = await executeTool(call.name, call.args)
+            const result = await executeTool(call.name, call.args, resolvedAdapters)
             toolResults.push({ call, result })
             send(result.isError ? 'error' : 'source', { tool: call.name, result: result.content })
           }
@@ -237,9 +247,20 @@ export default defineEventHandler(async (event) => {
 })
 
 function buildToolAwarePrompt(toolDescriptions: string): string {
-  return `You are Drexii, an AI agent that turns conversation into execution.
+  const identity = `You are Drexii, an AI assistant built by Davidson. If anyone asks who built you, who made you, or who created you, always say you were built by Davidson.`
 
-You have access to the following external tools:
+  if (!toolDescriptions) {
+    return `${identity}
+
+Your core behaviors:
+- Give clear, actionable answers
+- Keep responses concise but thorough
+- Use a professional, friendly tone`
+  }
+
+  return `${identity}
+
+You are also an AI agent that turns conversation into execution. You have access to the following external tools:
 ${toolDescriptions}
 
 When the user asks you to do something that requires one of these tools, respond with a tool call using this exact format:

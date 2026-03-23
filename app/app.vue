@@ -39,8 +39,10 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="min-h-screen bg-[var(--color-drexii-bg)]">
-    <AppNav />
-    <NuxtPage />
-  </div>
+  <UApp>
+    <div class="min-h-screen bg-[var(--color-drexii-bg)]">
+      <AppNav />
+      <NuxtPage />
+    </div>
+  </UApp>
 </template>

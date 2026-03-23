@@ -4,6 +4,7 @@ definePageMeta({ layout: false })
 const route = useRoute()
 const router = useRouter()
 const { signIn, signUp, verifyEmail, resendVerification, signInWithOAuth, sendPasswordReset, exchangeResetToken, resetPassword } = useAuth()
+const toast = useToast()
 
 // State
 const mode = ref<'signin' | 'signup'>('signin')
@@ -119,9 +120,9 @@ async function handleResendCode() {
   error.value = ''
   try {
     await resendVerification(verificationEmail.value)
-    error.value = '' // Clear any previous error
+    toast.add({ title: 'Code sent', description: 'A new verification code has been sent to your email.', color: 'success' })
   } catch {
-    error.value = 'Failed to resend code. Please try again.'
+    toast.add({ title: 'Failed to resend code', description: 'Please try again.', color: 'error' })
   }
 }
 

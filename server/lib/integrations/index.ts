@@ -1,9 +1,9 @@
 import type { ToolSchema, ToolResult } from '../../../shared/types'
-import { notion } from './notion'
-import { slack } from './slack'
-import { discord } from './discord'
-import { zendesk } from './zendesk'
-import { salesforce } from './salesforce'
+import { notion, createNotionAdapter } from './notion'
+import { slack, createSlackAdapter } from './slack'
+import { discord, createDiscordAdapter } from './discord'
+import { zendesk, createZendeskAdapter } from './zendesk'
+import { salesforce, createSalesforceAdapter } from './salesforce'
 import { logToolExecution } from '../audit'
 
 export interface IntegrationAdapter {
@@ -14,7 +14,8 @@ export interface IntegrationAdapter {
   healthCheck(): Promise<boolean>
 }
 
-const adapters: IntegrationAdapter[] = [notion, slack, discord, zendesk, salesforce]
+// Default adapters using env vars
+const defaultAdapters: IntegrationAdapter[] = [notion, slack, discord, zendesk, salesforce]
 
 // Tools that perform write/create/send operations — require confirmation before execution
 const WRITE_TOOLS = new Set([
@@ -29,16 +30,61 @@ export function isWriteTool(toolName: string): boolean {
   return WRITE_TOOLS.has(toolName)
 }
 
+// --- Per-user adapter creation from stored credentials ---
+
+export interface UserIntegrationRecord {
+  integration: string
+  credentials: Record<string, string>
+}
+
+export function createAdapterFromCredentials(record: UserIntegrationRecord): IntegrationAdapter | null {
+  const c = record.credentials
+  switch (record.integration) {
+    case 'slack':
+      if (c.bot_token) return createSlackAdapter(c.bot_token)
+      break
+    case 'notion':
+      if (c.api_key) return createNotionAdapter(c.api_key)
+      break
+    case 'discord':
+      if (c.bot_token) return createDiscordAdapter(c.bot_token)
+      break
+    case 'zendesk':
+      if (c.subdomain && c.email && c.api_token) {
+        return createZendeskAdapter({ subdomain: c.subdomain, email: c.email, token: c.api_token })
+      }
+      break
+    case 'salesforce':
+      if (c.login_url && c.client_id && c.client_secret) {
+        return createSalesforceAdapter({ loginUrl: c.login_url, clientId: c.client_id, clientSecret: c.client_secret })
+      }
+      break
+  }
+  return null
+}
+
+export function buildUserAdapters(records: UserIntegrationRecord[]): IntegrationAdapter[] {
+  const adapters: IntegrationAdapter[] = []
+  for (const record of records) {
+    const adapter = createAdapterFromCredentials(record)
+    if (adapter) adapters.push(adapter)
+  }
+  return adapters
+}
+
+// --- Default (env-based) functions ---
+
 export function getConfiguredAdapters(): IntegrationAdapter[] {
-  return adapters.filter(a => a.isConfigured())
+  return defaultAdapters.filter(a => a.isConfigured())
 }
 
-export function getAvailableTools(): ToolSchema[] {
-  return getConfiguredAdapters().flatMap(a => a.tools)
+export function getAvailableTools(adapters?: IntegrationAdapter[]): ToolSchema[] {
+  const list = adapters || getConfiguredAdapters()
+  return list.flatMap(a => a.tools)
 }
 
-export function getToolDescriptionsText(): string {
-  const tools = getAvailableTools()
+export function getToolDescriptionsText(adapters?: IntegrationAdapter[]): string {
+  const tools = getAvailableTools(adapters)
   if (tools.length === 0) return ''
 
   const lines = tools.map((t) => {
@@ -52,8 +98,9 @@ export function getToolDescriptionsText(): string {
   return lines.join('\n')
 }
 
-export async function executeTool(toolName: string, args: Record<string, unknown>): Promise<ToolResult> {
-  for (const adapter of getConfiguredAdapters()) {
+export async function executeTool(toolName: string, args: Record<string, unknown>, adapters?: IntegrationAdapter[]): Promise<ToolResult> {
+  const list = adapters || getConfiguredAdapters()
+  for (const adapter of list) {
     const hasTool = adapter.tools.some(t => t.name === toolName)
     if (hasTool) {
       console.info(`[Integrations] Executing ${toolName} via ${adapter.name}`)
@@ -68,13 +115,13 @@ export async function executeTool(toolName: string, args: Record<string, unknown
 
   return {
     toolCallId: toolName,
-    content: `Tool "${toolName}" is not available. Available tools: ${getAvailableTools().map(t => t.name).join(', ')}`,
+    content: `Tool "${toolName}" is not available. Available tools: ${getAvailableTools(list).map(t => t.name).join(', ')}`,
     isError: true
   }
 }
 
 export function getIntegrationStatus(): Array<{ name: string, connected: boolean, toolCount: number }> {
-  return adapters.map(a => ({
+  return defaultAdapters.map(a => ({
     name: a.name,
     connected: a.isConfigured(),
     toolCount: a.isConfigured() ? a.tools.length : 0

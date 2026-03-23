@@ -121,16 +121,6 @@ async function handleSuggestion(text: string) {
 
       <!-- Hero Content -->
       <div class="relative z-10 flex flex-col items-center pt-24 md:pt-32 pb-24 md:pb-32 px-4 md:px-6 text-center min-h-[90vh] justify-start mt-[8vh]">
-        <!-- Announcement Pill -->
-        <div class="fade-in-up flex items-center justify-center px-4 py-1.5 mb-6 md:mb-8 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[12px] md:text-[13px] text-white/70 hover:bg-white/10 transition-colors cursor-pointer">
-          <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse mr-2" />
-          <span class="hidden sm:inline">Now live: </span>Notion + Slack + Discord connected
-          <UIcon
-            name="i-lucide-arrow-right"
-            class="w-3.5 h-3.5 ml-2 opacity-60"
-          />
-        </div>
-
         <!-- Headline -->
         <h1 class="fade-in-up stagger-1 text-[32px] sm:text-[44px] md:text-[64px] font-medium tracking-tight leading-[1.1] max-w-4xl mb-6">
           <span class="text-white/60">One chat to search, write,</span>
@@ -336,96 +326,95 @@ async function handleSuggestion(text: string) {
           </h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="fade-in-up premium-card p-8 group">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/5 border border-amber-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <UIcon
-                name="i-lucide-brain"
-                class="w-6 h-6 text-amber-400"
-              />
+        <!-- Bento Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+          <!-- Always-On AI — wide (2 cols) -->
+          <div class="fade-in-up feature-card feature-card--amber lg:col-span-2 group">
+            <span class="fc-num">01</span>
+            <div class="fc-icon fc-icon--amber">
+              <UIcon name="i-lucide-brain" class="w-6 h-6 text-amber-400" />
             </div>
-            <h3 class="text-white font-medium text-lg mb-3">
-              Always-On AI
-            </h3>
-            <p class="text-white/50 text-[15px] leading-relaxed">
-              Two AI engines under the hood. If one goes down, the other picks up instantly — you never notice a thing.
-            </p>
+            <h3 class="fc-title">Always-On AI</h3>
+            <p class="fc-desc">Two AI engines under the hood. If one goes down, the other picks up instantly — you never notice a thing.</p>
+            <div class="fc-badge">
+              <span class="fc-badge-dot fc-badge-dot--amber" />
+              Claude Sonnet · Gemini Flash
+            </div>
           </div>
 
-          <div class="fade-in-up stagger-1 premium-card p-8 group">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/5 border border-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <UIcon
-                name="i-lucide-link"
-                class="w-6 h-6 text-blue-400"
-              />
+          <!-- 5 Integrations -->
+          <div class="fade-in-up stagger-1 feature-card feature-card--blue group">
+            <span class="fc-num">02</span>
+            <div class="fc-icon fc-icon--blue">
+              <UIcon name="i-lucide-plug-zap" class="w-6 h-6 text-blue-400" />
             </div>
-            <h3 class="text-white font-medium text-lg mb-3">
-              5 Integrations, 15 Tools
-            </h3>
-            <p class="text-white/50 text-[15px] leading-relaxed">
-              Notion, Slack, Discord, Zendesk, Salesforce — search, send messages, create records, all from one chat.
-            </p>
+            <h3 class="fc-title">5 Integrations,<br>15 Tools</h3>
+            <p class="fc-desc">Notion, Slack, Discord, Zendesk, Salesforce — all from one chat.</p>
           </div>
 
-          <div class="fade-in-up stagger-2 premium-card p-8 group">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/5 border border-emerald-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <UIcon
-                name="i-lucide-fingerprint"
-                class="w-6 h-6 text-emerald-400"
-              />
+          <!-- Traceable Answers -->
+          <div class="fade-in-up stagger-1 feature-card feature-card--emerald group">
+            <span class="fc-num">03</span>
+            <div class="fc-icon fc-icon--emerald">
+              <UIcon name="i-lucide-fingerprint" class="w-6 h-6 text-emerald-400" />
             </div>
-            <h3 class="text-white font-medium text-lg mb-3">
-              Traceable Answers
-            </h3>
-            <p class="text-white/50 text-[15px] leading-relaxed">
-              Every response cites exactly where the information came from — a Notion page, a Slack thread, a record.
-            </p>
+            <h3 class="fc-title">Traceable Answers</h3>
+            <p class="fc-desc">Every response cites exactly where it came from — a Notion page, a Slack thread, a record.</p>
           </div>
 
-          <div class="fade-in-up stagger-1 premium-card p-8 group">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500/20 to-fuchsia-500/5 border border-purple-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <UIcon
-                name="i-lucide-workflow"
-                class="w-6 h-6 text-purple-400"
-              />
+          <!-- Cross-Tool Workflows -->
+          <div class="fade-in-up stagger-2 feature-card feature-card--purple group">
+            <span class="fc-num">04</span>
+            <div class="fc-icon fc-icon--purple">
+              <UIcon name="i-lucide-workflow" class="w-6 h-6 text-purple-400" />
             </div>
-            <h3 class="text-white font-medium text-lg mb-3">
-              Cross-Tool Workflows
-            </h3>
-            <p class="text-white/50 text-[15px] leading-relaxed">
-              Chain actions across services in one request. "Find the bug report in Notion and post a summary to Discord."
-            </p>
+            <h3 class="fc-title">Cross-Tool Workflows</h3>
+            <p class="fc-desc">Chain actions across services. "Find the bug in Notion and post a summary to Discord."</p>
           </div>
 
-          <div class="fade-in-up stagger-2 premium-card p-8 group">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500/20 to-pink-500/5 border border-rose-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <UIcon
-                name="i-lucide-scroll-text"
-                class="w-6 h-6 text-rose-400"
-              />
+          <!-- Full Audit Trail -->
+          <div class="fade-in-up stagger-2 feature-card feature-card--rose group">
+            <span class="fc-num">05</span>
+            <div class="fc-icon fc-icon--rose">
+              <UIcon name="i-lucide-scroll-text" class="w-6 h-6 text-rose-400" />
             </div>
-            <h3 class="text-white font-medium text-lg mb-3">
-              Full Audit Trail
-            </h3>
-            <p class="text-white/50 text-[15px] leading-relaxed">
-              Every action Drexii takes is logged — what tool, what arguments, what result. Complete transparency.
-            </p>
+            <h3 class="fc-title">Full Audit Trail</h3>
+            <p class="fc-desc">Every action logged — what tool, what arguments, what result. Complete transparency.</p>
           </div>
 
-          <div class="fade-in-up stagger-3 premium-card p-8 group">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/5 border border-cyan-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <UIcon
-                name="i-lucide-brain"
-                class="w-6 h-6 text-cyan-400"
-              />
+          <!-- Persistent Memory — full width -->
+          <div class="fade-in-up stagger-3 feature-card feature-card--cyan lg:col-span-3 group">
+            <span class="fc-num">06</span>
+            <div class="flex flex-col md:flex-row md:items-center gap-8 md:gap-16">
+              <div class="flex-1">
+                <div class="fc-icon fc-icon--cyan mb-6">
+                  <UIcon name="i-lucide-brain-circuit" class="w-6 h-6 text-cyan-400" />
+                </div>
+                <h3 class="fc-title text-2xl md:text-3xl">Persistent Memory</h3>
+                <p class="fc-desc max-w-sm">Tell Drexii something once and it remembers — your preferences, your projects, your context. Across every conversation.</p>
+              </div>
+              <div class="flex flex-col gap-2.5 md:w-72 shrink-0">
+                <div class="memory-chip">
+                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  "Always use bullet points"
+                </div>
+                <div class="memory-chip">
+                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  "Q1 budget is $50k"
+                </div>
+                <div class="memory-chip">
+                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  "Post bugs to #engineering"
+                </div>
+                <div class="memory-chip memory-chip--faded">
+                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-white/20 shrink-0" />
+                  + more stored context...
+                </div>
+              </div>
             </div>
-            <h3 class="text-white font-medium text-lg mb-3">
-              Persistent Memory
-            </h3>
-            <p class="text-white/50 text-[15px] leading-relaxed">
-              Tell Drexii something once and it remembers — your preferences, your projects, your context.
-            </p>
           </div>
+
         </div>
       </div>
     </section>

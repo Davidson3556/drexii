@@ -1,23 +1,17 @@
 import type { ToolResult } from '../../../shared/types'
 import type { IntegrationAdapter } from './index'
 
-function getBotToken(): string | undefined {
-  return process.env.DISCORD_BOT_TOKEN || (useRuntimeConfig().discordBotToken as string)
-}
-
 const DISCORD_API = 'https://discord.com/api/v10'
 
-function authHeaders(): Record<string, string> {
-  const token = getBotToken()
-  if (!token) throw new Error('DISCORD_BOT_TOKEN is not configured')
+function createAuthHeaders(token: string): Record<string, string> {
   return { 'Authorization': `Bot ${token}`, 'Content-Type': 'application/json' }
 }
 
-async function discordSendMessage(channelId: string, content: string): Promise<ToolResult> {
+async function discordSendMessage(token: string, channelId: string, content: string): Promise<ToolResult> {
   try {
     const data = await $fetch<{ id: string, channel_id: string }>(`${DISCORD_API}/channels/${channelId}/messages`, {
       method: 'POST',
-      headers: authHeaders(),
+      headers: createAuthHeaders(token),
       body: { content }
     })
 
@@ -34,10 +28,10 @@ async function discordSendMessage(channelId: string, content: string): Promise<T
   }
 }
 
-async function discordSearchMessages(channelId: string, query: string, limit = 25): Promise<ToolResult> {
+async function discordSearchMessages(token: string, channelId: string, query: string, limit = 25): Promise<ToolResult> {
   try {
     const messages = await $fetch<Array<{ id: string, content: string, author: { username: string }, timestamp: string }>>(`${DISCORD_API}/channels/${channelId}/messages`, {
-      headers: authHeaders(),
+      headers: createAuthHeaders(token),
       params: { limit: Math.min(limit, 100) }
     })
 
@@ -64,11 +58,10 @@ async function discordSearchMessages(channelId: string, query: string, limit = 2
   }
 }
 
-async function discordListChannels(): Promise<ToolResult> {
+async function discordListChannels(token: string): Promise<ToolResult> {
   try {
-    // First get the guilds the bot is in
     const guilds = await $fetch<Array<{ id: string, name: string }>>(`${DISCORD_API}/users/@me/guilds`, {
-      headers: authHeaders()
+      headers: createAuthHeaders(token)
     })
 
     if (guilds.length === 0) {
@@ -78,7 +71,6 @@ async function discordListChannels(): Promise<ToolResult> {
       }
     }
 
-    // Get channels from the first guild
     const guildId = guilds[0]?.id
     if (!guildId) {
       return {
@@ -88,10 +80,9 @@ async function discordListChannels(): Promise<ToolResult> {
     }
 
     const allChannels = await $fetch<Array<{ id: string, name: string, type: number, topic?: string | null }>>(`${DISCORD_API}/guilds/${guildId}/channels`, {
-      headers: authHeaders()
+      headers: createAuthHeaders(token)
     })
 
-    // type 0 = text channels
     const textChannels = allChannels
       .filter(c => c.type === 0)
       .map(c => ({
@@ -113,66 +104,92 @@ async function discordListChannels(): Promise<ToolResult> {
   }
 }
 
+const discordTools = [
+  {
+    name: 'discord_send_message',
+    description: 'Send a message to a Discord channel',
+    parameters: {
+      type: 'object',
+      properties: {
+        channelId: { type: 'string', description: 'Discord channel ID to send the message to' },
+        content: { type: 'string', description: 'Message content to send' }
+      },
+      required: ['channelId', 'content']
+    }
+  },
+  {
+    name: 'discord_search',
+    description: 'Search recent messages in a Discord channel by keyword',
+    parameters: {
+      type: 'object',
+      properties: {
+        channelId: { type: 'string', description: 'Discord channel ID to search in' },
+        query: { type: 'string', description: 'Keyword to search for in messages' }
+      },
+      required: ['channelId', 'query']
+    }
+  },
+  {
+    name: 'discord_list_channels',
+    description: 'List all text channels in the Discord server the bot is connected to',
+    parameters: {
+      type: 'object',
+      properties: {}
+    }
+  }
+]
+
+export function createDiscordAdapter(botToken: string): IntegrationAdapter {
+  return {
+    name: 'discord',
+    isConfigured: () => true,
+    tools: discordTools,
+
+    async execute(toolName: string, args: Record<string, unknown>): Promise<ToolResult> {
+      switch (toolName) {
+        case 'discord_send_message':
+          return discordSendMessage(botToken, args.channelId as string, args.content as string)
+        case 'discord_search':
+          return discordSearchMessages(botToken, args.channelId as string, args.query as string)
+        case 'discord_list_channels':
+          return discordListChannels(botToken)
+        default:
+          return { toolCallId: toolName, content: `Unknown Discord tool: ${toolName}`, isError: true }
+      }
+    },
+
+    async healthCheck(): Promise<boolean> {
+      try {
+        const data = await $fetch<{ id: string }>(`${DISCORD_API}/users/@me`, {
+          headers: createAuthHeaders(botToken)
+        })
+        return !!data.id
+      } catch {
+        return false
+      }
+    }
+  }
+}
+
+// Default adapter using env vars (backward compatible)
+function getEnvToken(): string | undefined {
+  return process.env.DISCORD_BOT_TOKEN || (useRuntimeConfig().discordBotToken as string)
+}
+
 export const discord: IntegrationAdapter = {
   name: 'discord',
-  isConfigured: () => !!getBotToken(),
-
-  tools: [
-    {
-      name: 'discord_send_message',
-      description: 'Send a message to a Discord channel',
-      parameters: {
-        type: 'object',
-        properties: {
-          channelId: { type: 'string', description: 'Discord channel ID to send the message to' },
-          content: { type: 'string', description: 'Message content to send' }
-        },
-        required: ['channelId', 'content']
-      }
-    },
-    {
-      name: 'discord_search',
-      description: 'Search recent messages in a Discord channel by keyword',
-      parameters: {
-        type: 'object',
-        properties: {
-          channelId: { type: 'string', description: 'Discord channel ID to search in' },
-          query: { type: 'string', description: 'Keyword to search for in messages' }
-        },
-        required: ['channelId', 'query']
-      }
-    },
-    {
-      name: 'discord_list_channels',
-      description: 'List all text channels in the Discord server the bot is connected to',
-      parameters: {
-        type: 'object',
-        properties: {}
-      }
-    }
-  ],
+  isConfigured: () => !!getEnvToken(),
+  tools: discordTools,
 
   async execute(toolName: string, args: Record<string, unknown>): Promise<ToolResult> {
-    switch (toolName) {
-      case 'discord_send_message':
-        return discordSendMessage(args.channelId as string, args.content as string)
-      case 'discord_search':
-        return discordSearchMessages(args.channelId as string, args.query as string)
-      case 'discord_list_channels':
-        return discordListChannels()
-      default:
-        return { toolCallId: toolName, content: `Unknown Discord tool: ${toolName}`, isError: true }
-    }
+    const token = getEnvToken()
+    if (!token) return { toolCallId: toolName, content: 'DISCORD_BOT_TOKEN is not configured', isError: true }
+    return createDiscordAdapter(token).execute(toolName, args)
   },
 
   async healthCheck(): Promise<boolean> {
-    try {
-      const data = await $fetch<{ id: string }>(`${DISCORD_API}/users/@me`, {
-        headers: authHeaders()
-      })
-      return !!data.id
-    } catch {
-      return false
-    }
+    const token = getEnvToken()
+    if (!token) return false
+    return createDiscordAdapter(token).healthCheck()
   }
 }

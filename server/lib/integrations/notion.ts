@@ -1,32 +1,26 @@
 import type { ToolSchema, ToolResult } from '../../../shared/types'
 import type { IntegrationAdapter } from './index'
 
-function getApiKey(): string | undefined {
-  return process.env.NOTION_API_KEY || useRuntimeConfig().notionApiKey as string | undefined
-}
-
 const NOTION_API = 'https://api.notion.com/v1'
 const NOTION_VERSION = '2022-06-28'
 
-function headers(): Record<string, string> {
-  const key = getApiKey()
-  if (!key) throw new Error('NOTION_API_KEY is not configured')
+function createHeaders(apiKey: string): Record<string, string> {
   return {
-    'Authorization': `Bearer ${key}`,
+    'Authorization': `Bearer ${apiKey}`,
     'Notion-Version': NOTION_VERSION,
     'Content-Type': 'application/json'
   }
 }
 
-async function notionSearch(query: string): Promise<ToolResult> {
+async function notionSearch(apiKey: string, query: string): Promise<ToolResult> {
   try {
     const data = await $fetch<{ results: Array<{ id: string, object: string, url?: string, properties?: Record<string, unknown> }> }>(`${NOTION_API}/search`, {
       method: 'POST',
-      headers: headers(),
+      headers: createHeaders(apiKey),
       body: { query, page_size: 10 }
     })
 
-    const results = data.results.map((r: { id: string, object: string, url?: string, properties?: Record<string, unknown> }) => ({
+    const results = data.results.map(r => ({
       id: r.id,
       type: r.object,
       url: r.url || '',
@@ -46,17 +40,18 @@ async function notionSearch(query: string): Promise<ToolResult> {
   }
 }
 
-async function notionGetPage(pageId: string): Promise<ToolResult> {
+async function notionGetPage(apiKey: string, pageId: string): Promise<ToolResult> {
   try {
+    const hdrs = createHeaders(apiKey)
     const page = await $fetch<{ id: string, url: string, properties: Record<string, unknown> }>(`${NOTION_API}/pages/${pageId}`, {
-      headers: headers()
+      headers: hdrs
     })
 
     const blocks = await $fetch<{ results: Array<{ type: string, [key: string]: unknown }> }>(`${NOTION_API}/blocks/${pageId}/children`, {
-      headers: headers()
+      headers: hdrs
     })
 
-    const content = blocks.results.map((b: { type: string, [key: string]: unknown }) => extractBlockText(b)).filter(Boolean).join('\n')
+    const content = blocks.results.map(b => extractBlockText(b)).filter(Boolean).join('\n')
 
     return {
       toolCallId: 'notion_get_page',
@@ -76,7 +71,7 @@ async function notionGetPage(pageId: string): Promise<ToolResult> {
   }
 }
 
-async function notionCreatePage(databaseId: string, title: string, content?: string): Promise<ToolResult> {
+async function notionCreatePage(apiKey: string, databaseId: string, title: string, content?: string): Promise<ToolResult> {
   try {
     const body: Record<string, unknown> = {
       parent: { database_id: databaseId },
@@ -97,7 +92,7 @@ async function notionCreatePage(databaseId: string, title: string, content?: str
 
     const page = await $fetch<{ id: string, url: string }>(`${NOTION_API}/pages`, {
       method: 'POST',
-      headers: headers(),
+      headers: createHeaders(apiKey),
       body
     })
 
@@ -133,67 +128,93 @@ function extractBlockText(block: { type: string, [key: string]: unknown }): stri
   return ''
 }
 
+const notionTools: ToolSchema[] = [
+  {
+    name: 'notion_search',
+    description: 'Search Notion workspace for pages and databases by keyword query',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Search query text' }
+      },
+      required: ['query']
+    }
+  },
+  {
+    name: 'notion_get_page',
+    description: 'Get a Notion page content by its page ID',
+    parameters: {
+      type: 'object',
+      properties: {
+        page_id: { type: 'string', description: 'The Notion page ID' }
+      },
+      required: ['page_id']
+    }
+  },
+  {
+    name: 'notion_create_page',
+    description: 'Create a new page in a Notion database',
+    parameters: {
+      type: 'object',
+      properties: {
+        database_id: { type: 'string', description: 'Target database ID' },
+        title: { type: 'string', description: 'Page title' },
+        content: { type: 'string', description: 'Optional page body text' }
+      },
+      required: ['database_id', 'title']
+    }
+  }
+]
+
+export function createNotionAdapter(apiKey: string): IntegrationAdapter {
+  return {
+    name: 'notion',
+    isConfigured: () => true,
+    tools: notionTools,
+
+    async execute(toolName: string, args: Record<string, unknown>): Promise<ToolResult> {
+      switch (toolName) {
+        case 'notion_search':
+          return notionSearch(apiKey, args.query as string)
+        case 'notion_get_page':
+          return notionGetPage(apiKey, args.page_id as string)
+        case 'notion_create_page':
+          return notionCreatePage(apiKey, args.database_id as string, args.title as string, args.content as string | undefined)
+        default:
+          return { toolCallId: toolName, content: `Unknown Notion tool: ${toolName}`, isError: true }
+      }
+    },
+
+    async healthCheck(): Promise<boolean> {
+      try {
+        await $fetch(`${NOTION_API}/users/me`, { headers: createHeaders(apiKey) })
+        return true
+      } catch {
+        return false
+      }
+    }
+  }
+}
+
+// Default adapter using env vars (backward compatible)
+function getEnvKey(): string | undefined {
+  return process.env.NOTION_API_KEY || useRuntimeConfig().notionApiKey as string | undefined
+}
+
 export const notion: IntegrationAdapter = {
   name: 'notion',
-  isConfigured: () => !!getApiKey(),
-
-  tools: [
-    {
-      name: 'notion_search',
-      description: 'Search Notion workspace for pages and databases by keyword query',
-      parameters: {
-        type: 'object',
-        properties: {
-          query: { type: 'string', description: 'Search query text' }
-        },
-        required: ['query']
-      }
-    },
-    {
-      name: 'notion_get_page',
-      description: 'Get a Notion page content by its page ID',
-      parameters: {
-        type: 'object',
-        properties: {
-          page_id: { type: 'string', description: 'The Notion page ID' }
-        },
-        required: ['page_id']
-      }
-    },
-    {
-      name: 'notion_create_page',
-      description: 'Create a new page in a Notion database',
-      parameters: {
-        type: 'object',
-        properties: {
-          database_id: { type: 'string', description: 'Target database ID' },
-          title: { type: 'string', description: 'Page title' },
-          content: { type: 'string', description: 'Optional page body text' }
-        },
-        required: ['database_id', 'title']
-      }
-    }
-  ] as ToolSchema[],
+  isConfigured: () => !!getEnvKey(),
+  tools: notionTools,
 
   async execute(toolName: string, args: Record<string, unknown>): Promise<ToolResult> {
-    switch (toolName) {
-      case 'notion_search':
-        return notionSearch(args.query as string)
-      case 'notion_get_page':
-        return notionGetPage(args.page_id as string)
-      case 'notion_create_page':
-        return notionCreatePage(args.database_id as string, args.title as string, args.content as string | undefined)
-      default:
-        return { toolCallId: toolName, content: `Unknown Notion tool: ${toolName}`, isError: true }
-    }
+    const key = getEnvKey()
+    if (!key) return { toolCallId: toolName, content: 'NOTION_API_KEY is not configured', isError: true }
+    return createNotionAdapter(key).execute(toolName, args)
   },
 
   async healthCheck(): Promise<boolean> {
-    try {
-      await $fetch(`${NOTION_API}/users/me`, { headers: headers() })
-      return true
-    } catch {
-      return false
-    }
+    const key = getEnvKey()
+    if (!key) return false
+    return createNotionAdapter(key).healthCheck()
   }
 }

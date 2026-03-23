@@ -77,6 +77,10 @@ export function useThread() {
     if (!state.value.currentThread || state.value.isStreaming) return
     state.value.lastMessageContent = content
 
+    // Resolve current user ID for per-user integrations
+    const { user } = useAuth()
+    const userId = user.value?.id
+
     const userMessage: Message = {
       id: crypto.randomUUID(),
       threadId: state.value.currentThread.id,
@@ -93,9 +97,12 @@ export function useThread() {
     state.value.error = null
 
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (userId) headers['x-user-id'] = userId
+
       const response = await fetch(`/api/threads/${state.value.currentThread.id}/messages`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ content })
       })
 

@@ -13,13 +13,18 @@ const navLinks = [
   { id: 'how-it-works', label: 'How It Works', section: 'about', to: null },
   { id: 'features', label: 'Features', section: 'features', to: null },
   { id: 'try-drexii', label: 'Try Drexii', section: null, to: '/chat' },
+  { id: 'integrations', label: 'Integrations', section: null, to: '/integrations' },
   { id: 'workflows', label: 'Workflows', section: null, to: '/workflows' },
 ]
 
 const activeItem = ref(
-  route.path === '/chat' ? 'try-drexii'
-    : route.path === '/workflows' ? 'workflows'
-      : 'how-it-works'
+  route.path === '/chat'
+    ? 'try-drexii'
+    : route.path === '/integrations'
+      ? 'integrations'
+      : route.path === '/workflows'
+        ? 'workflows'
+        : 'how-it-works'
 )
 const mobileOpen = ref(false)
 
@@ -73,7 +78,13 @@ watch(mobileOpen, (open) => {
 })
 
 watch(() => route.path, (path) => {
-  activeItem.value = path === '/chat' ? 'try-drexii' : path === '/workflows' ? 'workflows' : 'how-it-works'
+  activeItem.value = path === '/chat'
+    ? 'try-drexii'
+    : path === '/integrations'
+      ? 'integrations'
+      : path === '/workflows'
+        ? 'workflows'
+        : 'how-it-works'
   mobileOpen.value = false
   nextTick(updatePill)
 })
@@ -115,6 +126,7 @@ function navigate(link: typeof navLinks[0]) {
 }
 
 const isOnChat = computed(() => route.path === '/chat')
+const isOnApp = computed(() => ['/chat', '/integrations', '/workflows'].includes(route.path))
 </script>
 
 <template>
@@ -169,8 +181,8 @@ const isOnChat = computed(() => route.path === '/chat')
         Open Chat
       </NuxtLink>
 
-      <!-- Chat page: model status + settings -->
-      <template v-if="isOnChat">
+      <!-- App pages: model status + settings -->
+      <template v-if="isOnApp">
         <div
           v-if="isFallback"
           class="status-pill status-pill--fallback"
@@ -205,7 +217,7 @@ const isOnChat = computed(() => route.path === '/chat')
     <!-- Mobile right: model dot + burger -->
     <div class="header-right header-right--mobile">
       <span
-        v-if="isOnChat"
+        v-if="isOnApp"
         class="status-dot-sm"
         :class="isFallback ? 'status-dot-sm--amber' : 'status-dot-sm--green'"
       />
