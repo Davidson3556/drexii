@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui',
@@ -11,6 +12,8 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
+
+  colorMode: { preference: 'dark', fallback: 'dark', classSuffix: '' },
 
   runtimeConfig: {
     // Legacy — kept for backward compatibility with env-based integrations
@@ -37,8 +40,6 @@ export default defineNuxtConfig({
   routeRules: {
     '/': { prerender: true }
   },
-
-  colorMode: { preference: 'dark', fallback: 'dark', classSuffix: '' },
 
   compatibilityDate: '2025-01-15',
 

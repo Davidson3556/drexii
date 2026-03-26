@@ -47,7 +47,7 @@ async function handleSignIn() {
     const redirect = route.query.redirect as string | undefined
     await router.push(redirect || '/chat')
   } catch (err: unknown) {
-    const e = err as { message?: string; statusCode?: number }
+    const e = err as { message?: string, statusCode?: number }
     if (e.statusCode === 403) {
       error.value = 'Email not verified. Please sign up again to receive a new code.'
     } else {
@@ -104,7 +104,7 @@ async function handleVerifyOtp() {
     const redirect = route.query.redirect as string | undefined
     await router.push(redirect || '/chat')
   } catch (err: unknown) {
-    const e = err as { message?: string; statusCode?: number }
+    const e = err as { message?: string, statusCode?: number }
     if (e.statusCode === 400) {
       error.value = 'Invalid or expired code. Please try again.'
     } else {
@@ -233,34 +233,41 @@ function handleSubmit() {
     <div class="w-full max-w-sm relative">
       <!-- Logo -->
       <div class="flex flex-col items-center mb-8">
-        <div class="w-12 h-12 rounded-2xl overflow-hidden mb-3 border border-white/10">
-          <img src="/logo.png" alt="Drexii" class="w-full h-full object-cover">
+        <div class="w-12 h-12 rounded-2xl overflow-hidden mb-3 border border-[var(--color-drexii-border)]">
+          <img
+            src="/logo.png"
+            alt="Drexii"
+            class="w-full h-full object-cover"
+          >
         </div>
-        <h1 class="text-xl font-semibold text-white/90 tracking-tight">
+        <h1 class="text-xl font-semibold tracking-tight" style="color: var(--color-drexii-text);">
           Drexii
         </h1>
-        <p class="text-sm text-white/35 mt-1">
+        <p class="text-sm mt-1" style="color: var(--color-drexii-text-muted);">
           {{
-              resetStep !== 'idle' ? 'Reset your password'
-                : needsVerification ? 'Verify your email'
-                  : mode === 'signin' ? 'Sign in to continue'
-                    : 'Create your account'
-            }}
+            resetStep !== 'idle' ? 'Reset your password'
+            : needsVerification ? 'Verify your email'
+              : mode === 'signin' ? 'Sign in to continue'
+                : 'Create your account'
+          }}
         </p>
       </div>
 
       <!-- Card -->
-      <form class="login-card p-6 space-y-4" @submit.prevent="handleSubmit">
+      <form
+        class="login-card p-6 space-y-4"
+        @submit.prevent="handleSubmit"
+      >
         <!-- OTP Verification View -->
         <!-- Forgot Password Flow -->
         <template v-if="resetStep !== 'idle'">
           <!-- Step 1: Enter email -->
           <template v-if="resetStep === 'email'">
-            <p class="text-sm text-white/50 text-center">
+            <p class="text-sm text-center" style="color: var(--color-drexii-text-muted);">
               Enter your email and we'll send a reset code.
             </p>
             <div>
-              <label class="block text-xs text-white/40 mb-1.5">Email</label>
+              <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Email</label>
               <input
                 v-model="resetEmail"
                 type="email"
@@ -275,11 +282,11 @@ function handleSubmit() {
 
           <!-- Step 2: Enter code -->
           <template v-else-if="resetStep === 'code'">
-            <p class="text-sm text-white/50 text-center">
-              We sent a 6-digit code to <span class="text-white/70 font-medium">{{ resetEmail }}</span>
+            <p class="text-sm text-center" style="color: var(--color-drexii-text-muted);">
+              We sent a 6-digit code to <span class="font-medium" style="color: var(--color-drexii-text);">{{ resetEmail }}</span>
             </p>
             <div>
-              <label class="block text-xs text-white/40 mb-1.5">Reset code</label>
+              <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Reset code</label>
               <input
                 v-model="resetCode"
                 type="text"
@@ -295,7 +302,7 @@ function handleSubmit() {
           <!-- Step 3: New password -->
           <template v-else-if="resetStep === 'newpass'">
             <div>
-              <label class="block text-xs text-white/40 mb-1.5">New password</label>
+              <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">New password</label>
               <input
                 v-model="newPassword"
                 type="password"
@@ -306,7 +313,7 @@ function handleSubmit() {
               >
             </div>
             <div>
-              <label class="block text-xs text-white/40 mb-1.5">Confirm password</label>
+              <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Confirm password</label>
               <input
                 v-model="newPasswordConfirm"
                 type="password"
@@ -319,7 +326,7 @@ function handleSubmit() {
           </template>
 
           <button
-            class="w-full text-xs text-white/30 hover:text-white/50 transition-colors text-center"
+            class="login-text-link w-full text-xs transition-colors text-center"
             type="button"
             @click="resetStep = 'idle'"
           >
@@ -328,12 +335,12 @@ function handleSubmit() {
         </template>
 
         <template v-else-if="needsVerification">
-          <p class="text-sm text-white/50 text-center">
-            We sent a 6-digit code to <span class="text-white/70 font-medium">{{ verificationEmail }}</span>
+          <p class="text-sm text-center" style="color: var(--color-drexii-text-muted);">
+            We sent a 6-digit code to <span class="font-medium" style="color: var(--color-drexii-text);">{{ verificationEmail }}</span>
           </p>
 
           <div>
-            <label class="block text-xs text-white/40 mb-1.5">Verification code</label>
+            <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Verification code</label>
             <input
               v-model="otpCode"
               type="text"
@@ -347,7 +354,7 @@ function handleSubmit() {
 
           <!-- Resend -->
           <button
-            class="w-full text-xs text-white/30 hover:text-white/50 transition-colors text-center"
+            class="login-text-link w-full text-xs transition-colors text-center"
             @click="handleResendCode"
           >
             Didn't receive a code? Resend
@@ -357,15 +364,15 @@ function handleSubmit() {
         <!-- Sign In / Sign Up Form -->
         <template v-else>
           <!-- Mode Toggle -->
-          <div class="flex rounded-xl bg-white/5 p-0.5 mb-2">
+          <div class="login-mode-toggle flex rounded-xl p-0.5 mb-2">
             <button
-              :class="['flex-1 py-2 text-xs font-medium rounded-lg transition-all', mode === 'signin' ? 'bg-white/10 text-white/80' : 'text-white/30 hover:text-white/50']"
+              :class="['flex-1 py-2 text-xs font-medium rounded-lg transition-all', mode === 'signin' ? 'login-mode-active' : 'login-mode-inactive']"
               @click="mode = 'signin'; error = ''"
             >
               Sign in
             </button>
             <button
-              :class="['flex-1 py-2 text-xs font-medium rounded-lg transition-all', mode === 'signup' ? 'bg-white/10 text-white/80' : 'text-white/30 hover:text-white/50']"
+              :class="['flex-1 py-2 text-xs font-medium rounded-lg transition-all', mode === 'signup' ? 'login-mode-active' : 'login-mode-inactive']"
               @click="mode = 'signup'; error = ''"
             >
               Sign up
@@ -374,7 +381,7 @@ function handleSubmit() {
 
           <!-- Name (sign up only) -->
           <div v-if="mode === 'signup'">
-            <label class="block text-xs text-white/40 mb-1.5">Name</label>
+            <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Name</label>
             <input
               v-model="name"
               type="text"
@@ -388,7 +395,7 @@ function handleSubmit() {
 
           <!-- Email -->
           <div>
-            <label class="block text-xs text-white/40 mb-1.5">Email</label>
+            <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Email</label>
             <input
               v-model="email"
               type="email"
@@ -403,11 +410,11 @@ function handleSubmit() {
           <!-- Password -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <label class="block text-xs text-white/40">Password</label>
+              <label class="block text-xs" style="color: var(--color-drexii-text-muted);">Password</label>
               <button
                 v-if="mode === 'signin'"
                 type="button"
-                class="text-xs text-white/30 hover:text-amber-400 transition-colors"
+                class="login-text-link text-xs transition-colors"
                 @click="resetStep = 'email'; resetEmail = email; error = ''"
               >
                 Forgot password?
@@ -425,7 +432,7 @@ function handleSubmit() {
               >
               <button
                 type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50 transition-colors"
+                class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--color-drexii-text-muted); opacity: 0.5;"
                 @click="showPassword = !showPassword"
               >
                 <UIcon
@@ -436,21 +443,25 @@ function handleSubmit() {
             </div>
           </div>
 
-          <!-- OAuth -->
           <div class="pt-2 space-y-2">
-            <div class="flex items-center gap-3 text-white/20 text-xs">
-              <div class="flex-1 border-t border-white/10" />
+            <div
+              class="login-divider flex items-center gap-3 text-xs"
+            >
+              <div class="flex-1 border-t border-[var(--color-drexii-border)]" />
               or continue with
-              <div class="flex-1 border-t border-white/10" />
+              <div class="flex-1 border-t border-[var(--color-drexii-border)]" />
             </div>
             <div class="flex gap-2">
               <button
                 v-for="provider in oauthProviders"
                 :key="provider.id"
-                class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 border border-white/8 hover:bg-white/10 transition-colors text-white/60 text-xs font-medium"
+                class="login-oauth-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium transition-colors"
                 @click="handleOAuth(provider.id)"
               >
-                <UIcon :name="provider.icon" class="w-4 h-4" />
+                <UIcon
+                  :name="provider.icon"
+                  class="w-4 h-4"
+                />
                 {{ provider.label }}
               </button>
             </div>
@@ -462,7 +473,10 @@ function handleSubmit() {
           v-if="error"
           class="text-xs text-red-400 flex items-center gap-1.5"
         >
-          <UIcon name="i-lucide-circle-alert" class="w-3.5 h-3.5 shrink-0" />
+          <UIcon
+            name="i-lucide-circle-alert"
+            class="w-3.5 h-3.5 shrink-0"
+          />
           {{ error }}
         </p>
 
@@ -541,4 +555,40 @@ function handleSubmit() {
 :global(html:not(.dark)) .login-input::placeholder {
   color: rgba(12, 12, 14, 0.3);
 }
+
+/* ── Login text links ──────────────────────────────────── */
+.login-text-link { color: rgba(255,255,255,0.3); }
+.login-text-link:hover { color: #e8af48; }
+:global(html:not(.dark)) .login-text-link { color: rgba(12,12,14,0.35); }
+:global(html:not(.dark)) .login-text-link:hover { color: #b8862d; }
+
+/* ── Login mode toggle ─────────────────────────────────── */
+.login-mode-toggle { background: rgba(255,255,255,0.05); }
+.login-mode-active { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+.login-mode-inactive { color: rgba(255,255,255,0.3); }
+.login-mode-inactive:hover { color: rgba(255,255,255,0.5); }
+
+:global(html:not(.dark)) .login-mode-toggle { background: rgba(0,0,0,0.04); }
+:global(html:not(.dark)) .login-mode-active { background: rgba(0,0,0,0.08); color: rgba(12,12,14,0.85); }
+:global(html:not(.dark)) .login-mode-inactive { color: rgba(12,12,14,0.35); }
+:global(html:not(.dark)) .login-mode-inactive:hover { color: rgba(12,12,14,0.6); }
+
+/* ── Login divider ─────────────────────────────────────── */
+.login-divider { color: rgba(255,255,255,0.2); }
+:global(html:not(.dark)) .login-divider { color: rgba(12,12,14,0.25); }
+
+/* ── Login OAuth buttons ───────────────────────────────── */
+.login-oauth-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.6);
+}
+.login-oauth-btn:hover { background: rgba(255,255,255,0.1); }
+
+:global(html:not(.dark)) .login-oauth-btn {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.08);
+  color: rgba(12,12,14,0.6);
+}
+:global(html:not(.dark)) .login-oauth-btn:hover { background: rgba(0,0,0,0.06); }
 </style>

@@ -72,11 +72,20 @@ body {
   margin-bottom: 200px; /* Space for the floating card */
 }
 
+html:not(.dark) .hero-bg {
+  background:
+    linear-gradient(160deg, #f5ede2 0%, #f0e8dc 20%, #ebe3d8 40%, #e6ddd3 60%, #e8e0d6 80%, #f6f6f8 100%);
+}
+
 .hero-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom, transparent 40%, color-mix(in srgb, var(--color-drexii-bg) 40%, transparent) 80%, var(--color-drexii-bg) 100%);
   pointer-events: none;
+}
+
+html:not(.dark) .hero-overlay {
+  background: linear-gradient(to bottom, transparent 50%, color-mix(in srgb, var(--color-drexii-bg) 60%, transparent) 80%, var(--color-drexii-bg) 100%);
 }
 
 /* ============================================================
@@ -90,6 +99,13 @@ body {
     0 40px 100px -20px rgba(0, 0, 0, 0.4),
     0 10px 40px -10px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 var(--color-drexii-border);
+}
+
+html:not(.dark) .app-window {
+  box-shadow:
+    0 40px 100px -20px rgba(0, 0, 0, 0.12),
+    0 10px 40px -10px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .glass-card {
@@ -333,6 +349,9 @@ html:not(.dark) .feature-card:hover {
   border-color: var(--fc-border-hover, rgba(0,0,0,0.15));
   box-shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
+html:not(.dark) .feature-card::before {
+  background: var(--fc-accent-line, rgba(0,0,0,0.06));
+}
 html:not(.dark) .fc-num { color: rgba(0,0,0,0.12); }
 html:not(.dark) .fc-title { color: rgba(10,10,12,0.92); }
 html:not(.dark) .fc-desc { color: rgba(10,10,12,0.5); }
@@ -349,6 +368,9 @@ html:not(.dark) .memory-chip {
 html:not(.dark) .memory-chip:hover {
   border-color: rgba(34,211,238,0.3);
   color: rgba(0,0,0,0.75);
+}
+html:not(.dark) .memory-chip--faded {
+  opacity: 0.5;
 }
 
 .no-scrollbar::-webkit-scrollbar {

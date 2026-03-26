@@ -305,18 +305,30 @@ onMounted(() => {
           </h1>
           <p class="intg-subtitle">
             Connect your tools to give Drexii superpowers.
-            <span v-if="connectedCount > 0" class="intg-badge">{{ connectedCount }} connected</span>
+            <span
+              v-if="connectedCount > 0"
+              class="intg-badge"
+            >{{ connectedCount }} connected</span>
           </p>
         </div>
       </div>
 
       <!-- Loading -->
-      <div v-if="isLoading" class="intg-loading">
-        <UIcon name="i-lucide-loader-2" class="w-5 h-5 animate-spin text-white/30" />
+      <div
+        v-if="isLoading"
+        class="intg-loading"
+      >
+        <UIcon
+          name="i-lucide-loader-2"
+          class="w-5 h-5 animate-spin text-white/30"
+        />
       </div>
 
       <!-- Integration Grid -->
-      <div v-else class="intg-grid">
+      <div
+        v-else
+        class="intg-grid"
+      >
         <div
           v-for="intg in integrations"
           :key="intg.id"
@@ -325,10 +337,19 @@ onMounted(() => {
         >
           <!-- Card Header -->
           <div class="intg-card-top">
-            <div class="intg-icon-wrap" :style="{ '--accent': intg.color }">
-              <UIcon :name="intg.icon" class="w-6 h-6" />
+            <div
+              class="intg-icon-wrap"
+              :style="{ '--accent': intg.color }"
+            >
+              <UIcon
+                :name="intg.icon"
+                class="w-6 h-6"
+              />
             </div>
-            <div v-if="isConnected(intg.id)" class="intg-status-connected">
+            <div
+              v-if="isConnected(intg.id)"
+              class="intg-status-connected"
+            >
               <span class="intg-status-dot" />
               Connected
             </div>
@@ -345,8 +366,14 @@ onMounted(() => {
           <!-- Card Footer -->
           <div class="intg-card-footer">
             <template v-if="isConnected(intg.id)">
-              <button class="intg-btn intg-btn--reconfigure" @click="openSetup(intg.id)">
-                <UIcon name="i-lucide-settings" class="w-3.5 h-3.5" />
+              <button
+                class="intg-btn intg-btn--reconfigure"
+                @click="openSetup(intg.id)"
+              >
+                <UIcon
+                  name="i-lucide-settings"
+                  class="w-3.5 h-3.5"
+                />
                 Reconfigure
               </button>
               <button
@@ -361,8 +388,15 @@ onMounted(() => {
                 {{ disconnecting === intg.id ? 'Removing...' : 'Disconnect' }}
               </button>
             </template>
-            <button v-else class="intg-btn intg-btn--connect" @click="openSetup(intg.id)">
-              <UIcon name="i-lucide-plug" class="w-3.5 h-3.5" />
+            <button
+              v-else
+              class="intg-btn intg-btn--connect"
+              @click="openSetup(intg.id)"
+            >
+              <UIcon
+                name="i-lucide-plug"
+                class="w-3.5 h-3.5"
+              />
               Connect
             </button>
           </div>
@@ -381,8 +415,14 @@ onMounted(() => {
           <!-- Modal Header -->
           <div class="intg-modal-header">
             <div class="flex items-center gap-3">
-              <div class="intg-icon-wrap intg-icon-wrap--sm" :style="{ '--accent': activeIntegrationDef.color }">
-                <UIcon :name="activeIntegrationDef.icon" class="w-5 h-5" />
+              <div
+                class="intg-icon-wrap intg-icon-wrap--sm"
+                :style="{ '--accent': activeIntegrationDef.color }"
+              >
+                <UIcon
+                  :name="activeIntegrationDef.icon"
+                  class="w-5 h-5"
+                />
               </div>
               <div>
                 <h2 class="text-base font-semibold text-white/90">
@@ -393,16 +433,28 @@ onMounted(() => {
                 </p>
               </div>
             </div>
-            <button class="intg-modal-close" @click="closeSetup">
-              <UIcon name="i-lucide-x" class="w-4 h-4" />
+            <button
+              class="intg-modal-close"
+              @click="closeSetup"
+            >
+              <UIcon
+                name="i-lucide-x"
+                class="w-4 h-4"
+              />
             </button>
           </div>
 
           <!-- Success State -->
-          <div v-if="setupStep === 'success'" class="intg-modal-body">
+          <div
+            v-if="setupStep === 'success'"
+            class="intg-modal-body"
+          >
             <div class="intg-success">
               <div class="intg-success-icon">
-                <UIcon name="i-lucide-check-circle-2" class="w-10 h-10 text-emerald-400" />
+                <UIcon
+                  name="i-lucide-check-circle-2"
+                  class="w-10 h-10 text-emerald-400"
+                />
               </div>
               <h3 class="text-sm font-medium text-white/80 mt-3">
                 {{ activeIntegrationDef.name }} connected!
@@ -410,7 +462,10 @@ onMounted(() => {
               <p class="text-xs text-white/40 mt-1">
                 Drexii can now use your {{ activeIntegrationDef.name }} tools in chat.
               </p>
-              <button class="intg-btn intg-btn--connect mt-5" @click="closeSetup">
+              <button
+                class="intg-btn intg-btn--connect mt-5"
+                @click="closeSetup"
+              >
                 Done
               </button>
             </div>
@@ -422,12 +477,21 @@ onMounted(() => {
               <!-- Setup Guide -->
               <details class="intg-guide">
                 <summary class="intg-guide-toggle">
-                  <UIcon name="i-lucide-book-open" class="w-3.5 h-3.5" />
+                  <UIcon
+                    name="i-lucide-book-open"
+                    class="w-3.5 h-3.5"
+                  />
                   {{ activeIntegrationDef.guide.title }}
-                  <UIcon name="i-lucide-chevron-down" class="w-3.5 h-3.5 ml-auto intg-guide-chevron" />
+                  <UIcon
+                    name="i-lucide-chevron-down"
+                    class="w-3.5 h-3.5 ml-auto intg-guide-chevron"
+                  />
                 </summary>
                 <ol class="intg-guide-steps">
-                  <li v-for="(step, idx) in activeIntegrationDef.guide.steps" :key="idx">
+                  <li
+                    v-for="(step, idx) in activeIntegrationDef.guide.steps"
+                    :key="idx"
+                  >
                     <span class="intg-guide-num">{{ idx + 1 }}</span>
                     {{ step }}
                   </li>
@@ -436,7 +500,10 @@ onMounted(() => {
 
               <!-- Form Fields -->
               <div class="space-y-3 mt-4">
-                <div v-for="field in activeIntegrationDef.fields" :key="field.key">
+                <div
+                  v-for="field in activeIntegrationDef.fields"
+                  :key="field.key"
+                >
                   <label class="block text-xs text-white/40 mb-1.5">{{ field.label }}</label>
                   <input
                     v-model="formData[field.key]"
@@ -449,15 +516,24 @@ onMounted(() => {
               </div>
 
               <!-- Error -->
-              <div v-if="setupError" class="intg-error mt-3">
-                <UIcon name="i-lucide-circle-alert" class="w-3.5 h-3.5 shrink-0" />
+              <div
+                v-if="setupError"
+                class="intg-error mt-3"
+              >
+                <UIcon
+                  name="i-lucide-circle-alert"
+                  class="w-3.5 h-3.5 shrink-0"
+                />
                 {{ setupError }}
               </div>
             </div>
 
             <!-- Modal Footer -->
             <div class="intg-modal-footer">
-              <button class="intg-btn intg-btn--ghost" @click="closeSetup">
+              <button
+                class="intg-btn intg-btn--ghost"
+                @click="closeSetup"
+              >
                 Cancel
               </button>
               <button

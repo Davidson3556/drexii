@@ -131,13 +131,13 @@ async function handleSuggestion(text: string) {
       <div class="relative z-10 flex flex-col items-center pt-24 md:pt-32 pb-24 md:pb-32 px-4 md:px-6 text-center min-h-[90vh] justify-start mt-[8vh]">
         <!-- Headline -->
         <h1 class="fade-in-up stagger-1 text-[32px] sm:text-[44px] md:text-[64px] font-medium tracking-tight leading-[1.1] max-w-4xl mb-6">
-          <span class="text-white/60">One chat to search, write,</span>
+          <span class="hero-headline-muted">One chat to search, write,</span>
           <br>
-          <span class="text-white drop-shadow-sm">and act across your stack</span>
+          <span class="hero-headline">and act across your stack</span>
         </h1>
 
         <!-- Subtitle -->
-        <p class="fade-in-up stagger-2 text-white/50 text-[14px] sm:text-base max-w-md mb-8 leading-relaxed font-normal">
+        <p class="fade-in-up stagger-2 hero-subtitle text-[14px] sm:text-base max-w-md mb-8 leading-relaxed font-normal">
           Drexii connects to Gmail, Notion, Slack, Discord, and more.
           <br class="hidden sm:block">
           Ask a question — get answers, drafts, and actions.
@@ -147,13 +147,13 @@ async function handleSuggestion(text: string) {
         <div class="fade-in-up stagger-3 flex flex-col sm:flex-row items-center gap-3 mb-12 md:mb-16 z-20">
           <NuxtLink
             to="/chat"
-            class="px-6 py-2.5 rounded-full bg-white text-black text-[14px] font-semibold hover:bg-white/90 transition-all shadow-lg"
+            class="hero-cta-primary px-6 py-2.5 rounded-full text-[14px] font-semibold transition-all shadow-lg"
           >
             Start Chatting
           </NuxtLink>
           <a
             href="#features"
-            class="px-6 py-2.5 rounded-full bg-white/5 text-white text-[14px] font-medium hover:bg-white/10 transition-all border border-white/10"
+            class="hero-cta-secondary px-6 py-2.5 rounded-full text-[14px] font-medium transition-all border"
           >
             See What It Does
           </a>
@@ -168,63 +168,63 @@ async function handleSuggestion(text: string) {
           >
             <!-- Card Header -->
             <div class="flex items-center justify-between mb-8 md:mb-12">
-              <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white/10 flex items-center justify-center shadow-inner pt-0.5 pl-0.5">
+              <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-[var(--color-drexii-border)] flex items-center justify-center shadow-inner pt-0.5 pl-0.5">
                 <UIcon
                   name="i-lucide-box"
-                  class="w-4 h-4 md:w-5 md:h-5 text-white/80"
+                  class="w-4 h-4 md:w-5 md:h-5" style="color: var(--color-drexii-text);"
                 />
               </div>
-              <button class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition">
+              <button class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-[var(--color-drexii-surface)] flex items-center justify-center hover:bg-[var(--color-drexii-surface-hover)] transition">
                 <UIcon
                   name="i-lucide-menu"
-                  class="w-4 h-4 text-white/50"
+                  class="w-4 h-4" style="color: var(--color-drexii-text-muted);"
                 />
               </button>
             </div>
 
             <!-- Welcome -->
-            <h2 class="text-[20px] md:text-[22px] font-medium text-white/90 text-center mb-1 md:mb-2">
+            <h2 class="text-[20px] md:text-[22px] font-medium text-center mb-1 md:mb-2" style="color: var(--color-drexii-text);">
               Welcome back
             </h2>
-            <p class="text-white/40 text-[12px] md:text-[13px] text-center mb-6 md:mb-10 font-medium">
+            <p class="text-[12px] md:text-[13px] text-center mb-6 md:mb-10 font-medium" style="color: var(--color-drexii-text-muted);">
               How can I help you today?
             </p>
 
             <!-- Input Box -->
-            <div class="bg-[#2a2a2a]/80 border border-white/5 rounded-2xl p-3 md:p-4 mb-4 shadow-inner">
+            <div class="card-input-box rounded-2xl p-3 md:p-4 mb-4 shadow-inner">
               <input
                 v-model="inputValue"
                 type="text"
                 placeholder="Ask anything. Type @ for mentions and / for shortcuts."
-                class="w-full bg-transparent outline-none text-[14px] md:text-[15px] text-white/80 placeholder:text-white/30 pt-1 pb-2 md:pb-4"
+                class="w-full bg-transparent outline-none text-[14px] md:text-[15px] pt-1 pb-2 md:pb-4" style="color: var(--color-drexii-text); --tw-placeholder-opacity:1;"
                 @keyup.enter="handleStartChat"
               >
               <div class="flex items-center justify-between mt-2">
                 <div class="flex items-center gap-3 md:gap-4 px-1">
                   <UIcon
                     name="i-lucide-paperclip"
-                    class="w-4 h-4 text-white/20 hover:text-white/50 transition-colors cursor-pointer"
+                    class="w-4 h-4 hover:opacity-70 transition-colors cursor-pointer" style="color: var(--color-drexii-text-muted); opacity: 0.5;"
                   />
                   <UIcon
                     name="i-lucide-bar-chart-2"
-                    class="w-4 h-4 text-white/20 hover:text-white/50 transition-colors cursor-pointer"
+                    class="w-4 h-4 hover:opacity-70 transition-colors cursor-pointer" style="color: var(--color-drexii-text-muted); opacity: 0.5;"
                   />
                   <UIcon
                     name="i-lucide-zap"
-                    class="w-4 h-4 text-white/20 hover:text-white/50 transition-colors cursor-pointer"
+                    class="w-4 h-4 hover:opacity-70 transition-colors cursor-pointer" style="color: var(--color-drexii-text-muted); opacity: 0.5;"
                   />
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/5 flex items-center justify-center cursor-pointer hover:bg-white/10 transition-colors border border-white/5">
+                  <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-[var(--color-drexii-surface)] flex items-center justify-center cursor-pointer hover:bg-[var(--color-drexii-surface-hover)] transition-colors border border-[var(--color-drexii-border)]">
                     <UIcon
                       name="i-lucide-mic"
-                      class="w-3.5 h-3.5 text-white/40"
+                      class="w-3.5 h-3.5" style="color: var(--color-drexii-text-muted);"
                     />
                   </div>
-                  <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/80 flex items-center justify-center cursor-pointer hover:bg-white transition-colors">
+                  <div class="card-send-btn w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors">
                     <UIcon
                       name="i-lucide-arrow-up"
-                      class="w-4 h-4 text-black"
+                      class="w-4 h-4"
                     />
                   </div>
                 </div>
@@ -232,12 +232,12 @@ async function handleSuggestion(text: string) {
             </div>
 
             <!-- Categories -->
-            <div class="flex items-center justify-between mb-4 md:mb-6 pb-4 md:pb-6 border-b border-white/5">
+            <div class="flex items-center justify-between mb-4 md:mb-6 pb-4 md:pb-6 border-b border-[var(--color-drexii-border)]">
               <div class="flex items-center gap-2 overflow-x-auto no-scrollbar mask-edges pr-4">
                 <button
                   v-for="cat in categories"
                   :key="cat"
-                  :class="['px-3 md:px-4 py-1.5 rounded-full text-[12px] md:text-[13px] font-medium transition-colors border border-transparent whitespace-nowrap', cat === activeCategory ? 'bg-white/10 text-white/90 border-white/5' : 'text-white/40 hover:text-white/70']"
+                  :class="['card-category-pill px-3 md:px-4 py-1.5 rounded-full text-[12px] md:text-[13px] font-medium transition-colors border border-transparent whitespace-nowrap', cat === activeCategory ? 'card-category-pill--active' : '']"
                   @click="activeCategory = cat"
                 >
                   {{ cat }}
@@ -245,7 +245,7 @@ async function handleSuggestion(text: string) {
               </div>
               <UIcon
                 name="i-lucide-search"
-                class="w-4 h-4 text-white/30 cursor-pointer"
+                class="w-4 h-4 cursor-pointer" style="color: var(--color-drexii-text-muted);"
               />
             </div>
 
@@ -254,11 +254,11 @@ async function handleSuggestion(text: string) {
               <div
                 v-for="(suggestion, i) in suggestions.slice(0, 2)"
                 :key="i"
-                class="flex items-center justify-between py-3 px-2 group cursor-pointer text-white/40 hover:text-white/80 transition-colors border-b border-white/5 last:border-0"
+                class="card-suggestion flex items-center justify-between py-3 px-2 group cursor-pointer transition-colors border-b border-[var(--color-drexii-border)] last:border-0"
                 @click="handleSuggestion(suggestion.text)"
               >
                 <span class="text-[14px]">{{ suggestion.text }}</span>
-                <div class="w-6 h-6 rounded-full border border-white/10 flex items-center justify-center">
+                <div class="card-suggestion-arrow w-6 h-6 rounded-full border flex items-center justify-center">
                   <UIcon
                     name="i-lucide-arrow-right"
                     class="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity"
@@ -282,7 +282,7 @@ async function handleSuggestion(text: string) {
         <!-- Intro Badge -->
         <div class="fade-in-up flex items-center justify-center gap-2 mb-12">
           <span class="w-2 h-2 rounded-full bg-accent-glow" />
-          <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40">The Platform</span>
+          <span class="text-[11px] font-bold uppercase tracking-[0.2em]" style="color: var(--color-drexii-text-muted);">The Platform</span>
         </div>
 
         <!-- Intro Paragraphs — staggered text reveal -->
@@ -324,10 +324,10 @@ async function handleSuggestion(text: string) {
         <div class="flex flex-col items-center mb-20 text-center">
           <div class="fade-in-up flex items-center justify-center gap-2 mb-6">
             <span class="w-2 h-2 rounded-full bg-accent-glow" />
-            <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40">Capabilities</span>
+            <span class="text-[11px] font-bold uppercase tracking-[0.2em]" style="color: var(--color-drexii-text-muted);">Capabilities</span>
           </div>
-          <h2 class="fade-in-up stagger-1 text-[28px] md:text-[40px] font-medium text-white tracking-tight leading-tight max-w-2xl">
-            What makes Drexii <br><span class="text-white/50">different</span>
+          <h2 class="fade-in-up stagger-1 text-[28px] md:text-[40px] font-medium tracking-tight leading-tight max-w-2xl" style="color: var(--color-drexii-text);">
+            What makes Drexii <br><span style="opacity: 0.5;">different</span>
           </h2>
         </div>
 
@@ -477,15 +477,15 @@ async function handleSuggestion(text: string) {
     </section>
 
     <!-- ======== PRE-FOOTER CTA ======== -->
-    <section class="py-20 md:py-32 px-4 md:px-6 relative z-20 bg-[var(--color-drexii-bg2)] border-t border-white/5">
+    <section class="py-20 md:py-32 px-4 md:px-6 relative z-20 bg-[var(--color-drexii-bg2)] border-t border-[var(--color-drexii-border)]">
       <div class="max-w-4xl mx-auto text-center">
-        <h2 class="fade-in-up text-[32px] md:text-[56px] font-medium text-white mb-8 tracking-tight leading-[1.1]">
-          Stop switching tabs. <br><span class="text-white/40">Start asking Drexii.</span>
+        <h2 class="fade-in-up text-[32px] md:text-[56px] font-medium mb-8 tracking-tight leading-[1.1]" style="color: var(--color-drexii-text);">
+          Stop switching tabs. <br><span style="opacity: 0.4;">Start asking Drexii.</span>
         </h2>
         <div class="fade-in-up stagger-1 flex flex-col sm:flex-row items-center justify-center gap-4">
           <NuxtLink
             to="/chat"
-            class="px-8 py-3.5 rounded-full bg-white text-black text-[15px] font-semibold hover:bg-white/90 transition-all shadow-lg shadow-white/10"
+            class="cta-footer-primary px-8 py-3.5 rounded-full text-[15px] font-semibold transition-all shadow-lg"
           >
             Open Chat Now
           </NuxtLink>
@@ -493,7 +493,7 @@ async function handleSuggestion(text: string) {
             href="https://discord.gg/3vg69uJP4n"
             target="_blank"
             rel="noopener noreferrer"
-            class="px-8 py-3.5 rounded-full bg-white/5 text-white text-[15px] font-medium hover:bg-white/10 transition-all border border-white/10 flex items-center gap-2"
+            class="cta-footer-secondary px-8 py-3.5 rounded-full text-[15px] font-medium transition-all border flex items-center gap-2"
           >
             <UIcon
               name="i-lucide-message-circle"
@@ -507,7 +507,7 @@ async function handleSuggestion(text: string) {
 
     <!-- ======== FOOTER ======== -->
     <footer class="py-12 px-6 bg-[var(--color-drexii-bg2)] relative z-20">
-      <div class="max-w-[1100px] mx-auto border-t border-white/10 pt-12 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="max-w-[1100px] mx-auto border-t border-[var(--color-drexii-border)] pt-12 flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center">
             <img
@@ -516,7 +516,7 @@ async function handleSuggestion(text: string) {
               alt="Drexii Logo"
             >
           </div>
-          <span class="text-white/40 text-[14px] font-medium">Drexii © {{ new Date().getFullYear() }}</span>
+          <span class="text-[14px] font-medium" style="color: var(--color-drexii-text-muted);">Drexii © {{ new Date().getFullYear() }}</span>
         </div>
 
         <div class="flex items-center gap-8">
@@ -524,23 +524,23 @@ async function handleSuggestion(text: string) {
             href="https://discord.gg/3vg69uJP4n"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-white/40 hover:text-white text-[14px] font-medium transition-colors"
+            class="footer-link text-[14px] font-medium transition-colors"
           >Discord</a>
           <a
             href="#"
-            class="text-white/40 hover:text-white text-[14px] font-medium transition-colors"
+            class="footer-link text-[14px] font-medium transition-colors"
           >Twitter</a>
           <a
             href="#"
-            class="text-white/40 hover:text-white text-[14px] font-medium transition-colors"
+            class="footer-link text-[14px] font-medium transition-colors"
           >GitHub</a>
           <a
             href="#"
-            class="text-white/40 hover:text-white text-[14px] font-medium transition-colors"
+            class="footer-link text-[14px] font-medium transition-colors"
           >Privacy</a>
           <a
             href="#"
-            class="text-white/40 hover:text-white text-[14px] font-medium transition-colors"
+            class="footer-link text-[14px] font-medium transition-colors"
           >Terms</a>
         </div>
       </div>
@@ -556,4 +556,77 @@ async function handleSuggestion(text: string) {
 :global(html:not(.dark)) .intro-scrub {
   color: rgba(12, 12, 14, 0.15);
 }
+
+/* ── Hero text ─────────────────────────────────────────────── */
+.hero-headline { color: rgba(255, 255, 255, 1); text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.hero-headline-muted { color: rgba(255, 255, 255, 0.6); }
+.hero-subtitle { color: rgba(255, 255, 255, 0.5); }
+
+:global(html:not(.dark)) .hero-headline { color: #1a1510; text-shadow: none; }
+:global(html:not(.dark)) .hero-headline-muted { color: rgba(26, 21, 16, 0.55); }
+:global(html:not(.dark)) .hero-subtitle { color: rgba(26, 21, 16, 0.5); }
+
+/* ── Hero CTA buttons ──────────────────────────────────────── */
+.hero-cta-primary { background: #ffffff; color: #000000; }
+.hero-cta-primary:hover { background: rgba(255,255,255,0.9); }
+.hero-cta-secondary { background: rgba(255,255,255,0.05); color: #ffffff; border-color: rgba(255,255,255,0.1); }
+.hero-cta-secondary:hover { background: rgba(255,255,255,0.1); }
+
+:global(html:not(.dark)) .hero-cta-primary { background: #1a1a1e; color: #ffffff; }
+:global(html:not(.dark)) .hero-cta-primary:hover { background: #2a2a2e; }
+:global(html:not(.dark)) .hero-cta-secondary { background: rgba(26,21,16,0.08); color: rgba(26,21,16,0.75); border-color: rgba(26,21,16,0.18); }
+:global(html:not(.dark)) .hero-cta-secondary:hover { background: rgba(26,21,16,0.14); }
+
+/* ── Card input box ────────────────────────────────────────── */
+.card-input-box {
+  background: rgba(42, 42, 42, 0.8);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+:global(html:not(.dark)) .card-input-box {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0,0,0,0.08);
+}
+
+/* ── Card send button ──────────────────────────────────────── */
+.card-send-btn { background: rgba(255,255,255,0.8); color: #000; }
+.card-send-btn:hover { background: #ffffff; }
+:global(html:not(.dark)) .card-send-btn { background: #1a1a1e; color: #fff; }
+:global(html:not(.dark)) .card-send-btn:hover { background: #000; }
+
+/* ── Card category pills ──────────────────────────────────── */
+.card-category-pill { color: var(--color-drexii-text-muted); }
+.card-category-pill:hover { color: var(--color-drexii-text); }
+.card-category-pill--active {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.05) !important;
+}
+:global(html:not(.dark)) .card-category-pill--active {
+  background: rgba(0,0,0,0.07);
+  color: rgba(12,12,14,0.88);
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* ── Card suggestions ──────────────────────────────────────── */
+.card-suggestion { color: var(--color-drexii-text-muted); }
+.card-suggestion:hover { color: var(--color-drexii-text); }
+.card-suggestion-arrow { border-color: rgba(255,255,255,0.1); }
+:global(html:not(.dark)) .card-suggestion-arrow { border-color: rgba(0,0,0,0.1); }
+
+/* ── CTA footer buttons ───────────────────────────────────── */
+.cta-footer-primary { background: #ffffff; color: #000; box-shadow: 0 4px 24px rgba(255,255,255,0.1); }
+.cta-footer-primary:hover { background: rgba(255,255,255,0.9); }
+.cta-footer-secondary { background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.1); }
+.cta-footer-secondary:hover { background: rgba(255,255,255,0.1); }
+
+:global(html:not(.dark)) .cta-footer-primary { background: #1a1a1e; color: #ffffff; box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
+:global(html:not(.dark)) .cta-footer-primary:hover { background: #2a2a2e; }
+:global(html:not(.dark)) .cta-footer-secondary { background: rgba(0,0,0,0.06); color: rgba(12,12,14,0.7); border-color: rgba(0,0,0,0.15); }
+:global(html:not(.dark)) .cta-footer-secondary:hover { background: rgba(0,0,0,0.1); }
+
+/* ── Footer links ──────────────────────────────────────────── */
+.footer-link { color: rgba(255,255,255,0.4); }
+.footer-link:hover { color: #ffffff; }
+:global(html:not(.dark)) .footer-link { color: rgba(12,12,14,0.45); }
+:global(html:not(.dark)) .footer-link:hover { color: rgba(12,12,14,0.9); }
 </style>

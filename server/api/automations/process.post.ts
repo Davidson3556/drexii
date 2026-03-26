@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
       // Email automations are processed via the Gmail webhook endpoint
       // But we also support polling here as a fallback
       try {
-        const response = await $fetch('/api/webhooks/gmail', {
+        await $fetch('/api/webhooks/gmail', {
           method: 'POST',
           body: { poll: true, userId: automation.userId }
         })

@@ -398,7 +398,7 @@ function toolLabel(name: string): string {
                 v-if="message.role === 'assistant'"
                 class="text-sm leading-relaxed prose-chat"
                 v-html="renderMarkdown(message.content)"
-              />
+              /><!-- eslint-disable-line vue/no-v-html -->
               <p
                 v-else
                 class="text-sm leading-relaxed whitespace-pre-wrap"
@@ -479,7 +479,10 @@ function toolLabel(name: string): string {
             <div class="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
               <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
             </div>
-            <div class="message-bubble-assistant" :class="{ 'streaming-cursor': streamingContent }">
+            <div
+              class="message-bubble-assistant"
+              :class="{ 'streaming-cursor': streamingContent }"
+            >
               <!-- Agent activity steps -->
               <div
                 v-if="agentSteps.length > 0"
@@ -517,7 +520,7 @@ function toolLabel(name: string): string {
                 v-if="streamingContent"
                 class="text-sm leading-relaxed prose-chat"
                 v-html="renderMarkdown(streamingContent)"
-              />
+              /><!-- eslint-disable-line vue/no-v-html -->
               <div
                 v-else
                 class="flex items-center gap-1.5 py-1"

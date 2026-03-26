@@ -9,7 +9,7 @@ interface Workflow {
   createdAt: string
 }
 
-const { loadThread, send } = useThread()
+const { loadThread, send: _send } = useThread()
 const router = useRouter()
 
 const workflows = ref<Workflow[]>([])
@@ -101,7 +101,10 @@ onMounted(fetchWorkflows)
           class="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/80 hover:bg-amber-500 text-white text-sm font-medium transition-colors"
           @click="showForm = !showForm"
         >
-          <UIcon name="i-lucide-plus" class="w-4 h-4" />
+          <UIcon
+            name="i-lucide-plus"
+            class="w-4 h-4"
+          />
           New Workflow
         </button>
       </div>
@@ -187,7 +190,10 @@ onMounted(fetchWorkflows)
         class="text-center py-20"
       >
         <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-          <UIcon name="i-lucide-workflow" class="w-6 h-6 text-white/20" />
+          <UIcon
+            name="i-lucide-workflow"
+            class="w-6 h-6 text-white/20"
+          />
         </div>
         <p class="text-sm text-white/30">
           No workflows yet. Create one to chain tools together.
@@ -207,7 +213,10 @@ onMounted(fetchWorkflows)
           <div class="flex items-start gap-4">
             <!-- Icon -->
             <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center shrink-0 mt-0.5">
-              <UIcon name="i-lucide-workflow" class="w-4 h-4 text-amber-400/70" />
+              <UIcon
+                name="i-lucide-workflow"
+                class="w-4 h-4 text-amber-400/70"
+              />
             </div>
 
             <!-- Content -->
@@ -263,7 +272,10 @@ onMounted(fetchWorkflows)
                 title="Delete workflow"
                 @click="deleteWorkflow(wf.id)"
               >
-                <UIcon name="i-lucide-trash-2" class="w-3.5 h-3.5" />
+                <UIcon
+                  name="i-lucide-trash-2"
+                  class="w-3.5 h-3.5"
+                />
               </button>
             </div>
           </div>
