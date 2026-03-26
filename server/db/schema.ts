@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, jsonb, integer, varchar } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, timestamp, jsonb, integer, varchar, boolean } from 'drizzle-orm/pg-core'
 
 export const threads = pgTable('threads', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -89,5 +89,31 @@ export const workflows = pgTable('workflows', {
   prompt: text('prompt').notNull(),
   runCount: integer('run_count').notNull().default(0),
   lastRunAt: timestamp('last_run_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
+})
+
+export const automations = pgTable('automations', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: varchar('user_id', { length: 255 }).notNull(),
+  name: varchar('name', { length: 200 }).notNull(),
+  description: text('description'),
+  trigger: varchar('trigger', { length: 50 }).notNull(), // email_received | schedule | webhook
+  triggerConfig: jsonb('trigger_config').notNull().default({}), // e.g. { schedule: "0 8 * * 1" } or { filter: "is:unread" }
+  instructions: text('instructions').notNull(), // Plain English instructions for the AI agent
+  isActive: boolean('is_active').notNull().default(true),
+  lastRunAt: timestamp('last_run_at', { withTimezone: true }),
+  runCount: integer('run_count').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+})
+
+export const automationLogs = pgTable('automation_logs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  automationId: uuid('automation_id').notNull().references(() => automations.id, { onDelete: 'cascade' }),
+  trigger: varchar('trigger', { length: 50 }).notNull(),
+  input: jsonb('input'), // What triggered it (e.g. email subject, sender)
+  output: text('output'), // AI response / actions taken
+  status: varchar('status', { length: 20 }).notNull().default('success'), // success | error | skipped
+  durationMs: integer('duration_ms'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
 })

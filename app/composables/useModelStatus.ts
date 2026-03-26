@@ -2,7 +2,7 @@ import type { ProviderStatus, AIProvider } from '~/shared/types'
 
 export function useModelStatus() {
   const status = useState<ProviderStatus>('modelStatus', () => ({
-    provider: 'anthropic' as AIProvider,
+    provider: 'insforge' as AIProvider,
     state: 'HEALTHY',
     isHealthy: true,
     isFallback: false,

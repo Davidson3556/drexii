@@ -86,6 +86,33 @@ const integrations = [
     }
   },
   {
+    id: 'gmail',
+    name: 'Gmail',
+    icon: 'i-simple-icons-gmail',
+    color: '#EA4335',
+    description: 'Search, read, send, and draft emails from your Gmail account.',
+    fields: [
+      { key: 'client_id', label: 'Client ID', placeholder: 'your-google-client-id.apps.googleusercontent.com', type: 'text' },
+      { key: 'client_secret', label: 'Client Secret', placeholder: 'GOCSPX-your-client-secret', type: 'password' },
+      { key: 'refresh_token', label: 'Refresh Token', placeholder: '1//your-refresh-token', type: 'password' }
+    ],
+    guide: {
+      title: 'How to get your Gmail API credentials',
+      steps: [
+        'Go to console.cloud.google.com and create a new project (or select existing)',
+        'Enable the Gmail API: APIs & Services → Library → search "Gmail API" → Enable',
+        'Go to APIs & Services → Credentials → Create Credentials → OAuth client ID',
+        'Set Application type to "Web application"',
+        'Add "https://developers.google.com/oauthplayground" as an authorized redirect URI',
+        'Copy the Client ID and Client Secret',
+        'Go to developers.google.com/oauthplayground',
+        'Click the gear icon → check "Use your own OAuth credentials" → paste Client ID & Secret',
+        'In Step 1, select "Gmail API v1" → select all scopes → click "Authorize APIs"',
+        'In Step 2, click "Exchange authorization code for tokens" → copy the Refresh Token'
+      ]
+    }
+  },
+  {
     id: 'zendesk',
     name: 'Zendesk',
     icon: 'i-simple-icons-zendesk',
@@ -890,4 +917,78 @@ onMounted(() => {
     border-radius: 16px;
   }
 }
+
+/* ── Light mode ─────────────────────────────────────────── */
+:global(html:not(.dark)) .intg-title { color: rgba(12,12,14,0.92); }
+:global(html:not(.dark)) .intg-subtitle { color: rgba(12,12,14,0.4); }
+:global(html:not(.dark)) .intg-card {
+  background: rgba(255,255,255,0.7);
+  border-color: rgba(0,0,0,0.08);
+}
+:global(html:not(.dark)) .intg-card:hover {
+  background: rgba(255,255,255,0.95);
+  border-color: rgba(0,0,0,0.14);
+}
+:global(html:not(.dark)) .intg-card--connected {
+  border-color: rgba(34,197,94,0.25);
+}
+:global(html:not(.dark)) .intg-card-name { color: rgba(12,12,14,0.88); }
+:global(html:not(.dark)) .intg-card-desc { color: rgba(12,12,14,0.5); }
+:global(html:not(.dark)) .intg-btn--reconfigure {
+  background: rgba(0,0,0,0.04);
+  color: rgba(12,12,14,0.55);
+  border-color: rgba(0,0,0,0.08);
+}
+:global(html:not(.dark)) .intg-btn--reconfigure:hover {
+  background: rgba(0,0,0,0.07);
+  color: rgba(12,12,14,0.75);
+}
+:global(html:not(.dark)) .intg-btn--ghost {
+  color: rgba(12,12,14,0.45);
+}
+:global(html:not(.dark)) .intg-btn--ghost:hover {
+  color: rgba(12,12,14,0.7);
+}
+:global(html:not(.dark)) .intg-modal {
+  background: rgba(246,246,248,0.99);
+  border-color: rgba(0,0,0,0.08);
+}
+:global(html:not(.dark)) .intg-modal-header {
+  border-color: rgba(0,0,0,0.06);
+}
+:global(html:not(.dark)) .intg-modal-header h2 { color: rgba(12,12,14,0.9); }
+:global(html:not(.dark)) .intg-modal-header p { color: rgba(12,12,14,0.4); }
+:global(html:not(.dark)) .intg-modal-close {
+  background: rgba(0,0,0,0.05);
+  color: rgba(12,12,14,0.45);
+}
+:global(html:not(.dark)) .intg-modal-close:hover {
+  background: rgba(0,0,0,0.09);
+}
+:global(html:not(.dark)) .intg-modal-footer {
+  border-color: rgba(0,0,0,0.06);
+}
+:global(html:not(.dark)) .intg-modal-body label {
+  color: rgba(12,12,14,0.5);
+}
+:global(html:not(.dark)) .intg-guide {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.07);
+}
+:global(html:not(.dark)) .intg-guide-toggle {
+  color: rgba(12,12,14,0.5);
+}
+:global(html:not(.dark)) .intg-guide-steps li {
+  color: rgba(12,12,14,0.5);
+}
+:global(html:not(.dark)) .intg-input {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.08);
+  color: rgba(12,12,14,0.85);
+}
+:global(html:not(.dark)) .intg-input::placeholder {
+  color: rgba(12,12,14,0.25);
+}
+:global(html:not(.dark)) .intg-success h3 { color: rgba(12,12,14,0.8); }
+:global(html:not(.dark)) .intg-success p { color: rgba(12,12,14,0.45); }
 </style>

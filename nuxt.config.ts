@@ -13,6 +13,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
+    // Legacy — kept for backward compatibility with env-based integrations
     anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
     googleAiApiKey: process.env.GOOGLE_AI_API_KEY || '',
     databaseUrl: process.env.DATABASE_URL || '',
@@ -37,6 +38,8 @@ export default defineNuxtConfig({
     '/': { prerender: true }
   },
 
+  colorMode: { preference: 'dark', fallback: 'dark', classSuffix: '' },
+
   compatibilityDate: '2025-01-15',
 
   eslint: {
@@ -58,10 +61,10 @@ export default defineNuxtConfig({
         'font-src': ['\'self\'', 'https://fonts.gstatic.com'],
         'connect-src': [
           '\'self\'',
-          'https://api.anthropic.com',
-          'https://generativelanguage.googleapis.com',
           'https://ce3wqa6u.us-east.insforge.app',
-          'wss://ce3wqa6u.us-east.insforge.app'
+          'wss://ce3wqa6u.us-east.insforge.app',
+          'https://gmail.googleapis.com',
+          'https://oauth2.googleapis.com'
         ],
         'object-src': ['\'none\''],
         'frame-ancestors': ['\'none\'']

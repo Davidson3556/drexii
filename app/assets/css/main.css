@@ -4,17 +4,40 @@
 @theme {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Dark palette */
+  /* Light palette (defaults) */
+  --color-drexii-bg: #f6f6f8;
+  --color-drexii-bg2: #ededf1;
+  --color-drexii-surface: rgba(255,255,255,0.98);
+  --color-drexii-surface-hover: rgba(248,248,252,1.0);
+  --color-drexii-border: rgba(0,0,0,0.07);
+  --color-drexii-text: rgba(12,12,14,0.92);
+  --color-drexii-text-muted: rgba(12,12,14,0.5);
+  --color-drexii-accent: #e8c274;
+  --color-drexii-accent-soft: rgba(232, 194, 116, 0.15);
+  --color-drexii-amber: #d97706;
+  --color-drexii-green: #16a34a;
+}
+
+/* Dark mode overrides */
+html.dark {
   --color-drexii-bg: #0a0a0a;
+  --color-drexii-bg2: #060606;
   --color-drexii-surface: rgba(30, 30, 30, 0.8);
   --color-drexii-surface-hover: rgba(40, 40, 40, 0.9);
   --color-drexii-border: rgba(255, 255, 255, 0.08);
   --color-drexii-text: rgba(255, 255, 255, 0.92);
   --color-drexii-text-muted: rgba(255, 255, 255, 0.45);
-  --color-drexii-accent: #e8c274;
-  --color-drexii-accent-soft: rgba(232, 194, 116, 0.15);
   --color-drexii-amber: #f59e0b;
   --color-drexii-green: #22c55e;
+}
+
+/* Remap Tailwind's --color-white so all text-white/X, bg-white/X, border-white/X
+   utilities automatically adapt to light/dark mode */
+:root {
+  --color-white: oklch(15% 0 0);
+}
+html.dark {
+  --color-white: oklch(100% 0 0);
 }
 
 /* ============================================================
@@ -52,7 +75,7 @@ body {
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 40%, rgba(10,10,10,0.4) 80%, rgba(10,10,10,1) 100%);
+  background: linear-gradient(to bottom, transparent 40%, color-mix(in srgb, var(--color-drexii-bg) 40%, transparent) 80%, var(--color-drexii-bg) 100%);
   pointer-events: none;
 }
 
@@ -61,45 +84,45 @@ body {
    ============================================================ */
 
 .app-window {
-  background: #202020;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    0 40px 100px -20px rgba(0, 0, 0, 0.9),
-    0 10px 40px -10px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: var(--color-drexii-surface);
+  border: 1px solid var(--color-drexii-border);
+  box-shadow:
+    0 40px 100px -20px rgba(0, 0, 0, 0.4),
+    0 10px 40px -10px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 var(--color-drexii-border);
 }
 
 .glass-card {
-  background: rgba(25, 25, 25, 0.75);
+  background: var(--color-drexii-surface);
   backdrop-filter: blur(40px) saturate(1.2);
   -webkit-backdrop-filter: blur(40px) saturate(1.2);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-drexii-border);
   border-radius: 20px;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    0 2px 8px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 var(--color-drexii-border);
 }
 
 .premium-card {
-  background: linear-gradient(180deg, rgba(30,30,30,0.4) 0%, rgba(15,15,15,0.8) 100%);
+  background: var(--color-drexii-surface);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-drexii-border);
   border-radius: 24px;
-  box-shadow: 
-    0 4px 24px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255,255,255,0.02);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 var(--color-drexii-border);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .premium-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--color-drexii-border);
   transform: translateY(-4px);
-  background: linear-gradient(180deg, rgba(40,40,40,0.5) 0%, rgba(20,20,20,0.9) 100%);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+  background: var(--color-drexii-surface-hover);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 var(--color-drexii-border);
 }
 
 .bg-accent-glow {
@@ -301,6 +324,33 @@ body {
   --fc-icon-glow: rgba(34,211,238,0.4);
 }
 
+html:not(.dark) .feature-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8f8fb 100%);
+  border-color: rgba(0,0,0,0.07);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+html:not(.dark) .feature-card:hover {
+  border-color: var(--fc-border-hover, rgba(0,0,0,0.15));
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+html:not(.dark) .fc-num { color: rgba(0,0,0,0.12); }
+html:not(.dark) .fc-title { color: rgba(10,10,12,0.92); }
+html:not(.dark) .fc-desc { color: rgba(10,10,12,0.5); }
+html:not(.dark) .fc-badge {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.07);
+  color: rgba(0,0,0,0.4);
+}
+html:not(.dark) .memory-chip {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.08);
+  color: rgba(0,0,0,0.55);
+}
+html:not(.dark) .memory-chip:hover {
+  border-color: rgba(34,211,238,0.3);
+  color: rgba(0,0,0,0.75);
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -314,18 +364,18 @@ body {
 }
 
 .glass-input {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--color-drexii-surface);
+  border: 1px solid var(--color-drexii-border);
   border-radius: 14px;
   color: var(--color-drexii-text);
   transition: all 0.2s ease;
 }
 
 .glass-input:focus {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: var(--color-drexii-surface-hover);
+  border-color: var(--color-drexii-accent);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(232, 194, 116, 0.1);
+  box-shadow: 0 0 0 3px var(--color-drexii-accent-soft);
 }
 
 .glass-input::placeholder {
@@ -349,23 +399,24 @@ body {
 }
 
 .pill-default {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-drexii-surface);
   color: var(--color-drexii-text-muted);
+  border-color: var(--color-drexii-border);
 }
 
 .pill-default:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-drexii-surface-hover);
   color: var(--color-drexii-text);
 }
 
 .pill-active {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--color-drexii-surface-hover);
   color: var(--color-drexii-text);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-drexii-border);
 }
 
 .pill-announcement {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-drexii-surface);
   color: var(--color-drexii-text-muted);
   font-size: 13px;
   gap: 6px;
@@ -405,12 +456,12 @@ body {
 }
 
 .text-reveal {
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--color-drexii-text-muted);
   transition: color 0.6s ease;
 }
 
 .text-reveal.visible {
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--color-drexii-text);
 }
 
 /* ============================================================
@@ -427,8 +478,8 @@ body {
 }
 
 .message-bubble-assistant {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--color-drexii-surface);
+  border: 1px solid var(--color-drexii-border);
   border-radius: 18px 18px 18px 4px;
   padding: 12px 18px;
   max-width: 85%;
@@ -504,12 +555,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-drexii-border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--color-drexii-text-muted);
 }
 
 /* ============================================================
@@ -529,7 +580,7 @@ body {
 }
 
 .suggestion-row:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--color-drexii-surface);
   color: var(--color-drexii-text);
 }
 
@@ -560,18 +611,18 @@ body {
    ============================================================ */
 
 .prose-chat {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-drexii-text);
   word-break: break-word;
 }
 
 .prose-chat strong {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--color-drexii-text);
   font-weight: 600;
 }
 
 .prose-chat em {
   font-style: italic;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-drexii-text-muted);
 }
 
 .prose-chat a {
@@ -593,7 +644,7 @@ body {
 }
 
 .prose-chat li {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-drexii-text);
 }
 
 .prose-chat pre {
@@ -607,12 +658,12 @@ body {
 
 .prose-chat hr {
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--color-drexii-border);
   margin: 12px 0;
 }
 
 .prose-chat h1,
 .prose-chat h2,
 .prose-chat h3 {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--color-drexii-text);
 }

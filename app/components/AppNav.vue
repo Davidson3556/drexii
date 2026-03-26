@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const colorMode = useColorMode()
 const route = useRoute()
 const router = useRouter()
 const { isFallback } = useModelStatus()
@@ -15,6 +16,7 @@ const navLinks = [
   { id: 'try-drexii', label: 'Try Drexii', section: null, to: '/chat' },
   { id: 'integrations', label: 'Integrations', section: null, to: '/integrations' },
   { id: 'workflows', label: 'Workflows', section: null, to: '/workflows' },
+  { id: 'automations', label: 'Automations', section: null, to: '/automations' },
 ]
 
 const activeItem = ref(
@@ -24,7 +26,9 @@ const activeItem = ref(
       ? 'integrations'
       : route.path === '/workflows'
         ? 'workflows'
-        : 'how-it-works'
+        : route.path === '/automations'
+          ? 'automations'
+          : 'how-it-works'
 )
 const mobileOpen = ref(false)
 
@@ -84,7 +88,9 @@ watch(() => route.path, (path) => {
       ? 'integrations'
       : path === '/workflows'
         ? 'workflows'
-        : 'how-it-works'
+        : path === '/automations'
+          ? 'automations'
+          : 'how-it-works'
   mobileOpen.value = false
   nextTick(updatePill)
 })
@@ -126,7 +132,7 @@ function navigate(link: typeof navLinks[0]) {
 }
 
 const isOnChat = computed(() => route.path === '/chat')
-const isOnApp = computed(() => ['/chat', '/integrations', '/workflows'].includes(route.path))
+const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automations'].includes(route.path))
 </script>
 
 <template>
@@ -172,6 +178,17 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows'].includes
 
     <!-- Desktop right -->
     <div class="header-right header-right--desktop">
+      <button
+        class="icon-btn"
+        :title="colorMode.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+        @click="colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'"
+      >
+        <UIcon
+          :name="colorMode.value === 'dark' ? 'i-lucide-sun' : 'i-lucide-moon'"
+          class="w-4 h-4"
+        />
+      </button>
+
       <!-- Homepage: Open Chat CTA -->
       <NuxtLink
         v-if="!isOnChat"
@@ -287,10 +304,22 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows'].includes
 
       <!-- Bottom CTA -->
       <div class="mob-footer">
-        <NuxtLink to="/chat" class="mob-cta" @click="mobileOpen = false">
-          Start Chatting
-          <UIcon name="i-lucide-arrow-right" class="w-4 h-4" />
-        </NuxtLink>
+        <div class="mob-footer-row">
+          <button
+            class="icon-btn"
+            :title="colorMode.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+            @click="colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'"
+          >
+            <UIcon
+              :name="colorMode.value === 'dark' ? 'i-lucide-sun' : 'i-lucide-moon'"
+              class="w-4 h-4"
+            />
+          </button>
+          <NuxtLink to="/chat" class="mob-cta" @click="mobileOpen = false">
+            Start Chatting
+            <UIcon name="i-lucide-arrow-right" class="w-4 h-4" />
+          </NuxtLink>
+        </div>
       </div>
     </div>
   </Transition>
@@ -309,10 +338,10 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows'].includes
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  background: rgba(10, 10, 10, 0.6);
+  background: var(--nav-bg, rgba(10, 10, 10, 0.6));
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--nav-border, rgba(255, 255, 255, 0.05));
 }
 
 /* ── Logo ────────────────────────────────────────────────────── */
@@ -342,8 +371,8 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows'].includes
   display: none;
   align-items: center;
   position: relative;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--nav-pill-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--nav-pill-border, rgba(255, 255, 255, 0.06));
   border-radius: 9999px;
   padding: 4px;
 }
@@ -546,7 +575,7 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows'].includes
   z-index: 60;
   display: flex;
   flex-direction: column;
-  background: rgba(9, 9, 11, 0.97);
+  background: var(--mob-overlay-bg, rgba(9, 9, 11, 0.97));
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
 }
@@ -630,6 +659,13 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows'].includes
   justify-content: center;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   flex-shrink: 0;
+}
+.mob-footer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
 }
 
 .mob-cta {
@@ -762,12 +798,12 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows'].includes
 
 /* Desktop pill: plate matches nav pill bg */
 .pill-ring .gold-plate {
-  background: rgba(14, 14, 16, 0.96);
+  background: var(--nav-plate-bg, rgba(14, 14, 16, 0.96));
 }
 
 /* Mobile: plate matches overlay bg */
 .mob-ring .gold-plate {
-  background: rgba(9, 9, 11, 0.97);
+  background: var(--mob-plate-bg, rgba(9, 9, 11, 0.97));
 }
 
 /* ── Mobile overlay transition ──────────────────────────────── */
@@ -782,4 +818,34 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows'].includes
   opacity: 0;
   transform: translateY(-16px);
 }
+
+/* ── Light mode overrides ─────────────────────────────── */
+:global(html:not(.dark)) {
+  --nav-bg: rgba(246,246,248,0.88);
+  --nav-border: rgba(0,0,0,0.07);
+  --nav-pill-bg: rgba(0,0,0,0.04);
+  --nav-pill-border: rgba(0,0,0,0.06);
+  --nav-plate-bg: rgba(246,246,248,0.98);
+  --mob-overlay-bg: rgba(247,247,249,0.97);
+  --mob-plate-bg: rgba(247,247,249,0.97);
+}
+:global(html:not(.dark)) .logo-text { color: rgba(12,12,14,0.92); }
+:global(html:not(.dark)) .pill-link { color: rgba(0,0,0,0.42); }
+:global(html:not(.dark)) .pill-link:hover { color: rgba(0,0,0,0.72); }
+:global(html:not(.dark)) .pill-link--active { color: rgba(0,0,0,0.88); }
+:global(html:not(.dark)) .mob-link { color: rgba(0,0,0,0.35); }
+:global(html:not(.dark)) .mob-link:hover { color: rgba(0,0,0,0.7); }
+:global(html:not(.dark)) .mob-link--active { color: rgba(0,0,0,0.88); }
+:global(html:not(.dark)) .mob-topbar { border-color: rgba(0,0,0,0.07); }
+:global(html:not(.dark)) .mob-footer { border-color: rgba(0,0,0,0.07); }
+:global(html:not(.dark)) .mob-close { color: rgba(0,0,0,0.55); background: rgba(0,0,0,0.05); }
+:global(html:not(.dark)) .burger-line { background: rgba(0,0,0,0.65); }
+:global(html:not(.dark)) .status-pill { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.5); }
+:global(html:not(.dark)) .cta-btn { background: #0f0f11; color: #ffffff; }
+:global(html:not(.dark)) .cta-btn:hover { background: #2a2a2e; }
+:global(html:not(.dark)) .mob-cta { background: #0f0f11; color: #ffffff; }
+:global(html:not(.dark)) .mob-cta:hover { background: #2a2a2e; }
+:global(html:not(.dark)) .icon-btn { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.45); }
+:global(html:not(.dark)) .icon-btn:hover { background: rgba(0,0,0,0.09); color: rgba(0,0,0,0.7); }
+:global(html:not(.dark)) .user-avatar-btn { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.12); }
 </style>

@@ -718,4 +718,7 @@ function toolLabel(name: string): string {
   0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
   40% { opacity: 1; transform: translateY(-2px); }
 }
+
+/* Light mode */
+:global(html:not(.dark)) .typing-dot-sm { background: rgba(0,0,0,0.3); }
 </style>

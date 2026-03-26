@@ -1,6 +1,6 @@
 import type { MessagePayload, AIProvider, RouterState, ProviderStatus, TaskComplexity } from '../../../shared/types'
-import * as anthropic from './anthropic'
-import * as gemini from './gemini'
+import * as insforgeAI from './insforge'
+import type { InsforgeModel } from './insforge'
 
 interface CircuitBreakerState {
   state: RouterState
@@ -22,18 +22,43 @@ const CIRCUIT_BREAKER_THRESHOLD = 5
 const CIRCUIT_BREAKER_WINDOW = 60_000
 const CIRCUIT_BREAKER_COOLDOWN = 300_000
 
-const RESPONSE_TIMEOUT = 15_000
+// ── Model mapping per complexity tier ──────────────────────────────
 
-// Keywords that indicate a complex, heavy task requiring the capable model
+const MODEL_MAP: Record<TaskComplexity, InsforgeModel> = {
+  lite: 'openai/gpt-4o-mini',
+  standard: 'anthropic/claude-sonnet-4.5',
+  heavy: 'anthropic/claude-opus-4.6',
+  code: 'anthropic/claude-sonnet-4.5'
+}
+
+const FALLBACK_MODEL: InsforgeModel = 'anthropic/claude-haiku-4.5'
+
+// ── Task classification ────────────────────────────────────────────
+
+// Keywords that indicate a heavy task requiring the most capable model
 const HEAVY_KEYWORDS = [
-  'write', 'draft', 'plan', 'analyze', 'analyse', 'compare', 'report',
-  'implement', 'design', 'create', 'build', 'generate', 'summarize',
-  'summarise', 'review', 'research', 'explain', 'describe', 'code',
-  'script', 'function', 'architecture', 'step by step', 'in detail',
-  'workflow', 'strategy', 'proposal', 'outline', 'translate'
+  'analyze', 'analyse', 'compare', 'research', 'explain in detail',
+  'step by step', 'deep dive', 'investigate', 'evaluate', 'assess',
+  'comprehensive', 'thorough', 'detailed analysis', 'pros and cons',
+  'architecture', 'strategy', 'proposal'
 ]
 
-// Prefixes that indicate a simple, lite query
+// Keywords that indicate a standard task (drafting, writing)
+const STANDARD_KEYWORDS = [
+  'write', 'draft', 'plan', 'create', 'generate', 'summarize',
+  'summarise', 'review', 'describe', 'outline', 'translate',
+  'compose', 'report', 'email', 'document', 'article', 'blog'
+]
+
+// Keywords that indicate a code task
+const CODE_KEYWORDS = [
+  'code', 'script', 'function', 'implement', 'debug', 'refactor',
+  'regex', 'algorithm', 'sql', 'query', 'api', 'endpoint',
+  'build', 'deploy', 'test', 'fix bug', 'error', 'stack trace',
+  'typescript', 'javascript', 'python', 'html', 'css', 'json'
+]
+
+// Prefixes that indicate a simple lite query
 const LITE_STARTERS = [
   'what is ', 'what are ', "what's ", 'who is ', 'where is ', 'when is ',
   'how do ', 'how does ', 'hi', 'hello', 'hey', 'thanks', 'thank you',
@@ -50,50 +75,49 @@ export function classifyTask(messages: MessagePayload[]): TaskComplexity {
   const threadDepth = messages.length
 
   // Long messages are inherently complex
-  if (wordCount > 60) return 'heavy'
+  if (wordCount > 80) return 'heavy'
 
-  // Deep threads need the more capable model for context tracking
-  if (threadDepth > 12) return 'heavy'
+  // Deep threads need the most capable model
+  if (threadDepth > 14) return 'heavy'
 
-  // Heavy keyword match overrides everything
+  // Check for code tasks first (most specific)
+  if (CODE_KEYWORDS.some(kw => text.includes(kw))) return 'code'
+
+  // Check for heavy tasks
   if (HEAVY_KEYWORDS.some(kw => text.includes(kw))) return 'heavy'
+
+  // Check for standard writing/drafting tasks
+  if (STANDARD_KEYWORDS.some(kw => text.includes(kw))) return 'standard'
 
   // Lite starters on short messages
   if (LITE_STARTERS.some(s => text.startsWith(s)) && wordCount <= 25) return 'lite'
 
-  // Very short messages are lite (greetings, acknowledgments, simple questions)
+  // Very short messages are lite
   if (wordCount <= 10) return 'lite'
 
-  // Default: heavy (better to be safe)
-  return 'heavy'
+  // Default: standard (balanced)
+  return 'standard'
 }
 
-function hasAnthropicKey(): boolean {
-  const key = process.env.ANTHROPIC_API_KEY
-  return !!key && key.length > 0
-}
+// ── Provider status (simplified — single provider: insforge) ───────
 
 export function getActiveProvider(): AIProvider {
-  if (!hasAnthropicKey()) {
-    return 'gemini'
-  }
-  if (circuitBreaker.state === 'FALLBACK' || circuitBreaker.state === 'RECOVERING') {
-    return 'gemini'
-  }
-  return 'anthropic'
+  return 'insforge'
 }
 
 export function getProviderForMessages(messages: MessagePayload[]): AIProvider {
-  if (!hasAnthropicKey()) return 'gemini'
-  if (circuitBreaker.state === 'FALLBACK' || circuitBreaker.state === 'RECOVERING') return 'gemini'
+  return 'insforge'
+}
 
+export function getModelForMessages(messages: MessagePayload[]): InsforgeModel {
+  if (circuitBreaker.state === 'FALLBACK') return FALLBACK_MODEL
   const complexity = classifyTask(messages)
-  return complexity === 'lite' ? 'gemini' : 'anthropic'
+  return MODEL_MAP[complexity]
 }
 
 export function getProviderStatus(): ProviderStatus {
   return {
-    provider: getActiveProvider(),
+    provider: 'insforge',
     state: circuitBreaker.state,
     isHealthy: circuitBreaker.state === 'HEALTHY',
     isFallback: circuitBreaker.state === 'FALLBACK' || circuitBreaker.state === 'RECOVERING',
@@ -101,16 +125,11 @@ export function getProviderStatus(): ProviderStatus {
   }
 }
 
-export function forceProvider(provider: AIProvider): void {
-  if (provider === 'gemini') {
-    circuitBreaker.state = 'FALLBACK'
-    circuitBreaker.fallbackUntil = Date.now() + CIRCUIT_BREAKER_COOLDOWN
-  } else {
-    circuitBreaker.state = 'HEALTHY'
-    circuitBreaker.errorCount = 0
-    circuitBreaker.fallbackUntil = 0
-  }
+export function forceProvider(_provider: AIProvider): void {
+  // No-op — InsForge handles all models now
 }
+
+// ── Circuit breaker helpers ────────────────────────────────────────
 
 function recordError(reason: string): void {
   circuitBreaker.errorCount++
@@ -122,7 +141,7 @@ function recordError(reason: string): void {
     circuitBreaker.state = 'FALLBACK'
     circuitBreaker.fallbackUntil = Date.now() + CIRCUIT_BREAKER_COOLDOWN
     circuitBreaker.errorCount = 0
-    console.warn('[ModelRouter] Circuit breaker OPEN — switching to Gemini')
+    console.warn('[ModelRouter] Circuit breaker OPEN — falling back to Haiku')
   } else if (circuitBreaker.errorCount >= 2) {
     circuitBreaker.state = 'DEGRADED'
   }
@@ -133,7 +152,7 @@ function recordSuccess(): void {
     circuitBreaker.state = 'HEALTHY'
     circuitBreaker.errorCount = 0
     circuitBreaker.fallbackUntil = 0
-    console.info('[ModelRouter] Anthropic recovered — switching back to primary')
+    console.info('[ModelRouter] InsForge recovered — back to normal routing')
   } else if (circuitBreaker.state === 'DEGRADED') {
     circuitBreaker.errorCount = Math.max(0, circuitBreaker.errorCount - 1)
     if (circuitBreaker.errorCount === 0) {
@@ -141,85 +160,117 @@ function recordSuccess(): void {
     }
   }
 
-  if (circuitBreaker.lastErrorTime > 0
-    && Date.now() - circuitBreaker.lastErrorTime > CIRCUIT_BREAKER_WINDOW) {
+  if (circuitBreaker.lastErrorTime > 0 && Date.now() - circuitBreaker.lastErrorTime > CIRCUIT_BREAKER_WINDOW) {
     circuitBreaker.errorCount = 0
   }
 }
 
+// ── Streaming chat ─────────────────────────────────────────────────
+
 export async function* streamChat(
   messages: MessagePayload[],
-  options: { maxTokens?: number, temperature?: number, systemPrompt?: string, forceComplexity?: TaskComplexity } = {}
+  options: {
+    maxTokens?: number
+    temperature?: number
+    systemPrompt?: string
+    forceComplexity?: TaskComplexity
+    webSearch?: boolean
+  } = {}
 ): AsyncGenerator<string> {
-  const { forceComplexity, ...modelOptions } = options
+  const { forceComplexity, webSearch, ...modelOptions } = options
 
-  if (circuitBreaker.state === 'FALLBACK'
-    && Date.now() > circuitBreaker.fallbackUntil) {
+  // Check if circuit breaker cooldown is over
+  if (circuitBreaker.state === 'FALLBACK' && Date.now() > circuitBreaker.fallbackUntil) {
     circuitBreaker.state = 'RECOVERING'
   }
 
-  // Determine complexity: caller can override (e.g. force 'lite' for follow-up summarization)
   const complexity = forceComplexity ?? classifyTask(messages)
+  const isFallback = circuitBreaker.state === 'FALLBACK'
+  const model = isFallback ? FALLBACK_MODEL : MODEL_MAP[complexity]
 
-  // Route lite tasks directly to Gemini — no need to hit the heavy model
-  const isCircuitOpen = circuitBreaker.state === 'FALLBACK' || circuitBreaker.state === 'RECOVERING'
-  const useGemini = complexity === 'lite' || isCircuitOpen || !hasAnthropicKey()
+  console.info(`[ModelRouter] complexity=${complexity} circuit=${circuitBreaker.state} → ${model}`)
 
-  console.info(`[ModelRouter] complexity=${complexity} circuit=${circuitBreaker.state} → ${useGemini ? 'gemini' : 'anthropic'}`)
+  try {
+    const stream = insforgeAI.streamChat(messages, {
+      ...modelOptions,
+      model,
+      webSearch
+    })
 
-  if (!useGemini) {
-    try {
-      const streamGen = anthropic.streamChat(messages, modelOptions)
-      const timeoutId = setTimeout(() => {
-        throw new Error('Response timeout')
-      }, RESPONSE_TIMEOUT)
-
-      for await (const chunk of streamGen) {
-        recordSuccess()
-        yield chunk
-      }
-
-      clearTimeout(timeoutId)
-    } catch (error: unknown) {
-      const err = error as { status?: number, message?: string }
-      const status = err.status
-      const reason = err.message || 'Unknown Anthropic error'
-
-      if (status === 529 || status === 429 || (status && status >= 500)) {
-        recordError(`HTTP ${status}: ${reason}`)
-        yield* gemini.streamChat(messages, modelOptions)
-        return
-      }
-
-      if (reason.includes('timeout') || reason.includes('Timeout')) {
-        recordError(`Timeout: ${reason}`)
-        yield* gemini.streamChat(messages, modelOptions)
-        return
-      }
-
-      recordError(reason)
-      yield* gemini.streamChat(messages, modelOptions)
+    for await (const chunk of stream) {
+      recordSuccess()
+      yield chunk
     }
-  } else {
-    yield* gemini.streamChat(messages, modelOptions)
+  } catch (error: unknown) {
+    const err = error as Error
+    const reason = err.message || 'Unknown InsForge AI error'
+    recordError(reason)
+
+    // Retry with fallback model if not already using it
+    if (model !== FALLBACK_MODEL) {
+      console.warn(`[ModelRouter] Retrying with fallback model: ${FALLBACK_MODEL}`)
+      yield* insforgeAI.streamChat(messages, {
+        ...modelOptions,
+        model: FALLBACK_MODEL
+      })
+    } else {
+      throw error
+    }
   }
 }
 
-export async function runHealthCheck(): Promise<{ anthropic: boolean, gemini: boolean }> {
+// ── Non-streaming completion (for background agent) ────────────────
+
+export async function completion(
+  messages: MessagePayload[],
+  options: {
+    maxTokens?: number
+    temperature?: number
+    systemPrompt?: string
+    forceComplexity?: TaskComplexity
+    webSearch?: boolean
+  } = {}
+): Promise<string> {
+  const { forceComplexity, webSearch, ...modelOptions } = options
+  const complexity = forceComplexity ?? classifyTask(messages)
+  const model = circuitBreaker.state === 'FALLBACK' ? FALLBACK_MODEL : MODEL_MAP[complexity]
+
+  try {
+    const result = await insforgeAI.chatCompletion(messages, {
+      ...modelOptions,
+      model,
+      webSearch
+    })
+    recordSuccess()
+    return result
+  } catch (error: unknown) {
+    const reason = (error as Error).message || 'Unknown error'
+    recordError(reason)
+
+    if (model !== FALLBACK_MODEL) {
+      return insforgeAI.chatCompletion(messages, {
+        ...modelOptions,
+        model: FALLBACK_MODEL
+      })
+    }
+    throw error
+  }
+}
+
+// ── Health check ───────────────────────────────────────────────────
+
+export async function runHealthCheck(): Promise<{ insforge: boolean }> {
   circuitBreaker.lastHealthCheck = Date.now()
 
-  const [anthropicOk, geminiOk] = await Promise.all([
-    anthropic.healthCheck().catch(() => false),
-    gemini.healthCheck().catch(() => false)
-  ])
+  const insforgeOk = await insforgeAI.healthCheck().catch(() => false)
 
-  if (!anthropicOk && circuitBreaker.state === 'HEALTHY') {
+  if (!insforgeOk && circuitBreaker.state === 'HEALTHY') {
     recordError('Health check failed')
   }
 
-  if (anthropicOk && circuitBreaker.state === 'FALLBACK') {
+  if (insforgeOk && circuitBreaker.state === 'FALLBACK') {
     circuitBreaker.state = 'RECOVERING'
   }
 
-  return { anthropic: anthropicOk, gemini: geminiOk }
+  return { insforge: insforgeOk }
 }

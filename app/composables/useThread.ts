@@ -180,7 +180,7 @@ export function useThread() {
           threadId: state.value.currentThread!.id,
           role: 'assistant',
           content: state.value.streamingContent,
-          modelUsed: modelUsed as 'anthropic' | 'gemini' | null,
+          modelUsed: modelUsed as Message['modelUsed'],
           toolCalls: null,
           createdAt: new Date().toISOString()
         }

@@ -3,14 +3,14 @@ import type { ComponentPublicInstance } from '#imports'
 
 const router = useRouter()
 
-const categories = ['Research', 'Support Ops', 'Writing', 'Actions']
+const categories = ['Email', 'Research', 'Writing', 'Actions']
 const activeCategory = ref('Research')
 
 const suggestions = [
-  { text: 'Summarize our product in simple terms for new users', icon: 'i-lucide-sparkles' },
-  { text: 'Draft a friendly support reply using our help docs', icon: 'i-lucide-message-square' },
-  { text: 'Pull the latest metrics from our analytics dashboard', icon: 'i-lucide-bar-chart-3' },
-  { text: 'Create a follow-up email for the last sales meeting', icon: 'i-lucide-mail' }
+  { text: 'List my unread emails and summarize the important ones', icon: 'i-lucide-mail' },
+  { text: 'Search Notion for our project roadmap', icon: 'i-lucide-sparkles' },
+  { text: 'Draft a reply to the latest client email', icon: 'i-lucide-message-square' },
+  { text: 'Post a status update to #general on Slack', icon: 'i-lucide-send' }
 ]
 
 const inputValue = ref('')
@@ -25,6 +25,7 @@ function handleScroll() {
   scrollY.value = window.scrollY
 
   // Text Reveal Logic for Intro Paragraphs
+  const isDark = document.documentElement.classList.contains('dark')
   introRefs.value.forEach((el) => {
     if (!el) return
 
@@ -38,10 +39,17 @@ function handleScroll() {
     const opacity = 0.15 + (scrollProgress * 0.85)
 
     // Apply dynamic inline styles for the scrub-in effect
-    el.style.color = `rgba(255, 255, 255, ${opacity})`
-    if (scrollProgress > 0.1) {
-      el.style.textShadow = `0 0 ${scrollProgress * 15}px rgba(255, 255, 255, ${scrollProgress * 0.3})`
+    if (isDark) {
+      el.style.color = `rgba(255, 255, 255, ${opacity})`
+      if (scrollProgress > 0.1) {
+        el.style.textShadow = `0 0 ${scrollProgress * 15}px rgba(255, 255, 255, ${scrollProgress * 0.3})`
+      } else {
+        el.style.textShadow = 'none'
+      }
     } else {
+      // Light mode: reveal from light-muted to dark text
+      const darkOpacity = 0.15 + (scrollProgress * 0.77)
+      el.style.color = `rgba(12, 12, 14, ${darkOpacity})`
       el.style.textShadow = 'none'
     }
   })
@@ -130,7 +138,7 @@ async function handleSuggestion(text: string) {
 
         <!-- Subtitle -->
         <p class="fade-in-up stagger-2 text-white/50 text-[14px] sm:text-base max-w-md mb-8 leading-relaxed font-normal">
-          Drexii connects to Notion, Slack, and Discord.
+          Drexii connects to Gmail, Notion, Slack, Discord, and more.
           <br class="hidden sm:block">
           Ask a question — get answers, drafts, and actions.
         </p>
@@ -179,7 +187,7 @@ async function handleSuggestion(text: string) {
               Welcome back
             </h2>
             <p class="text-white/40 text-[12px] md:text-[13px] text-center mb-6 md:mb-10 font-medium">
-              How can I help you today, Jackson?
+              How can I help you today?
             </p>
 
             <!-- Input Box -->
@@ -280,32 +288,29 @@ async function handleSuggestion(text: string) {
         <!-- Intro Paragraphs — staggered text reveal -->
         <p
           :ref="introRef0"
-          class="intro-text text-reveal mb-8 mx-auto text-[24px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
-          style="color: rgba(255,255,255,0.15);"
+          class="intro-text intro-scrub mb-8 mx-auto text-[24px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
         >
           You ask a question in plain language.
-          Drexii pulls context from Notion, searches
-          Slack, and gives you the answer — with sources.
+          Drexii searches your emails, pulls context from Notion,
+          checks Slack, and gives you the answer — with sources.
         </p>
 
         <p
           :ref="introRef1"
-          class="intro-text text-reveal stagger-2 mb-8 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
-          style="color: rgba(255,255,255,0.15);"
+          class="intro-text intro-scrub stagger-2 mb-8 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
         >
-          Need a draft? A message sent? A ticket created?
+          Need a draft? An email sent? A ticket created?
           Just say it. Drexii executes across your
           connected tools without you leaving the chat.
         </p>
 
         <p
           :ref="introRef2"
-          class="intro-text text-reveal stagger-3 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
-          style="color: rgba(255,255,255,0.15);"
+          class="intro-text intro-scrub stagger-3 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
         >
-          It remembers what you told it yesterday,
-          logs every action it takes, and never acts
-          without your knowledge.
+          Set up automations and Drexii works even when
+          you're offline — handling emails, running tasks,
+          and keeping everything moving.
         </p>
       </div>
     </section>
@@ -313,7 +318,7 @@ async function handleSuggestion(text: string) {
     <!-- ======== FEATURES SECTION ======== -->
     <section
       id="features"
-      class="py-32 px-6 relative z-20 bg-[#060606]"
+      class="py-32 px-6 relative z-20 bg-[var(--color-drexii-bg2)]"
     >
       <div class="max-w-[1100px] mx-auto">
         <div class="flex flex-col items-center mb-20 text-center">
@@ -329,28 +334,28 @@ async function handleSuggestion(text: string) {
         <!-- Bento Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-          <!-- Always-On AI — wide (2 cols) -->
+          <!-- Multi-Model AI — wide (2 cols) -->
           <div class="fade-in-up feature-card feature-card--amber lg:col-span-2 group">
             <span class="fc-num">01</span>
             <div class="fc-icon fc-icon--amber">
               <UIcon name="i-lucide-brain" class="w-6 h-6 text-amber-400" />
             </div>
-            <h3 class="fc-title">Always-On AI</h3>
-            <p class="fc-desc">Two AI engines under the hood. If one goes down, the other picks up instantly — you never notice a thing.</p>
+            <h3 class="fc-title">Multi-Model AI</h3>
+            <p class="fc-desc">Multiple AI models working together. The right model is selected for each task — deep reasoning, writing, quick answers, or code.</p>
             <div class="fc-badge">
               <span class="fc-badge-dot fc-badge-dot--amber" />
-              Claude Sonnet · Gemini Flash
+              Opus · Sonnet · Haiku · DeepSeek
             </div>
           </div>
 
-          <!-- 5 Integrations -->
+          <!-- 6 Integrations -->
           <div class="fade-in-up stagger-1 feature-card feature-card--blue group">
             <span class="fc-num">02</span>
             <div class="fc-icon fc-icon--blue">
               <UIcon name="i-lucide-plug-zap" class="w-6 h-6 text-blue-400" />
             </div>
-            <h3 class="fc-title">5 Integrations,<br>15 Tools</h3>
-            <p class="fc-desc">Notion, Slack, Discord, Zendesk, Salesforce — all from one chat.</p>
+            <h3 class="fc-title">6 Integrations,<br>20+ Tools</h3>
+            <p class="fc-desc">Gmail, Notion, Slack, Discord, Zendesk, Salesforce — all from one chat.</p>
           </div>
 
           <!-- Traceable Answers -->
@@ -363,14 +368,14 @@ async function handleSuggestion(text: string) {
             <p class="fc-desc">Every response cites exactly where it came from — a Notion page, a Slack thread, a record.</p>
           </div>
 
-          <!-- Cross-Tool Workflows -->
+          <!-- Autonomous Automations -->
           <div class="fade-in-up stagger-2 feature-card feature-card--purple group">
             <span class="fc-num">04</span>
             <div class="fc-icon fc-icon--purple">
-              <UIcon name="i-lucide-workflow" class="w-6 h-6 text-purple-400" />
+              <UIcon name="i-lucide-bot" class="w-6 h-6 text-purple-400" />
             </div>
-            <h3 class="fc-title">Cross-Tool Workflows</h3>
-            <p class="fc-desc">Chain actions across services. "Find the bug in Notion and post a summary to Discord."</p>
+            <h3 class="fc-title">Autonomous Automations</h3>
+            <p class="fc-desc">Set triggers for emails, schedules, or webhooks. Drexii runs in the background — even when you're offline.</p>
           </div>
 
           <!-- Full Audit Trail -->
@@ -420,7 +425,7 @@ async function handleSuggestion(text: string) {
     </section>
 
     <!-- ======== PRE-FOOTER CTA ======== -->
-    <section class="py-20 md:py-32 px-4 md:px-6 relative z-20 bg-[#060606] border-t border-white/5">
+    <section class="py-20 md:py-32 px-4 md:px-6 relative z-20 bg-[var(--color-drexii-bg2)] border-t border-white/5">
       <div class="max-w-4xl mx-auto text-center">
         <h2 class="fade-in-up text-[32px] md:text-[56px] font-medium text-white mb-8 tracking-tight leading-[1.1]">
           Stop switching tabs. <br><span class="text-white/40">Start asking Drexii.</span>
@@ -446,7 +451,7 @@ async function handleSuggestion(text: string) {
     </section>
 
     <!-- ======== FOOTER ======== -->
-    <footer class="py-12 px-6 bg-[#060606] relative z-20">
+    <footer class="py-12 px-6 bg-[var(--color-drexii-bg2)] relative z-20">
       <div class="max-w-[1100px] mx-auto border-t border-white/10 pt-12 flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center">
@@ -487,3 +492,13 @@ async function handleSuggestion(text: string) {
     </footer>
   </div>
 </template>
+
+<style scoped>
+/* Intro scrub paragraphs — initial muted state (JS animates to full opacity on scroll) */
+.intro-scrub {
+  color: rgba(255, 255, 255, 0.15);
+}
+:global(html:not(.dark)) .intro-scrub {
+  color: rgba(12, 12, 14, 0.15);
+}
+</style>

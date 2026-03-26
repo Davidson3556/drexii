@@ -4,6 +4,7 @@ import { slack, createSlackAdapter } from './slack'
 import { discord, createDiscordAdapter } from './discord'
 import { zendesk, createZendeskAdapter } from './zendesk'
 import { salesforce, createSalesforceAdapter } from './salesforce'
+import { createGmailAdapter, GMAIL_WRITE_TOOLS } from './gmail'
 import { logToolExecution } from '../audit'
 
 export interface IntegrationAdapter {
@@ -23,7 +24,8 @@ const WRITE_TOOLS = new Set([
   'discord_send_message',
   'notion_create_page',
   'zendesk_create_ticket',
-  'salesforce_create_record'
+  'salesforce_create_record',
+  ...GMAIL_WRITE_TOOLS
 ])
 
 export function isWriteTool(toolName: string): boolean {
@@ -57,6 +59,11 @@ export function createAdapterFromCredentials(record: UserIntegrationRecord): Int
     case 'salesforce':
       if (c.login_url && c.client_id && c.client_secret) {
         return createSalesforceAdapter({ loginUrl: c.login_url, clientId: c.client_id, clientSecret: c.client_secret })
+      }
+      break
+    case 'gmail':
+      if (c.client_id && c.client_secret && c.refresh_token) {
+        return createGmailAdapter({ client_id: c.client_id, client_secret: c.client_secret, refresh_token: c.refresh_token })
       }
       break
   }

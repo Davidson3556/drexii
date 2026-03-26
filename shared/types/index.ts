@@ -16,7 +16,7 @@ export interface Message {
   threadId: string
   role: 'user' | 'assistant'
   content: string
-  modelUsed: 'anthropic' | 'gemini' | null
+  modelUsed: AIProvider | null
   toolCalls: ToolCall[] | null
   createdAt: string
 }
@@ -25,9 +25,9 @@ export interface Message {
 // AI Model Types
 // ============================================================
 
-export type AIProvider = 'anthropic' | 'gemini'
+export type AIProvider = 'insforge' | 'anthropic' | 'gemini'
 
-export type TaskComplexity = 'lite' | 'heavy'
+export type TaskComplexity = 'lite' | 'standard' | 'heavy' | 'code'
 
 export type RouterState = 'HEALTHY' | 'DEGRADED' | 'FALLBACK' | 'RECOVERING'
 
@@ -156,3 +156,34 @@ export interface SSEErrorEvent {
 }
 
 export type SSEEvent = SSETextEvent | SSESourceEvent | SSEActionEvent | SSEDoneEvent | SSEErrorEvent
+
+// ============================================================
+// Automations
+// ============================================================
+
+export type AutomationTrigger = 'email_received' | 'schedule' | 'webhook'
+
+export interface Automation {
+  id: string
+  userId: string
+  name: string
+  description: string | null
+  trigger: AutomationTrigger
+  triggerConfig: Record<string, unknown>
+  instructions: string
+  isActive: number
+  lastRunAt: string | null
+  runCount: number
+  createdAt: string
+}
+
+export interface AutomationLog {
+  id: string
+  automationId: string
+  trigger: string
+  input: Record<string, unknown>
+  output: string | null
+  status: 'success' | 'error' | 'skipped'
+  durationMs: number
+  createdAt: string
+}

@@ -527,4 +527,18 @@ function handleSubmit() {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── Light mode overrides ─────────────────────────────── */
+:global(html:not(.dark)) .login-card {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+:global(html:not(.dark)) .login-input {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: rgba(12, 12, 14, 0.85);
+}
+:global(html:not(.dark)) .login-input::placeholder {
+  color: rgba(12, 12, 14, 0.3);
+}
 </style>

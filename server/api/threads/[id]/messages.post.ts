@@ -92,6 +92,8 @@ export default defineEventHandler(async (event) => {
   const availableTools = getAvailableTools(resolvedAdapters)
   const toolDescriptions = getToolDescriptionsText(resolvedAdapters)
 
+  console.info(`[Chat] userId=${userId}, adapters=${resolvedAdapters.map(a => a.name).join(',')}, tools=${availableTools.map(t => t.name).join(',')}`)
+
   const systemPrompt = buildToolAwarePrompt(toolDescriptions)
 
   const stream = new ReadableStream({
