@@ -193,7 +193,10 @@ onMounted(fetchAutomations)
           class="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/80 hover:bg-amber-500 text-white text-sm font-medium transition-colors"
           @click="showForm = !showForm"
         >
-          <UIcon name="i-lucide-plus" class="w-4 h-4" />
+          <UIcon
+            name="i-lucide-plus"
+            class="w-4 h-4"
+          />
           New Automation
         </button>
       </div>
@@ -244,10 +247,17 @@ onMounted(fetchAutomations)
                     : 'bg-white/3 border-white/8 text-white/40 hover:border-white/15'"
                   @click="form.trigger = opt.value"
                 >
-                  <UIcon :name="opt.icon" class="w-4 h-4 mt-0.5 shrink-0" />
+                  <UIcon
+                    :name="opt.icon"
+                    class="w-4 h-4 mt-0.5 shrink-0"
+                  />
                   <div>
-                    <div class="text-xs font-medium">{{ opt.label }}</div>
-                    <div class="text-[10px] text-white/25 mt-0.5 leading-tight">{{ opt.description }}</div>
+                    <div class="text-xs font-medium">
+                      {{ opt.label }}
+                    </div>
+                    <div class="text-[10px] text-white/25 mt-0.5 leading-tight">
+                      {{ opt.description }}
+                    </div>
                   </div>
                 </button>
               </div>
@@ -322,7 +332,10 @@ When I get a new email asking about pricing, check our Notion pricing page and r
         class="text-center py-20"
       >
         <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-          <UIcon name="i-lucide-bot" class="w-6 h-6 text-white/20" />
+          <UIcon
+            name="i-lucide-bot"
+            class="w-6 h-6 text-white/20"
+          />
         </div>
         <p class="text-sm text-white/30 mb-2">
           No automations yet.
@@ -389,9 +402,15 @@ When I get a new email asking about pricing, check our Notion pricing page and r
 
                 <!-- Trigger badge -->
                 <div class="flex items-center gap-1.5 mb-2">
-                  <UIcon :name="getTriggerInfo(auto.trigger).icon" class="w-3 h-3 text-white/25" />
+                  <UIcon
+                    :name="getTriggerInfo(auto.trigger).icon"
+                    class="w-3 h-3 text-white/25"
+                  />
                   <span class="text-[11px] text-white/30">{{ getTriggerInfo(auto.trigger).label }}</span>
-                  <span v-if="auto.trigger === 'schedule'" class="text-[11px] text-white/20">
+                  <span
+                    v-if="auto.trigger === 'schedule'"
+                    class="text-[11px] text-white/20"
+                  >
                     (every {{ (auto.triggerConfig as Record<string, unknown>).intervalMinutes || 60 }}min)
                   </span>
                 </div>
@@ -415,7 +434,10 @@ When I get a new email asking about pricing, check our Notion pricing page and r
                     : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400/70'"
                   @click="toggleAutomation(auto.id)"
                 >
-                  <UIcon :name="auto.isActive ? 'i-lucide-pause' : 'i-lucide-play'" class="w-3 h-3" />
+                  <UIcon
+                    :name="auto.isActive ? 'i-lucide-pause' : 'i-lucide-play'"
+                    class="w-3 h-3"
+                  />
                   {{ auto.isActive ? 'Pause' : 'Enable' }}
                 </button>
 
@@ -429,7 +451,11 @@ When I get a new email asking about pricing, check our Notion pricing page and r
                     name="i-lucide-loader-2"
                     class="w-3 h-3 animate-spin"
                   />
-                  <UIcon v-else name="i-lucide-zap" class="w-3 h-3" />
+                  <UIcon
+                    v-else
+                    name="i-lucide-zap"
+                    class="w-3 h-3"
+                  />
                   {{ runningId === auto.id ? 'Running...' : 'Test' }}
                 </button>
 
@@ -438,7 +464,10 @@ When I get a new email asking about pricing, check our Notion pricing page and r
                   title="View logs"
                   @click="viewLogs(auto.id)"
                 >
-                  <UIcon name="i-lucide-scroll-text" class="w-3.5 h-3.5" />
+                  <UIcon
+                    name="i-lucide-scroll-text"
+                    class="w-3.5 h-3.5"
+                  />
                 </button>
 
                 <button
@@ -446,7 +475,10 @@ When I get a new email asking about pricing, check our Notion pricing page and r
                   title="Delete automation"
                   @click="deleteAutomation(auto.id)"
                 >
-                  <UIcon name="i-lucide-trash-2" class="w-3.5 h-3.5" />
+                  <UIcon
+                    name="i-lucide-trash-2"
+                    class="w-3.5 h-3.5"
+                  />
                 </button>
               </div>
             </div>
@@ -462,15 +494,24 @@ When I get a new email asking about pricing, check our Notion pricing page and r
                 Recent Logs
               </h4>
 
-              <div v-if="logsLoading" class="flex items-center justify-center py-6">
+              <div
+                v-if="logsLoading"
+                class="flex items-center justify-center py-6"
+              >
                 <div class="w-4 h-4 border-2 border-white/15 border-t-amber-500/60 rounded-full animate-spin" />
               </div>
 
-              <div v-else-if="logs.length === 0" class="text-xs text-white/20 text-center py-4">
+              <div
+                v-else-if="logs.length === 0"
+                class="text-xs text-white/20 text-center py-4"
+              >
                 No logs yet. Run the automation to see results.
               </div>
 
-              <div v-else class="space-y-2 max-h-64 overflow-y-auto">
+              <div
+                v-else
+                class="space-y-2 max-h-64 overflow-y-auto"
+              >
                 <div
                   v-for="log in logs"
                   :key="log.id"

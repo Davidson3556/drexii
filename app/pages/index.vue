@@ -333,15 +333,21 @@ async function handleSuggestion(text: string) {
 
         <!-- Bento Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
           <!-- Multi-Model AI — wide (2 cols) -->
           <div class="fade-in-up feature-card feature-card--amber lg:col-span-2 group">
             <span class="fc-num">01</span>
             <div class="fc-icon fc-icon--amber">
-              <UIcon name="i-lucide-brain" class="w-6 h-6 text-amber-400" />
+              <UIcon
+                name="i-lucide-brain"
+                class="w-6 h-6 text-amber-400"
+              />
             </div>
-            <h3 class="fc-title">Multi-Model AI</h3>
-            <p class="fc-desc">Multiple AI models working together. The right model is selected for each task — deep reasoning, writing, quick answers, or code.</p>
+            <h3 class="fc-title">
+              Multi-Model AI
+            </h3>
+            <p class="fc-desc">
+              Multiple AI models working together. The right model is selected for each task — deep reasoning, writing, quick answers, or code.
+            </p>
             <div class="fc-badge">
               <span class="fc-badge-dot fc-badge-dot--amber" />
               Opus · Sonnet · Haiku · DeepSeek
@@ -352,40 +358,68 @@ async function handleSuggestion(text: string) {
           <div class="fade-in-up stagger-1 feature-card feature-card--blue group">
             <span class="fc-num">02</span>
             <div class="fc-icon fc-icon--blue">
-              <UIcon name="i-lucide-plug-zap" class="w-6 h-6 text-blue-400" />
+              <UIcon
+                name="i-lucide-plug-zap"
+                class="w-6 h-6 text-blue-400"
+              />
             </div>
-            <h3 class="fc-title">6 Integrations,<br>20+ Tools</h3>
-            <p class="fc-desc">Gmail, Notion, Slack, Discord, Zendesk, Salesforce — all from one chat.</p>
+            <h3 class="fc-title">
+              6 Integrations,<br>20+ Tools
+            </h3>
+            <p class="fc-desc">
+              Gmail, Notion, Slack, Discord, Zendesk, Salesforce — all from one chat.
+            </p>
           </div>
 
           <!-- Traceable Answers -->
           <div class="fade-in-up stagger-1 feature-card feature-card--emerald group">
             <span class="fc-num">03</span>
             <div class="fc-icon fc-icon--emerald">
-              <UIcon name="i-lucide-fingerprint" class="w-6 h-6 text-emerald-400" />
+              <UIcon
+                name="i-lucide-fingerprint"
+                class="w-6 h-6 text-emerald-400"
+              />
             </div>
-            <h3 class="fc-title">Traceable Answers</h3>
-            <p class="fc-desc">Every response cites exactly where it came from — a Notion page, a Slack thread, a record.</p>
+            <h3 class="fc-title">
+              Traceable Answers
+            </h3>
+            <p class="fc-desc">
+              Every response cites exactly where it came from — a Notion page, a Slack thread, a record.
+            </p>
           </div>
 
           <!-- Autonomous Automations -->
           <div class="fade-in-up stagger-2 feature-card feature-card--purple group">
             <span class="fc-num">04</span>
             <div class="fc-icon fc-icon--purple">
-              <UIcon name="i-lucide-bot" class="w-6 h-6 text-purple-400" />
+              <UIcon
+                name="i-lucide-bot"
+                class="w-6 h-6 text-purple-400"
+              />
             </div>
-            <h3 class="fc-title">Autonomous Automations</h3>
-            <p class="fc-desc">Set triggers for emails, schedules, or webhooks. Drexii runs in the background — even when you're offline.</p>
+            <h3 class="fc-title">
+              Autonomous Automations
+            </h3>
+            <p class="fc-desc">
+              Set triggers for emails, schedules, or webhooks. Drexii runs in the background — even when you're offline.
+            </p>
           </div>
 
           <!-- Full Audit Trail -->
           <div class="fade-in-up stagger-2 feature-card feature-card--rose group">
             <span class="fc-num">05</span>
             <div class="fc-icon fc-icon--rose">
-              <UIcon name="i-lucide-scroll-text" class="w-6 h-6 text-rose-400" />
+              <UIcon
+                name="i-lucide-scroll-text"
+                class="w-6 h-6 text-rose-400"
+              />
             </div>
-            <h3 class="fc-title">Full Audit Trail</h3>
-            <p class="fc-desc">Every action logged — what tool, what arguments, what result. Complete transparency.</p>
+            <h3 class="fc-title">
+              Full Audit Trail
+            </h3>
+            <p class="fc-desc">
+              Every action logged — what tool, what arguments, what result. Complete transparency.
+            </p>
           </div>
 
           <!-- Persistent Memory — full width -->
@@ -394,32 +428,50 @@ async function handleSuggestion(text: string) {
             <div class="flex flex-col md:flex-row md:items-center gap-8 md:gap-16">
               <div class="flex-1">
                 <div class="fc-icon fc-icon--cyan mb-6">
-                  <UIcon name="i-lucide-brain-circuit" class="w-6 h-6 text-cyan-400" />
+                  <UIcon
+                    name="i-lucide-brain-circuit"
+                    class="w-6 h-6 text-cyan-400"
+                  />
                 </div>
-                <h3 class="fc-title text-2xl md:text-3xl">Persistent Memory</h3>
-                <p class="fc-desc max-w-sm">Tell Drexii something once and it remembers — your preferences, your projects, your context. Across every conversation.</p>
+                <h3 class="fc-title text-2xl md:text-3xl">
+                  Persistent Memory
+                </h3>
+                <p class="fc-desc max-w-sm">
+                  Tell Drexii something once and it remembers — your preferences, your projects, your context. Across every conversation.
+                </p>
               </div>
               <div class="flex flex-col gap-2.5 md:w-72 shrink-0">
                 <div class="memory-chip">
-                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <UIcon
+                    name="i-lucide-bookmark"
+                    class="w-3.5 h-3.5 text-cyan-400 shrink-0"
+                  />
                   "Always use bullet points"
                 </div>
                 <div class="memory-chip">
-                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <UIcon
+                    name="i-lucide-bookmark"
+                    class="w-3.5 h-3.5 text-cyan-400 shrink-0"
+                  />
                   "Q1 budget is $50k"
                 </div>
                 <div class="memory-chip">
-                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <UIcon
+                    name="i-lucide-bookmark"
+                    class="w-3.5 h-3.5 text-cyan-400 shrink-0"
+                  />
                   "Post bugs to #engineering"
                 </div>
                 <div class="memory-chip memory-chip--faded">
-                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-white/20 shrink-0" />
+                  <UIcon
+                    name="i-lucide-bookmark"
+                    class="w-3.5 h-3.5 text-white/20 shrink-0"
+                  />
                   + more stored context...
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </section>
@@ -443,7 +495,10 @@ async function handleSuggestion(text: string) {
             rel="noopener noreferrer"
             class="px-8 py-3.5 rounded-full bg-white/5 text-white text-[15px] font-medium hover:bg-white/10 transition-all border border-white/10 flex items-center gap-2"
           >
-            <UIcon name="i-lucide-message-circle" class="w-4 h-4" />
+            <UIcon
+              name="i-lucide-message-circle"
+              class="w-4 h-4"
+            />
             Join Discord
           </a>
         </div>

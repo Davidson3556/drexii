@@ -4,7 +4,7 @@ const navItems = [
   { id: 'chat', icon: 'i-lucide-message-square', label: 'Chat' },
   { id: 'search', icon: 'i-lucide-search', label: 'Search' },
   { id: 'integrations', icon: 'i-lucide-plug-2', label: 'Integrations' },
-  { id: 'settings', icon: 'i-lucide-settings-2', label: 'Settings' },
+  { id: 'settings', icon: 'i-lucide-settings-2', label: 'Settings' }
 ]
 
 const activeItem = ref('chat')
@@ -37,7 +37,9 @@ function toggleTheme() {
   if (isThemeBouncing.value) return
   isThemeBouncing.value = true
   isDark.value = !isDark.value
-  setTimeout(() => { isThemeBouncing.value = false }, 700)
+  setTimeout(() => {
+    isThemeBouncing.value = false
+  }, 700)
 }
 </script>
 
@@ -47,8 +49,10 @@ function toggleTheme() {
     <div class="ambient-glow" />
 
     <!-- Toolbar pill -->
-    <div ref="toolbarInnerRef" class="toolbar">
-
+    <div
+      ref="toolbarInnerRef"
+      class="toolbar"
+    >
       <!-- Golden active ring indicator -->
       <div
         class="ring-indicator"
@@ -74,7 +78,10 @@ function toggleTheme() {
         :aria-label="item.label"
         @click="setActive(item.id)"
       >
-        <UIcon :name="item.icon" class="nav-icon" />
+        <UIcon
+          :name="item.icon"
+          class="nav-icon"
+        />
       </button>
 
       <!-- Divider -->

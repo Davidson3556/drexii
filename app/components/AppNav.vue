@@ -16,7 +16,7 @@ const navLinks = [
   { id: 'try-drexii', label: 'Try Drexii', section: null, to: '/chat' },
   { id: 'integrations', label: 'Integrations', section: null, to: '/integrations' },
   { id: 'workflows', label: 'Workflows', section: null, to: '/workflows' },
-  { id: 'automations', label: 'Automations', section: null, to: '/automations' },
+  { id: 'automations', label: 'Automations', section: null, to: '/automations' }
 ]
 
 const activeItem = ref(
@@ -139,9 +139,16 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
   <!-- ── Fixed header ────────────────────────────────────────── -->
   <header class="app-header">
     <!-- Logo -->
-    <NuxtLink to="/" class="nav-logo">
+    <NuxtLink
+      to="/"
+      class="nav-logo"
+    >
       <div class="logo-mark">
-        <img src="/logo.png" alt="Drexii" class="w-full h-full object-cover">
+        <img
+          src="/logo.png"
+          alt="Drexii"
+          class="w-full h-full object-cover"
+        >
       </div>
       <span class="logo-text">Drexii</span>
     </NuxtLink>
@@ -208,7 +215,10 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
           <span class="status-dot status-dot--amber" />
           <span>Backup AI active</span>
         </div>
-        <div v-else class="status-pill">
+        <div
+          v-else
+          class="status-pill"
+        >
           <span class="status-dot status-dot--green" />
           <span>AI Online</span>
         </div>
@@ -260,26 +270,44 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
     >
       <!-- Overlay top bar -->
       <div class="mob-topbar">
-        <NuxtLink to="/" class="nav-logo" @click="mobileOpen = false">
+        <NuxtLink
+          to="/"
+          class="nav-logo"
+          @click="mobileOpen = false"
+        >
           <div class="logo-mark">
-            <img src="/logo.png" alt="Drexii" class="w-full h-full object-cover">
+            <img
+              src="/logo.png"
+              alt="Drexii"
+              class="w-full h-full object-cover"
+            >
           </div>
           <span class="logo-text">Drexii</span>
         </NuxtLink>
-        <button class="mob-close" aria-label="Close menu" @click="mobileOpen = false">
-          <UIcon name="i-lucide-x" class="w-5 h-5" />
+        <button
+          class="mob-close"
+          aria-label="Close menu"
+          @click="mobileOpen = false"
+        >
+          <UIcon
+            name="i-lucide-x"
+            class="w-5 h-5"
+          />
         </button>
       </div>
 
       <!-- Nav items with vertical ring indicator -->
-      <nav ref="mobContainerRef" class="mob-nav">
+      <nav
+        ref="mobContainerRef"
+        class="mob-nav"
+      >
         <!-- Vertical ring indicator (4 layers) -->
         <div
           class="mob-ring"
           :style="{
             top: `${mobTop}px`,
             width: `${mobW}px`,
-            height: `${mobH}px`,
+            height: `${mobH}px`
           }"
         >
           <div class="gold-glow" />
@@ -315,9 +343,16 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
               class="w-4 h-4"
             />
           </button>
-          <NuxtLink to="/chat" class="mob-cta" @click="mobileOpen = false">
+          <NuxtLink
+            to="/chat"
+            class="mob-cta"
+            @click="mobileOpen = false"
+          >
             Start Chatting
-            <UIcon name="i-lucide-arrow-right" class="w-4 h-4" />
+            <UIcon
+              name="i-lucide-arrow-right"
+              class="w-4 h-4"
+            />
           </NuxtLink>
         </div>
       </div>
