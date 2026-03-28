@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const colorMode = useColorMode()
 const route = useRoute()
 const router = useRouter()
 const { isFallback } = useModelStatus()
@@ -16,7 +15,8 @@ const navLinks = [
   { id: 'try-drexii', label: 'Try Drexii', section: null, to: '/chat' },
   { id: 'integrations', label: 'Integrations', section: null, to: '/integrations' },
   { id: 'workflows', label: 'Workflows', section: null, to: '/workflows' },
-  { id: 'automations', label: 'Automations', section: null, to: '/automations' }
+  { id: 'automations', label: 'Automations', section: null, to: '/automations' },
+  { id: 'memory', label: 'Memory', section: null, to: '/memory' }
 ]
 
 const activeItem = ref(
@@ -28,7 +28,9 @@ const activeItem = ref(
         ? 'workflows'
         : route.path === '/automations'
           ? 'automations'
-          : 'how-it-works'
+          : route.path === '/memory'
+            ? 'memory'
+            : 'how-it-works'
 )
 const mobileOpen = ref(false)
 
@@ -90,7 +92,9 @@ watch(() => route.path, (path) => {
         ? 'workflows'
         : path === '/automations'
           ? 'automations'
-          : 'how-it-works'
+          : path === '/memory'
+            ? 'memory'
+            : 'how-it-works'
   mobileOpen.value = false
   nextTick(updatePill)
 })
@@ -132,7 +136,7 @@ function navigate(link: typeof navLinks[0]) {
 }
 
 const isOnChat = computed(() => route.path === '/chat')
-const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automations'].includes(route.path))
+const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automations', '/memory'].includes(route.path))
 </script>
 
 <template>
@@ -174,7 +178,7 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
       <button
         v-for="(link, i) in navLinks"
         :key="link.id"
-        :ref="(el) => { pillRefs[i] = el as HTMLElement }"
+        :ref="(el: HTMLElement | null) => { pillRefs[i] = el }"
         class="pill-link"
         :class="{ 'pill-link--active': activeItem === link.id }"
         @click="navigate(link)"
@@ -185,17 +189,6 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
 
     <!-- Desktop right -->
     <div class="header-right header-right--desktop">
-      <button
-        class="icon-btn"
-        :title="colorMode.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
-        @click="colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'"
-      >
-        <UIcon
-          :name="colorMode.value === 'dark' ? 'i-lucide-sun' : 'i-lucide-moon'"
-          class="w-4 h-4"
-        />
-      </button>
-
       <!-- Homepage: Open Chat CTA -->
       <NuxtLink
         v-if="!isOnChat"
@@ -321,7 +314,7 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
         <button
           v-for="(link, i) in navLinks"
           :key="link.id"
-          :ref="(el) => { mobRefs[i] = el as HTMLElement }"
+          :ref="(el: HTMLElement | null) => { mobRefs[i] = el }"
           class="mob-link"
           :class="{ 'mob-link--active': activeItem === link.id }"
           @click="navigate(link)"
@@ -333,16 +326,6 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
       <!-- Bottom CTA -->
       <div class="mob-footer">
         <div class="mob-footer-row">
-          <button
-            class="icon-btn"
-            :title="colorMode.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
-            @click="colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'"
-          >
-            <UIcon
-              :name="colorMode.value === 'dark' ? 'i-lucide-sun' : 'i-lucide-moon'"
-              class="w-4 h-4"
-            />
-          </button>
           <NuxtLink
             to="/chat"
             class="mob-cta"
@@ -853,34 +836,4 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
   opacity: 0;
   transform: translateY(-16px);
 }
-
-/* ── Light mode overrides ─────────────────────────────── */
-:global(html:not(.dark)) {
-  --nav-bg: rgba(246,246,248,0.88);
-  --nav-border: rgba(0,0,0,0.07);
-  --nav-pill-bg: rgba(0,0,0,0.04);
-  --nav-pill-border: rgba(0,0,0,0.06);
-  --nav-plate-bg: rgba(246,246,248,0.98);
-  --mob-overlay-bg: rgba(247,247,249,0.97);
-  --mob-plate-bg: rgba(247,247,249,0.97);
-}
-:global(html:not(.dark)) .logo-text { color: rgba(12,12,14,0.92); }
-:global(html:not(.dark)) .pill-link { color: rgba(0,0,0,0.42); }
-:global(html:not(.dark)) .pill-link:hover { color: rgba(0,0,0,0.72); }
-:global(html:not(.dark)) .pill-link--active { color: rgba(0,0,0,0.88); }
-:global(html:not(.dark)) .mob-link { color: rgba(0,0,0,0.35); }
-:global(html:not(.dark)) .mob-link:hover { color: rgba(0,0,0,0.7); }
-:global(html:not(.dark)) .mob-link--active { color: rgba(0,0,0,0.88); }
-:global(html:not(.dark)) .mob-topbar { border-color: rgba(0,0,0,0.07); }
-:global(html:not(.dark)) .mob-footer { border-color: rgba(0,0,0,0.07); }
-:global(html:not(.dark)) .mob-close { color: rgba(0,0,0,0.55); background: rgba(0,0,0,0.05); }
-:global(html:not(.dark)) .burger-line { background: rgba(0,0,0,0.65); }
-:global(html:not(.dark)) .status-pill { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.5); }
-:global(html:not(.dark)) .cta-btn { background: #0f0f11; color: #ffffff; }
-:global(html:not(.dark)) .cta-btn:hover { background: #2a2a2e; }
-:global(html:not(.dark)) .mob-cta { background: #0f0f11; color: #ffffff; }
-:global(html:not(.dark)) .mob-cta:hover { background: #2a2a2e; }
-:global(html:not(.dark)) .icon-btn { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.45); }
-:global(html:not(.dark)) .icon-btn:hover { background: rgba(0,0,0,0.09); color: rgba(0,0,0,0.7); }
-:global(html:not(.dark)) .user-avatar-btn { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.12); }
 </style>

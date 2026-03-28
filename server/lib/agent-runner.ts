@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm'
+import { eq, sql, and } from 'drizzle-orm'
 import { useDB, schema } from '../db'
 import * as modelRouter from './models/model-router'
 import { getAvailableTools, getToolDescriptionsText, executeTool, isWriteTool, type IntegrationAdapter } from './integrations'
@@ -166,7 +166,26 @@ export async function runAgent(
 }
 
 /**
- * Processes a single automation: runs the agent and logs the result.
+ * Evaluates a plain-English chain condition against the parent output.
+ */
+function evaluateChainCondition(condition: string | null, output: string, status: 'success' | 'error'): boolean {
+  if (!condition || condition.toLowerCase() === 'always') return true
+  if (condition.toLowerCase() === 'success') return status === 'success'
+  if (condition.toLowerCase() === 'failure' || condition.toLowerCase() === 'error') return status === 'error'
+
+  // "output contains X" pattern
+  const containsMatch = condition.match(/output\s+contains?\s+["']?(.+?)["']?$/i)
+  if (containsMatch) return output.toLowerCase().includes(containsMatch[1].toLowerCase())
+
+  // "output includes X" pattern
+  const includesMatch = condition.match(/output\s+includes?\s+["']?(.+?)["']?$/i)
+  if (includesMatch) return output.toLowerCase().includes(includesMatch[1].toLowerCase())
+
+  return true
+}
+
+/**
+ * Processes a single automation: runs the agent, logs the result, then fires any chained automations.
  */
 export async function processAutomation(
   automationId: string,
@@ -206,4 +225,27 @@ export async function processAutomation(
       updatedAt: new Date()
     })
     .where(eq(schema.automations.id, automationId))
+
+  // ── Fire chained automations ──────────────────────────────────────
+  const children = await db.select()
+    .from(schema.automations)
+    .where(
+      and(
+        eq(schema.automations.parentAutomationId, automationId),
+        eq(schema.automations.isActive, true)
+      )
+    )
+
+  for (const child of children) {
+    const chainOn = child.chainOn || 'success'
+    const conditionMet = evaluateChainCondition(
+      child.triggerCondition ?? chainOn,
+      result.output,
+      result.status
+    )
+    if (conditionMet) {
+      const chainContext = `Chained from automation "${automation.name}".\nParent output:\n${result.output.slice(0, 1000)}`
+      await processAutomation(child.id, chainContext, { chainedFrom: automationId })
+    }
+  }
 }

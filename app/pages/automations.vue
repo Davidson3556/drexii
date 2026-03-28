@@ -41,14 +41,18 @@ const form = reactive({
   description: '',
   trigger: 'email_received' as string,
   instructions: '',
-  intervalMinutes: 60
+  intervalMinutes: 60,
+  parentAutomationId: '' as string,
+  chainOn: 'success' as string,
+  triggerCondition: '' as string
 })
 const formError = ref('')
 
 const triggerOptions = [
   { value: 'email_received', label: 'New Email Received', icon: 'i-lucide-mail', description: 'Triggers when a new email arrives in your Gmail inbox' },
   { value: 'schedule', label: 'Scheduled', icon: 'i-lucide-clock', description: 'Runs on a recurring interval (e.g. every hour, every day)' },
-  { value: 'webhook', label: 'Webhook', icon: 'i-lucide-webhook', description: 'Triggers when an external service sends a webhook' }
+  { value: 'webhook', label: 'Webhook', icon: 'i-lucide-webhook', description: 'Triggers when an external service sends a webhook' },
+  { value: 'chain', label: 'Chained', icon: 'i-lucide-link', description: 'Runs automatically after another automation completes' }
 ]
 
 function headers(): Record<string, string> {
@@ -87,7 +91,10 @@ async function createAutomation() {
         description: form.description || undefined,
         trigger: form.trigger,
         triggerConfig,
-        instructions: form.instructions
+        instructions: form.instructions,
+        parentAutomationId: form.trigger === 'chain' && form.parentAutomationId ? form.parentAutomationId : undefined,
+        chainOn: form.trigger === 'chain' ? form.chainOn : undefined,
+        triggerCondition: form.trigger === 'chain' && form.triggerCondition ? form.triggerCondition : undefined
       }
     })
     form.name = ''
@@ -95,6 +102,9 @@ async function createAutomation() {
     form.trigger = 'email_received'
     form.instructions = ''
     form.intervalMinutes = 60
+    form.parentAutomationId = ''
+    form.chainOn = 'success'
+    form.triggerCondition = ''
     showForm.value = false
     toast.add({ title: 'Automation created', color: 'success' })
     await fetchAutomations()
@@ -277,6 +287,50 @@ onMounted(fetchAutomations)
               <p class="text-[10px] text-white/20 mt-1">
                 {{ form.intervalMinutes >= 1440 ? `Every ${Math.round(form.intervalMinutes / 1440)} day(s)` : form.intervalMinutes >= 60 ? `Every ${Math.round(form.intervalMinutes / 60)} hour(s)` : `Every ${form.intervalMinutes} minutes` }}
               </p>
+            </div>
+
+            <!-- Chain options (only for chain trigger) -->
+            <div
+              v-if="form.trigger === 'chain'"
+              class="space-y-3"
+            >
+              <div>
+                <label class="block text-xs text-white/40 mb-1">Run after automation *</label>
+                <select
+                  v-model="form.parentAutomationId"
+                  class="w-full bg-white/5 border border-white/8 rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-amber-500/40 transition-colors"
+                >
+                  <option value="">Select an automation…</option>
+                  <option
+                    v-for="a in automations"
+                    :key="a.id"
+                    :value="a.id"
+                  >
+                    {{ a.name }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-white/40 mb-1">Run when</label>
+                <select
+                  v-model="form.chainOn"
+                  class="w-full bg-white/5 border border-white/8 rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-amber-500/40 transition-colors"
+                >
+                  <option value="success">Parent succeeds</option>
+                  <option value="failure">Parent fails</option>
+                  <option value="always">Always</option>
+                  <option value="custom">Custom condition</option>
+                </select>
+              </div>
+              <div v-if="form.chainOn === 'custom'">
+                <label class="block text-xs text-white/40 mb-1">Condition (plain English)</label>
+                <input
+                  v-model="form.triggerCondition"
+                  type="text"
+                  placeholder="e.g. output contains 'urgent'"
+                  class="w-full bg-white/5 border border-white/8 rounded-lg px-3 py-2 text-sm text-white/80 placeholder:text-white/25 outline-none focus:border-amber-500/40 transition-colors"
+                >
+              </div>
             </div>
 
             <!-- Instructions -->

@@ -66,10 +66,12 @@ export const auditLog = pgTable('audit_log', {
 
 export const memories = pgTable('memories', {
   id: uuid('id').defaultRandom().primaryKey(),
+  userId: varchar('user_id', { length: 255 }),
   category: varchar('category', { length: 30 }).notNull().default('fact'),
   content: text('content').notNull(),
   source: uuid('source'),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 })
 
 export const userIntegrations = pgTable('user_integrations', {
@@ -97,12 +99,16 @@ export const automations = pgTable('automations', {
   userId: varchar('user_id', { length: 255 }).notNull(),
   name: varchar('name', { length: 200 }).notNull(),
   description: text('description'),
-  trigger: varchar('trigger', { length: 50 }).notNull(), // email_received | schedule | webhook
+  trigger: varchar('trigger', { length: 50 }).notNull(), // email_received | schedule | webhook | chain
   triggerConfig: jsonb('trigger_config').notNull().default({}), // e.g. { schedule: "0 8 * * 1" } or { filter: "is:unread" }
   instructions: text('instructions').notNull(), // Plain English instructions for the AI agent
   isActive: boolean('is_active').notNull().default(true),
   lastRunAt: timestamp('last_run_at', { withTimezone: true }),
   runCount: integer('run_count').notNull().default(0),
+  // Chaining support
+  parentAutomationId: uuid('parent_automation_id'), // references automations.id
+  chainOn: varchar('chain_on', { length: 20 }).default('success'), // 'success' | 'failure' | 'always'
+  triggerCondition: text('trigger_condition'), // plain English condition e.g. "output contains urgent"
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 })

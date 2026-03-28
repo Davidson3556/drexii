@@ -18,6 +18,31 @@ const fileInput = ref<HTMLInputElement>()
 const isUploading = ref(false)
 const uploadedFile = ref<{ url: string, name: string } | null>(null)
 
+// Voice
+const { isListening, transcript, interimTranscript, isSupported: voiceInputSupported, toggleListening } = useVoiceInput()
+const { isSpeaking, isEnabled: voiceOutputEnabled, isSupported: voiceOutputSupported, speak, toggle: toggleVoiceOutput } = useVoiceOutput()
+
+// When voice transcript updates, push to input
+watch(transcript, (val) => {
+  if (val) {
+    inputValue.value = val
+    nextTick(() => {
+      const el = textareaRef.value
+      if (el) {
+        el.style.height = 'auto'
+        el.style.height = Math.min(el.scrollHeight, 160) + 'px'
+      }
+    })
+  }
+})
+
+// Speak AI responses when TTS is enabled
+watch(() => isStreaming.value, (streaming) => {
+  if (!streaming && voiceOutputEnabled.value && lastMessageContent.value) {
+    speak(lastMessageContent.value)
+  }
+})
+
 const categories = ['Research', 'Support Ops', 'Writing', 'Actions']
 const activeCategory = ref('Research')
 
@@ -286,6 +311,14 @@ function toolLabel(name: string): string {
                 @keydown="handleKeydown"
                 @input="handleInputChange"
               />
+              <!-- Live transcript preview -->
+              <p
+                v-if="interimTranscript"
+                class="text-xs text-white/30 italic mb-1 px-1"
+              >
+                {{ interimTranscript }}…
+              </p>
+
               <div class="flex items-center justify-between mt-3">
                 <div class="flex items-center gap-3">
                   <button
@@ -304,14 +337,32 @@ function toolLabel(name: string): string {
                       class="w-4 h-4"
                     />
                   </button>
-                  <UIcon
-                    name="i-lucide-bar-chart-2"
-                    class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors"
-                  />
-                  <UIcon
-                    name="i-lucide-map-pin"
-                    class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors"
-                  />
+                  <!-- Mic button -->
+                  <button
+                    v-if="voiceInputSupported"
+                    :title="isListening ? 'Stop listening' : 'Voice input'"
+                    :class="isListening ? 'text-red-400 animate-pulse' : 'text-white/25 hover:text-amber-400'"
+                    class="transition-colors"
+                    @click="toggleListening"
+                  >
+                    <UIcon
+                      :name="isListening ? 'i-lucide-mic-off' : 'i-lucide-mic'"
+                      class="w-4 h-4"
+                    />
+                  </button>
+                  <!-- Speaker toggle -->
+                  <button
+                    v-if="voiceOutputSupported"
+                    :title="voiceOutputEnabled ? 'Mute responses' : 'Read responses aloud'"
+                    :class="[voiceOutputEnabled ? 'text-amber-400' : 'text-white/25 hover:text-amber-400', isSpeaking ? 'animate-pulse' : '']"
+                    class="transition-colors"
+                    @click="toggleVoiceOutput"
+                  >
+                    <UIcon
+                      :name="voiceOutputEnabled ? 'i-lucide-volume-2' : 'i-lucide-volume-x'"
+                      class="w-4 h-4"
+                    />
+                  </button>
                 </div>
                 <div class="flex items-center gap-2">
                   <button class="w-7 h-7 rounded-full bg-white/8 flex items-center justify-center hover:bg-white/12 transition-colors">
@@ -604,6 +655,14 @@ function toolLabel(name: string): string {
                 </button>
               </div>
 
+              <!-- Live transcript preview (bottom bar) -->
+              <p
+                v-if="interimTranscript"
+                class="text-xs text-white/30 italic mb-1"
+              >
+                {{ interimTranscript }}…
+              </p>
+
               <div class="flex items-end gap-3">
                 <button
                   :disabled="isUploading"
@@ -622,6 +681,20 @@ function toolLabel(name: string): string {
                   />
                 </button>
 
+                <!-- Mic button -->
+                <button
+                  v-if="voiceInputSupported"
+                  :title="isListening ? 'Stop listening' : 'Voice input'"
+                  :class="isListening ? 'text-red-400 animate-pulse' : 'text-white/25 hover:text-amber-400'"
+                  class="transition-colors mb-0.5 shrink-0"
+                  @click="toggleListening"
+                >
+                  <UIcon
+                    :name="isListening ? 'i-lucide-mic-off' : 'i-lucide-mic'"
+                    class="w-4 h-4"
+                  />
+                </button>
+
                 <textarea
                   ref="textareaRef"
                   v-model="inputValue"
@@ -632,6 +705,20 @@ function toolLabel(name: string): string {
                   @keydown="handleKeydown"
                   @input="handleInputChange"
                 />
+
+                <!-- Speaker toggle -->
+                <button
+                  v-if="voiceOutputSupported"
+                  :title="voiceOutputEnabled ? 'Mute responses' : 'Read responses aloud'"
+                  :class="[voiceOutputEnabled ? 'text-amber-400' : 'text-white/25 hover:text-amber-400', isSpeaking ? 'animate-pulse' : '']"
+                  class="transition-colors mb-0.5 shrink-0"
+                  @click="toggleVoiceOutput"
+                >
+                  <UIcon
+                    :name="voiceOutputEnabled ? 'i-lucide-volume-2' : 'i-lucide-volume-x'"
+                    class="w-4 h-4"
+                  />
+                </button>
 
                 <button
                   class="w-8 h-8 rounded-full bg-amber-500/80 flex items-center justify-center hover:bg-amber-500 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 shrink-0 mb-0.5"

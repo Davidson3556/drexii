@@ -159,6 +159,113 @@ const integrations = [
         'Login URL is usually https://login.salesforce.com (or your custom domain)'
       ]
     }
+  },
+  {
+    id: 'google_calendar',
+    name: 'Google Calendar',
+    icon: 'i-lucide-calendar',
+    color: '#4285F4',
+    description: 'List events, check availability, schedule meetings, and manage your Google Calendar.',
+    fields: [
+      { key: 'client_id', label: 'Client ID', placeholder: 'your-client-id.apps.googleusercontent.com', type: 'password' },
+      { key: 'client_secret', label: 'Client Secret', placeholder: 'your-client-secret', type: 'password' },
+      { key: 'refresh_token', label: 'Refresh Token', placeholder: 'your-refresh-token', type: 'password' }
+    ],
+    guide: {
+      title: 'How to get Google Calendar credentials',
+      steps: [
+        'Go to console.cloud.google.com and create or select a project',
+        'Enable the "Google Calendar API" in APIs & Services → Library',
+        'Go to APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID',
+        'Set application type to "Web application", add https://developers.google.com/oauthplayground as redirect URI',
+        'Copy your Client ID and Client Secret',
+        'Go to developers.google.com/oauthplayground, click Settings (gear icon), enable "Use your own OAuth credentials", enter your Client ID + Secret',
+        'In Step 1, select "Google Calendar API v3" and all calendar scopes → Authorize APIs',
+        'In Step 2, click "Exchange authorization code for tokens" → copy the Refresh Token'
+      ]
+    }
+  },
+  {
+    id: 'google_drive',
+    name: 'Google Drive',
+    icon: 'i-lucide-hard-drive',
+    color: '#34A853',
+    description: 'Search files, read Google Docs and Sheets, and create new documents in your Drive.',
+    fields: [
+      { key: 'client_id', label: 'Client ID', placeholder: 'your-client-id.apps.googleusercontent.com', type: 'password' },
+      { key: 'client_secret', label: 'Client Secret', placeholder: 'your-client-secret', type: 'password' },
+      { key: 'refresh_token', label: 'Refresh Token', placeholder: 'your-refresh-token', type: 'password' }
+    ],
+    guide: {
+      title: 'How to get Google Drive credentials',
+      steps: [
+        'Same Google Cloud project as Google Calendar — enable "Google Drive API" and "Google Docs API"',
+        'Use the same OAuth 2.0 Client ID and Client Secret',
+        'In OAuth Playground Step 1, also select "Drive API v3" and "Docs API v1" scopes',
+        'Exchange for a Refresh Token and paste it here',
+        'Tip: you can reuse the same credentials across Gmail, Calendar, and Drive'
+      ]
+    }
+  },
+  {
+    id: 'jira',
+    name: 'Jira',
+    icon: 'i-simple-icons-jira',
+    color: '#0052CC',
+    description: 'Search issues, view details, create new tickets, and add comments in Jira.',
+    fields: [
+      { key: 'subdomain', label: 'Subdomain', placeholder: 'yourcompany (from yourcompany.atlassian.net)', type: 'text' },
+      { key: 'email', label: 'Account Email', placeholder: 'you@yourcompany.com', type: 'email' },
+      { key: 'api_token', label: 'API Token', placeholder: 'your-jira-api-token', type: 'password' }
+    ],
+    guide: {
+      title: 'How to get your Jira credentials',
+      steps: [
+        'Log in to your Atlassian account at id.atlassian.com',
+        'Go to Security → Create and manage API tokens → Create API token',
+        'Give it a label (e.g. "Drexii") and copy the token',
+        'Your subdomain is the part before .atlassian.net in your Jira URL',
+        'Use the email address of your Atlassian account'
+      ]
+    }
+  },
+  {
+    id: 'linear',
+    name: 'Linear',
+    icon: 'i-simple-icons-linear',
+    color: '#5E6AD2',
+    description: 'Search issues, view details, create new issues, and add comments in Linear.',
+    fields: [
+      { key: 'api_key', label: 'Personal API Key', placeholder: 'lin_api_your-key', type: 'password' }
+    ],
+    guide: {
+      title: 'How to get your Linear API Key',
+      steps: [
+        'Log in to Linear and go to Settings (bottom-left avatar)',
+        'Go to Account → API → Personal API keys',
+        'Click "New API key", give it a label, and copy the key (starts with lin_api_)',
+        'The key is only shown once — save it immediately'
+      ]
+    }
+  },
+  {
+    id: 'asana',
+    name: 'Asana',
+    icon: 'i-simple-icons-asana',
+    color: '#F06A6A',
+    description: 'Search tasks, view details, create and update tasks, and mark them complete.',
+    fields: [
+      { key: 'access_token', label: 'Personal Access Token', placeholder: 'your-asana-pat', type: 'password' }
+    ],
+    guide: {
+      title: 'How to get your Asana Personal Access Token',
+      steps: [
+        'Log in to Asana and click your profile photo → My Settings',
+        'Go to the "Apps" tab → "Manage Developer Apps"',
+        'Scroll to "Personal access tokens" and click "+ New access token"',
+        'Give it a name and copy the token (shown only once)'
+      ]
+    }
   }
 ]
 
