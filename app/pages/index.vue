@@ -85,12 +85,6 @@ function handleSuggestion(text: string) {
       <div class="hero-overlay" :style="heroParallax" />
 
       <div class="relative z-10 flex flex-col items-center pt-24 md:pt-32 pb-24 md:pb-32 px-4 md:px-6 text-center min-h-[90vh] justify-start mt-[8vh]">
-        <!-- Badge -->
-        <div class="fade-in-up flex items-center gap-2 mb-8 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 w-fit">
-          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
-          <span class="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">11 Integrations · Voice · Memory · Automations</span>
-        </div>
-
         <!-- Headline -->
         <h1 class="fade-in-up stagger-1 text-[32px] sm:text-[48px] md:text-[68px] font-medium tracking-tight leading-[1.05] max-w-5xl mb-6">
           <span class="hero-headline-muted">Your AI agent for</span>
@@ -100,9 +94,7 @@ function handleSuggestion(text: string) {
 
         <!-- Subtitle -->
         <p class="fade-in-up stagger-2 hero-subtitle text-[14px] sm:text-base max-w-lg mb-8 leading-relaxed font-normal">
-          Connect Gmail, Calendar, Drive, Notion, Slack, Jira, Linear, and more.
-          <br class="hidden sm:block">
-          Ask questions, take action, set automations — all from one chat.
+          Connect Gmail, Calendar, Drive, Notion, Slack, Jira, Linear, and more. Ask questions, take action, set automations — all from one chat.
         </p>
 
         <!-- CTAs -->
@@ -115,13 +107,61 @@ function handleSuggestion(text: string) {
           </a>
         </div>
 
-        <!-- Integration logos row -->
-        <div class="fade-in-up stagger-4 flex items-center gap-3 flex-wrap justify-center mb-12 opacity-50">
-          <span class="text-[11px] text-white/30 uppercase tracking-widest mr-2">Works with</span>
-          <span v-for="tool in ['Gmail', 'Calendar', 'Drive', 'Slack', 'Notion', 'Jira', 'Linear', 'Asana', 'Discord', 'Zendesk', 'Salesforce']" :key="tool"
-            class="px-2.5 py-1 rounded-md bg-white/5 border border-white/8 text-[11px] text-white/50 font-medium">
-            {{ tool }}
-          </span>
+        <!-- Integration logos marquee -->
+        <div class="fade-in-up stagger-4 mb-12 w-full">
+          <p class="text-[10px] text-white/20 uppercase tracking-[0.25em] text-center mb-5 font-semibold">Works perfectly with</p>
+          <div class="marquee-container overflow-hidden relative w-full">
+            <div class="marquee-fade-left" />
+            <div class="marquee-fade-right" />
+            <div class="marquee-track flex items-center gap-12">
+              <template v-for="n in 2" :key="n">
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-simple-icons-gmail" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Gmail</span>
+                </div>
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-lucide-calendar" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Calendar</span>
+                </div>
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-lucide-hard-drive" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Drive</span>
+                </div>
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-simple-icons-slack" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Slack</span>
+                </div>
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-simple-icons-notion" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Notion</span>
+                </div>
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-simple-icons-jira" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Jira</span>
+                </div>
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-simple-icons-linear" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Linear</span>
+                </div>
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-simple-icons-asana" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Asana</span>
+                </div>
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-simple-icons-discord" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Discord</span>
+                </div>
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-simple-icons-zendesk" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Zendesk</span>
+                </div>
+                <div class="marquee-item flex items-center gap-2.5 shrink-0">
+                  <UIcon name="i-simple-icons-salesforce" class="w-[18px] h-[18px] text-white/50" />
+                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Salesforce</span>
+                </div>
+              </template>
+            </div>
+          </div>
         </div>
 
         <!-- Floating Chat Card -->
@@ -471,4 +511,35 @@ function handleSuggestion(text: string) {
 /* ── Footer links ──────────────────────────────────────────── */
 .footer-link { color: rgba(255,255,255,0.35); }
 .footer-link:hover { color: #ffffff; }
+
+/* ── Marquee ──────────────────────────────────────────────── */
+.marquee-container {
+  position: relative;
+  width: 100%;
+}
+.marquee-fade-left,
+.marquee-fade-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  z-index: 2;
+  pointer-events: none;
+}
+.marquee-fade-left {
+  left: 0;
+  background: linear-gradient(to right, rgb(0,0,0) 0%, transparent 100%);
+}
+.marquee-fade-right {
+  right: 0;
+  background: linear-gradient(to left, rgb(0,0,0) 0%, transparent 100%);
+}
+.marquee-track {
+  animation: marquee-scroll 30s linear infinite;
+  width: max-content;
+}
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
 </style>
