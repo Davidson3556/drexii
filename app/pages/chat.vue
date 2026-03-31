@@ -25,7 +25,7 @@ const uploadedFile = ref<{ url: string, name: string } | null>(null)
 const uploadError = ref('')
 
 // Voice
-const { isListening, transcript, interimTranscript, isSupported: voiceInputSupported, toggleListening } = useVoiceInput()
+const { isListening, transcript, interimTranscript, isSupported: voiceInputSupported, error: voiceError, toggleListening } = useVoiceInput()
 const { isSpeaking, isEnabled: voiceOutputEnabled, isSupported: voiceOutputSupported, speak, toggle: toggleVoiceOutput } = useVoiceOutput()
 
 // When voice transcript updates, push to input
@@ -329,6 +329,13 @@ function toolLabel(name: string): string {
                 class="text-xs text-white/30 italic mb-1 px-1"
               >
                 {{ interimTranscript }}…
+              </p>
+              <!-- Voice input error -->
+              <p
+                v-if="voiceError"
+                class="text-xs text-red-400 mb-1 px-1"
+              >
+                {{ voiceError }}
               </p>
 
               <div class="flex items-center justify-between mt-3">
@@ -678,6 +685,13 @@ function toolLabel(name: string): string {
                 class="text-xs text-white/30 italic mb-1"
               >
                 {{ interimTranscript }}…
+              </p>
+              <!-- Voice input error (bottom bar) -->
+              <p
+                v-if="voiceError"
+                class="text-xs text-red-400 mb-1"
+              >
+                {{ voiceError }}
               </p>
 
               <div class="flex items-end gap-3">

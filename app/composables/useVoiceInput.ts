@@ -5,25 +5,26 @@ export function useVoiceInput() {
   const isSupported = ref(false)
   const error = ref<string | null>(null)
 
-  let recognition: InstanceType<typeof SpeechRecognition> | null = null
+  let recognition: any = null
+  let shouldRestart = false
 
   onMounted(() => {
     if (import.meta.client) {
-      const SR = window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition
+      const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
       if (SR) {
         isSupported.value = true
         recognition = new SR()
         recognition.lang = 'en-US'
         recognition.interimResults = true
-        recognition.continuous = false
+        recognition.continuous = true
         recognition.maxAlternatives = 1
 
-        recognition.onresult = (event: SpeechRecognitionEvent) => {
+        recognition.onresult = (event: any) => {
           let interim = ''
           let final = ''
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const result = event.results[i]
-            if (result && result.isFinal) {
+            if (result?.isFinal) {
               final += result[0]?.transcript ?? ''
             } else {
               interim += result?.[0]?.transcript ?? ''
@@ -33,37 +34,73 @@ export function useVoiceInput() {
           interimTranscript.value = interim
         }
 
-        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-          if (event.error !== 'aborted') {
-            error.value = event.error === 'not-allowed'
-              ? 'Microphone permission denied. Please allow microphone access.'
-              : `Speech recognition error: ${event.error}`
+        recognition.onerror = (event: any) => {
+          const errCode = event.error as string
+          if (errCode === 'aborted') return
+          if (errCode === 'no-speech') {
+            // No speech detected — auto-restart if still listening
+            if (shouldRestart) {
+              tryRestart()
+            }
+            return
           }
+          error.value = errCode === 'not-allowed'
+            ? 'Microphone permission denied. Please allow microphone access.'
+            : `Speech recognition error: ${errCode}`
+          shouldRestart = false
           isListening.value = false
           interimTranscript.value = ''
         }
 
         recognition.onend = () => {
-          isListening.value = false
           interimTranscript.value = ''
+          // Auto-restart if the user hasn't explicitly stopped
+          if (shouldRestart) {
+            tryRestart()
+          } else {
+            isListening.value = false
+          }
         }
       }
     }
   })
+
+  function tryRestart() {
+    if (!recognition || !shouldRestart) return
+    try {
+      recognition.start()
+    } catch {
+      // Already started or other issue — give up
+      shouldRestart = false
+      isListening.value = false
+    }
+  }
 
   function startListening() {
     if (!recognition || isListening.value) return
     error.value = null
     transcript.value = ''
     interimTranscript.value = ''
+    shouldRestart = true
     isListening.value = true
-    recognition.start()
+    try {
+      recognition.start()
+    } catch (e: any) {
+      error.value = `Could not start microphone: ${e.message || 'unknown error'}`
+      shouldRestart = false
+      isListening.value = false
+    }
   }
 
   function stopListening() {
-    if (!recognition || !isListening.value) return
-    recognition.stop()
+    if (!recognition) return
+    shouldRestart = false
     isListening.value = false
+    try {
+      recognition.stop()
+    } catch {
+      // Already stopped
+    }
   }
 
   function toggleListening() {
@@ -80,7 +117,8 @@ export function useVoiceInput() {
   }
 
   onUnmounted(() => {
-    recognition?.abort()
+    shouldRestart = false
+    try { recognition?.abort() } catch { /* noop */ }
   })
 
   return {
