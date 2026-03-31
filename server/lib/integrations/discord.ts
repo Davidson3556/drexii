@@ -164,7 +164,8 @@ export function createDiscordAdapter(botToken: string): IntegrationAdapter {
           headers: createAuthHeaders(botToken)
         })
         return !!data.id
-      } catch {
+      } catch (e) {
+        console.error('[Discord] Health check failed:', (e as Error).message)
         return false
       }
     }

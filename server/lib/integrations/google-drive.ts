@@ -270,9 +270,14 @@ export function createGoogleDriveAdapter(creds: {
       }
     },
     async healthCheck() {
-      const accessToken = await getAccessToken(tokens)
-      await $fetch(`${DRIVE_API}/about`, { headers: authHeader(accessToken), query: { fields: 'user' } })
-      return true
+      try {
+        const accessToken = await getAccessToken(tokens)
+        await $fetch(`${DRIVE_API}/about`, { headers: authHeader(accessToken), query: { fields: 'user' } })
+        return true
+      } catch (e) {
+        console.error('[Google Drive] Health check failed:', (e as Error).message)
+        return false
+      }
     }
   }
 }

@@ -22,6 +22,7 @@ const textareaRef = ref<HTMLTextAreaElement>()
 const fileInput = ref<HTMLInputElement>()
 const isUploading = ref(false)
 const uploadedFile = ref<{ url: string, name: string } | null>(null)
+const uploadError = ref('')
 
 // Voice
 const { isListening, transcript, interimTranscript, isSupported: voiceInputSupported, toggleListening } = useVoiceInput()
@@ -163,12 +164,15 @@ async function handleFileSelected(event: Event) {
   const file = target.files?.[0]
   if (!file) return
 
+  uploadError.value = ''
   isUploading.value = true
   try {
     const result = await uploadFile(file)
     uploadedFile.value = { url: result.url, name: result.name }
   } catch (err) {
     console.error('[chat] Upload error:', err)
+    uploadError.value = `Upload failed: ${(err as Error).message || 'Unknown error'}`
+    setTimeout(() => { uploadError.value = '' }, 5000)
   } finally {
     isUploading.value = false
     if (fileInput.value) fileInput.value.value = ''
@@ -284,6 +288,11 @@ function toolLabel(name: string): string {
           <!-- Input -->
           <div class="glass-card p-1 mb-5">
             <div class="glass-input px-4 pt-4 pb-3">
+              <!-- Upload error -->
+              <div v-if="uploadError" class="flex items-center gap-2 mb-3 px-2 py-1.5 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <UIcon name="i-lucide-alert-circle" class="w-4 h-4 text-red-400 shrink-0" />
+                <span class="text-xs text-red-300 flex-1">{{ uploadError }}</span>
+              </div>
               <!-- Uploaded file preview -->
               <div
                 v-if="uploadedFile"
@@ -637,6 +646,11 @@ function toolLabel(name: string): string {
         <div class="max-w-3xl mx-auto">
           <div class="glass-card p-1">
             <div class="glass-input px-4 pt-3.5 pb-3">
+              <!-- Upload error -->
+              <div v-if="uploadError" class="flex items-center gap-2 mb-3 px-2 py-1.5 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <UIcon name="i-lucide-alert-circle" class="w-4 h-4 text-red-400 shrink-0" />
+                <span class="text-xs text-red-300 flex-1">{{ uploadError }}</span>
+              </div>
               <!-- Uploaded file preview -->
               <div
                 v-if="uploadedFile"

@@ -1,7 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { useDB } from '../db'
 import { actions } from '../db/schema'
-import { executeTool } from './integrations'
+import { executeTool, type IntegrationAdapter } from './integrations'
 import type { ToolResult } from '../../shared/types'
 
 export async function createPendingAction(
@@ -21,7 +21,7 @@ export async function createPendingAction(
   return action.id
 }
 
-export async function confirmAction(actionId: string): Promise<ToolResult> {
+export async function confirmAction(actionId: string, adapters?: IntegrationAdapter[]): Promise<ToolResult> {
   const db = useDB()
 
   const [action] = await db.select()
@@ -34,7 +34,7 @@ export async function confirmAction(actionId: string): Promise<ToolResult> {
   }
 
   const params = action.params as Record<string, unknown>
-  const result = await executeTool(action.tool, params)
+  const result = await executeTool(action.tool, params, adapters)
 
   await db.update(actions)
     .set({

@@ -178,8 +178,13 @@ export function createJiraAdapter(config: JiraConfig): IntegrationAdapter {
       }
     },
     async healthCheck() {
-      await $fetch(`${base(config)}/myself`, { headers: authHeader(config) })
-      return true
+      try {
+        await $fetch(`${base(config)}/myself`, { headers: authHeader(config) })
+        return true
+      } catch (e) {
+        console.error('[Jira] Health check failed:', (e as Error).message)
+        return false
+      }
     }
   }
 }

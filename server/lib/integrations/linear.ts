@@ -22,21 +22,29 @@ async function searchIssues(apiKey: string, args: Record<string, unknown>): Prom
     const query = args.query as string
     if (!query) return { toolCallId: 'linear_search', content: 'query is required', isError: true }
 
-    const data = await gql<{ issueSearch: { nodes: Array<Record<string, unknown>> } }>(apiKey, `
-      query($term: String!) {
-        issueSearch(term: $term, first: 10) {
-          nodes { id identifier title state { name } assignee { name } priority }
+    const data = await gql<{ issues: { nodes: Array<Record<string, unknown>> } }>(apiKey, `
+      query($filter: IssueFilter) {
+        issues(filter: $filter, first: 10, orderBy: updatedAt) {
+          nodes { id identifier title state { name } assignee { name } priority labels { nodes { name } } }
         }
       }
-    `, { term: query })
+    `, {
+      filter: {
+        or: [
+          { title: { containsIgnoreCase: query } },
+          { description: { containsIgnoreCase: query } }
+        ]
+      }
+    })
 
-    const issues = data.issueSearch.nodes
+    const issues = data.issues.nodes
     if (!issues.length) return { toolCallId: 'linear_search', content: `No Linear issues found for "${query}".` }
 
-    const lines = issues.map(i => {
+    const lines = issues.map((i) => {
       const state = (i.state as Record<string, string>)?.name
       const assignee = (i.assignee as Record<string, string>)?.name || 'Unassigned'
-      return `- [${i.identifier}] ${i.title} | State: ${state} | Assignee: ${assignee}`
+      const labels = (i.labels as { nodes: Array<{ name: string }> })?.nodes?.map(l => l.name).join(', ')
+      return `- [${i.identifier}] ${i.title} | State: ${state} | Assignee: ${assignee}${labels ? ` | Labels: ${labels}` : ''} | ID: ${i.id}`
     }).join('\n')
 
     return { toolCallId: 'linear_search', content: `Linear issues:\n${lines}` }
@@ -213,7 +221,10 @@ export function createLinearAdapter(apiKey: string): IntegrationAdapter {
       try {
         await gql(apiKey, `query { viewer { id } }`)
         return true
-      } catch { return false }
+      } catch (e) {
+        console.error('[Linear] Health check failed:', (e as Error).message)
+        return false
+      }
     }
   }
 }

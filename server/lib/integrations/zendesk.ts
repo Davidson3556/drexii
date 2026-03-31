@@ -169,7 +169,8 @@ export function createZendeskAdapter(creds: ZendeskCreds): IntegrationAdapter {
       try {
         await $fetch(apiUrl(creds, '/users/me.json'), { headers: authHeader(creds) })
         return true
-      } catch {
+      } catch (e) {
+        console.error('[Zendesk] Health check failed:', (e as Error).message)
         return false
       }
     }

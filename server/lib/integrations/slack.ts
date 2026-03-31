@@ -152,7 +152,8 @@ export function createSlackAdapter(botToken: string): IntegrationAdapter {
           headers: createAuthHeader(botToken)
         })
         return data.ok
-      } catch {
+      } catch (e) {
+        console.error('[Slack] Health check failed:', (e as Error).message)
         return false
       }
     }

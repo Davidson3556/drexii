@@ -167,8 +167,8 @@ export function useThread() {
                   state.value.error = data.message
                   break
               }
-            } catch {
-              // Skip malformed data
+            } catch (parseErr) {
+              console.warn('[useThread] Malformed SSE data:', dataStr, parseErr)
             }
           }
         }
@@ -201,31 +201,49 @@ export function useThread() {
     // Remove immediately to prevent double-clicks
     state.value.pendingActions = state.value.pendingActions.filter(a => a.actionId !== actionId)
     try {
+      const { user } = useAuth()
+      const headers: Record<string, string> = {}
+      if (user.value?.id) headers['x-user-id'] = user.value.id
+
       const result = await $fetch<{ success: boolean, result: string }>(`/api/actions/${actionId}/confirm`, {
-        method: 'POST'
+        method: 'POST',
+        headers
       })
       if (state.value.currentThread) {
-        let parsed: unknown = null
-        try {
-          parsed = JSON.parse(result.result)
-        } catch {
-          parsed = null
+        if (!result.success) {
+          state.value.messages.push({
+            id: crypto.randomUUID(),
+            threadId: state.value.currentThread.id,
+            role: 'assistant',
+            content: `**Action failed:** ${action?.tool ?? 'Tool'}\n\n${result.result}`,
+            modelUsed: null,
+            toolCalls: null,
+            createdAt: new Date().toISOString()
+          })
+        } else {
+          let parsed: unknown = null
+          try {
+            parsed = JSON.parse(result.result)
+          } catch {
+            parsed = null
+          }
+          const summary = parsed
+            ? `**Action completed:** ${action?.tool ?? 'Tool'}\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\``
+            : `**Action completed:** ${result.result}`
+          state.value.messages.push({
+            id: crypto.randomUUID(),
+            threadId: state.value.currentThread.id,
+            role: 'assistant',
+            content: summary,
+            modelUsed: null,
+            toolCalls: null,
+            createdAt: new Date().toISOString()
+          })
         }
-        const summary = parsed
-          ? `**Action completed:** ${action?.tool ?? 'Tool'}\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\``
-          : `**Action completed:** ${result.result}`
-        state.value.messages.push({
-          id: crypto.randomUUID(),
-          threadId: state.value.currentThread.id,
-          role: 'assistant',
-          content: summary,
-          modelUsed: null,
-          toolCalls: null,
-          createdAt: new Date().toISOString()
-        })
       }
       return result
     } catch (err) {
+      console.error('[useThread] Confirm action error:', err)
       state.value.error = (err as Error).message || 'Failed to confirm action'
       // Restore pending action on failure
       if (action) state.value.pendingActions.push(action)
@@ -250,6 +268,7 @@ export function useThread() {
         })
       }
     } catch (err) {
+      console.error('[useThread] Cancel action error:', err)
       state.value.error = (err as Error).message || 'Failed to cancel action'
       if (action) state.value.pendingActions.push(action)
       throw err

@@ -366,7 +366,8 @@ export function createGmailAdapter(credentials: { client_id: string, client_secr
           headers: authHeader(accessToken)
         })
         return !!profile.emailAddress
-      } catch {
+      } catch (e) {
+        console.error('[Gmail] Health check failed:', (e as Error).message)
         return false
       }
     }

@@ -38,7 +38,8 @@ export function useAuth() {
         }
         state.value.isAuthenticated = true
       }
-    } catch {
+    } catch (e) {
+      console.error('[useAuth] Session check failed:', (e as Error).message)
       state.value.user = null
       state.value.isAuthenticated = false
     } finally {

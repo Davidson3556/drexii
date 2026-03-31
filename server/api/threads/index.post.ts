@@ -12,6 +12,6 @@ export default defineEventHandler(async (event) => {
     return { thread }
   } catch (error: unknown) {
     console.error('[API] Create thread error:', error)
-    throw createError({ statusCode: 500, message: 'Failed to create thread' })
+    throw createError({ statusCode: 500, message: `Failed to create thread: ${(error as Error).message}` })
   }
 })

@@ -330,7 +330,10 @@ export function createGoogleCalendarAdapter(creds: {
         const accessToken = await getAccessToken(tokens)
         await $fetch(`${CALENDAR_API}/calendars/primary`, { headers: authHeader(accessToken) })
         return true
-      } catch { return false }
+      } catch (e) {
+        console.error('[Google Calendar] Health check failed:', (e as Error).message)
+        return false
+      }
     }
   }
 }
