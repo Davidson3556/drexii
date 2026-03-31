@@ -144,20 +144,12 @@ function handleSuggestion(text: string) {
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Linear</span>
                 </div>
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-simple-icons-asana" class="w-[18px] h-[18px] text-white/50" />
-                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Asana</span>
-                </div>
-                <div class="marquee-item flex items-center gap-2.5 shrink-0">
                   <UIcon name="i-simple-icons-discord" class="w-[18px] h-[18px] text-white/50" />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Discord</span>
                 </div>
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
                   <UIcon name="i-simple-icons-zendesk" class="w-[18px] h-[18px] text-white/50" />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Zendesk</span>
-                </div>
-                <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-simple-icons-salesforce" class="w-[18px] h-[18px] text-white/50" />
-                  <span class="text-[13px] text-white/50 font-medium tracking-wide">Salesforce</span>
                 </div>
               </template>
             </div>

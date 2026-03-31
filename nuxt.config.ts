@@ -26,9 +26,6 @@ export default defineNuxtConfig({
     zendeskSubdomain: process.env.ZENDESK_SUBDOMAIN || '',
     zendeskEmail: process.env.ZENDESK_EMAIL || '',
     zendeskApiToken: process.env.ZENDESK_API_TOKEN || '',
-    salesforceLoginUrl: process.env.SALESFORCE_LOGIN_URL || '',
-    salesforceClientId: process.env.SALESFORCE_CLIENT_ID || '',
-    salesforceClientSecret: process.env.SALESFORCE_CLIENT_SECRET || '',
     public: {
       appName: 'Drexii',
       appDescription: 'AI agent that turns conversation into execution',

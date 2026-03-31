@@ -178,10 +178,8 @@ export function createJiraAdapter(config: JiraConfig): IntegrationAdapter {
       }
     },
     async healthCheck() {
-      try {
-        await $fetch(`${base(config)}/myself`, { headers: authHeader(config) })
-        return true
-      } catch { return false }
+      await $fetch(`${base(config)}/myself`, { headers: authHeader(config) })
+      return true
     }
   }
 }

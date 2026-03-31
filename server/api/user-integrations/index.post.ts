@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Integration name and credentials are required' })
   }
 
-  const validIntegrations = ['slack', 'notion', 'discord', 'zendesk', 'salesforce', 'gmail']
+  const validIntegrations = ['slack', 'notion', 'discord', 'zendesk', 'gmail', 'google_calendar', 'google_drive', 'jira', 'linear']
   if (!validIntegrations.includes(body.integration)) {
     throw createError({ statusCode: 400, message: `Invalid integration. Must be one of: ${validIntegrations.join(', ')}` })
   }

@@ -2,6 +2,11 @@
 import type { Message } from '~/shared/types'
 
 const { currentThread, messages, isStreaming, streamingContent, agentSteps, error, pendingActions, lastMessageContent, createThread, loadThread, send, confirmAction, cancelAction } = useThread()
+
+async function clearChat() {
+  if (isStreaming.value) return
+  await createThread()
+}
 const { isFallback, startPolling, stopPolling } = useModelStatus()
 const { renderMarkdown } = useMarkdown()
 const { user } = useAuth()
@@ -224,8 +229,6 @@ const TOOL_LABELS: Record<string, string> = {
   notion_update_page: 'Updating Notion page',
   slack_send_message: 'Sending Slack message',
   slack_list_channels: 'Listing Slack channels',
-  salesforce_query: 'Querying Salesforce',
-  salesforce_update: 'Updating Salesforce',
   zendesk_search: 'Searching Zendesk',
   zendesk_create_ticket: 'Creating Zendesk ticket',
   zendesk_update_ticket: 'Updating Zendesk ticket'
@@ -733,9 +736,20 @@ function toolLabel(name: string): string {
               </div>
             </div>
           </div>
-          <p class="text-center text-white/15 text-xs mt-2">
-            Drexii can make mistakes. Confirm important actions before executing.
-          </p>
+          <div class="flex items-center justify-center gap-3 mt-2">
+            <button
+              class="text-white/15 hover:text-white/40 text-xs transition-colors flex items-center gap-1"
+              :disabled="isStreaming"
+              @click="clearChat"
+            >
+              <UIcon name="i-lucide-trash-2" class="w-3 h-3" />
+              Clear chat
+            </button>
+            <span class="text-white/10">·</span>
+            <p class="text-white/15 text-xs">
+              Drexii can make mistakes. Confirm important actions before executing.
+            </p>
+          </div>
         </div>
       </div>
     </div>

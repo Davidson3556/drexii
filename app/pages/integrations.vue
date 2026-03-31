@@ -27,19 +27,23 @@ const integrations = [
     name: 'Slack',
     icon: 'i-simple-icons-slack',
     color: '#E01E5A',
-    description: 'Send messages, search conversations, and list channels in your Slack workspace.',
+    description: 'Send messages to any channel, search through conversations, and list all channels in your Slack workspace — directly from Drexii chat.',
     fields: [
       { key: 'bot_token', label: 'Bot Token', placeholder: 'xoxb-your-bot-token', type: 'password' }
     ],
     guide: {
-      title: 'How to get your Slack Bot Token',
+      title: 'How to connect Slack',
       steps: [
-        'Go to api.slack.com/apps and click "Create New App"',
-        'Choose "From scratch", name your app, and select your workspace',
-        'Go to "OAuth & Permissions" in the sidebar',
-        'Under "Bot Token Scopes", add: chat:write, channels:read, search:read, channels:history',
-        'Click "Install to Workspace" at the top and authorize',
-        'Copy the "Bot User OAuth Token" (starts with xoxb-)'
+        'Open your browser and go to api.slack.com/apps',
+        'Click the green "Create New App" button in the top right',
+        'Choose "From scratch", type a name like "Drexii", and pick your Slack workspace from the dropdown',
+        'On the left sidebar, click "OAuth & Permissions"',
+        'Scroll down to "Bot Token Scopes" and click "Add an OAuth Scope"',
+        'Add these 4 scopes one by one: chat:write, channels:read, search:read, channels:history',
+        'Scroll back up and click the green "Install to Workspace" button',
+        'Slack will ask you to allow access — click "Allow"',
+        'You\'ll see a "Bot User OAuth Token" that starts with xoxb- — copy it',
+        'Paste that token into the field above and click "Test Connection"'
       ]
     }
   },
@@ -48,18 +52,23 @@ const integrations = [
     name: 'Notion',
     icon: 'i-simple-icons-notion',
     color: '#ffffff',
-    description: 'Search pages, read content, and create new pages in your Notion workspace.',
+    description: 'Search across all your Notion pages, read their content, and create new pages — so Drexii can pull information from your docs or add to them on your behalf.',
     fields: [
       { key: 'api_key', label: 'Integration Token', placeholder: 'ntn_your-integration-token', type: 'password' }
     ],
     guide: {
-      title: 'How to get your Notion Integration Token',
+      title: 'How to connect Notion',
       steps: [
-        'Go to notion.so/my-integrations and click "New integration"',
-        'Name it (e.g., "Drexii"), select your workspace, and click "Submit"',
-        'Copy the "Internal Integration Secret" (starts with ntn_)',
-        'Important: Go to each Notion page/database you want Drexii to access',
-        'Click "..." menu → "Add connections" → Select your integration'
+        'Open your browser and go to notion.so/my-integrations',
+        'Click the "+ New integration" button',
+        'Give it a name like "Drexii", select your workspace from the dropdown, and click "Submit"',
+        'You\'ll see an "Internal Integration Secret" that starts with ntn_ — click "Show" then copy it',
+        'Now you need to give Drexii access to your pages. Go to any Notion page you want Drexii to read',
+        'Click the "..." menu in the top-right corner of the page',
+        'Click "Add connections" and search for "Drexii" (the integration you just created)',
+        'Click on it to connect — repeat this for each page or database you want Drexii to access',
+        'Paste the token into the field above and click "Test Connection"',
+        'Tip: If you connect a parent page, all child pages under it will also be accessible'
       ]
     }
   },
@@ -68,20 +77,24 @@ const integrations = [
     name: 'Discord',
     icon: 'i-simple-icons-discord',
     color: '#5865F2',
-    description: 'Send messages, search channels, and list servers connected to your Discord bot.',
+    description: 'Send messages to channels, search through message history, and list all servers your bot is in — letting Drexii communicate with your Discord community.',
     fields: [
       { key: 'bot_token', label: 'Bot Token', placeholder: 'your-discord-bot-token', type: 'password' }
     ],
     guide: {
-      title: 'How to get your Discord Bot Token',
+      title: 'How to connect Discord',
       steps: [
-        'Go to discord.com/developers/applications and click "New Application"',
-        'Name your app and click "Create"',
-        'Go to "Bot" in the sidebar and click "Add Bot"',
-        'Click "Reset Token" and copy the token',
-        'Enable "Message Content Intent" under Privileged Gateway Intents',
-        'Go to "OAuth2" → "URL Generator", select "bot" scope with permissions: Send Messages, Read Message History, View Channels',
-        'Copy the generated URL and open it to invite the bot to your server'
+        'Open your browser and go to discord.com/developers/applications',
+        'Click the "New Application" button in the top right, give it a name like "Drexii", and click "Create"',
+        'On the left sidebar, click "Bot"',
+        'Click "Reset Token" — Discord will show you a token string. Copy it immediately (you won\'t see it again)',
+        'Scroll down to "Privileged Gateway Intents" and turn ON "Message Content Intent" — this lets the bot read messages',
+        'Now you need to invite the bot to your server. On the left sidebar, click "OAuth2" then "URL Generator"',
+        'Under "Scopes", check the box next to "bot"',
+        'Under "Bot Permissions", check: Send Messages, Read Message History, View Channels',
+        'Scroll down and copy the "Generated URL" — open it in a new tab',
+        'Select your Discord server from the dropdown and click "Authorize"',
+        'Go back to Drexii, paste the bot token into the field above, and click "Test Connection"'
       ]
     }
   },
@@ -90,25 +103,32 @@ const integrations = [
     name: 'Gmail',
     icon: 'i-simple-icons-gmail',
     color: '#EA4335',
-    description: 'Search, read, send, and draft emails from your Gmail account.',
+    description: 'Search your inbox, read full emails, send new messages, and draft replies — all from Drexii. Perfect for triaging emails or auto-drafting responses without opening Gmail.',
     fields: [
       { key: 'client_id', label: 'Client ID', placeholder: 'your-google-client-id.apps.googleusercontent.com', type: 'text' },
       { key: 'client_secret', label: 'Client Secret', placeholder: 'GOCSPX-your-client-secret', type: 'password' },
       { key: 'refresh_token', label: 'Refresh Token', placeholder: '1//your-refresh-token', type: 'password' }
     ],
     guide: {
-      title: 'How to get your Gmail API credentials',
+      title: 'How to connect Gmail',
       steps: [
-        'Go to console.cloud.google.com and create a new project (or select existing)',
-        'Enable the Gmail API: APIs & Services → Library → search "Gmail API" → Enable',
-        'Go to APIs & Services → Credentials → Create Credentials → OAuth client ID',
-        'Set Application type to "Web application"',
-        'Add "https://developers.google.com/oauthplayground" as an authorized redirect URI',
-        'Copy the Client ID and Client Secret',
-        'Go to developers.google.com/oauthplayground',
-        'Click the gear icon → check "Use your own OAuth credentials" → paste Client ID & Secret',
-        'In Step 1, select "Gmail API v1" → select all scopes → click "Authorize APIs"',
-        'In Step 2, click "Exchange authorization code for tokens" → copy the Refresh Token'
+        'Open console.cloud.google.com in your browser and sign in with your Google account',
+        'At the top, click the project dropdown and then "New Project". Name it anything (e.g. "Drexii") and click "Create"',
+        'Once created, make sure your new project is selected in the top dropdown',
+        'In the left sidebar, go to "APIs & Services" → "Library". Search for "Gmail API" and click "Enable"',
+        'Now go to "APIs & Services" → "Credentials" in the left sidebar',
+        'Click "+ Create Credentials" at the top and choose "OAuth client ID"',
+        'If asked to configure a consent screen, choose "External", fill in the app name and your email, then save',
+        'Back on Create Credentials: set Application type to "Web application"',
+        'Under "Authorized redirect URIs", click "Add URI" and paste: https://developers.google.com/oauthplayground',
+        'Click "Create" — a popup will show your Client ID and Client Secret. Copy both and save them somewhere',
+        'Now open a new tab and go to developers.google.com/oauthplayground',
+        'Click the gear icon (⚙️) in the top right. Check "Use your own OAuth credentials" and paste your Client ID and Client Secret',
+        'On the left panel (Step 1), scroll to "Gmail API v1" and expand it. Select all the scopes listed, then click "Authorize APIs"',
+        'Google will ask you to sign in and grant access — click through the prompts and allow everything',
+        'On Step 2, click "Exchange authorization code for tokens". Copy the "Refresh token" value',
+        'Paste all three values (Client ID, Client Secret, Refresh Token) into the fields above and click "Test Connection"',
+        'Tip: You can reuse the same Google Cloud project and Client ID for Calendar and Drive too'
       ]
     }
   },
@@ -117,46 +137,24 @@ const integrations = [
     name: 'Zendesk',
     icon: 'i-simple-icons-zendesk',
     color: '#03363D',
-    description: 'Search tickets, view ticket details, and create new support tickets.',
+    description: 'Search support tickets by keyword, view full ticket details and conversations, and create new tickets — so Drexii can help you manage customer support without switching tabs.',
     fields: [
       { key: 'subdomain', label: 'Subdomain', placeholder: 'yourcompany', type: 'text' },
       { key: 'email', label: 'Agent Email', placeholder: 'agent@company.com', type: 'email' },
       { key: 'api_token', label: 'API Token', placeholder: 'your-zendesk-api-token', type: 'password' }
     ],
     guide: {
-      title: 'How to get your Zendesk credentials',
+      title: 'How to connect Zendesk',
       steps: [
-        'Log in to your Zendesk admin panel',
-        'Go to Admin Center → Apps and integrations → Zendesk API',
-        'Enable "Token Access" if not already enabled',
-        'Click "Add API token", give it a label, and click "Copy"',
-        'Your subdomain is the part before .zendesk.com in your URL (e.g., "mycompany")',
-        'Use the email of a Zendesk agent with appropriate permissions'
-      ]
-    }
-  },
-  {
-    id: 'salesforce',
-    name: 'Salesforce',
-    icon: 'i-simple-icons-salesforce',
-    color: '#00A1E0',
-    description: 'Search records, view details, and create new records across Salesforce objects.',
-    fields: [
-      { key: 'login_url', label: 'Login URL', placeholder: 'https://login.salesforce.com', type: 'url' },
-      { key: 'client_id', label: 'Client ID (Consumer Key)', placeholder: 'your-connected-app-client-id', type: 'password' },
-      { key: 'client_secret', label: 'Client Secret', placeholder: 'your-connected-app-client-secret', type: 'password' }
-    ],
-    guide: {
-      title: 'How to get your Salesforce credentials',
-      steps: [
-        'Log in to Salesforce and go to Setup',
-        'Search for "App Manager" in Quick Find',
-        'Click "New Connected App"',
-        'Enable OAuth Settings, set callback URL to https://login.salesforce.com/services/oauth2/callback',
-        'Select scopes: "Full access (full)" or "API (api)"',
-        'Save and wait a few minutes for the app to be ready',
-        'Copy the "Consumer Key" (Client ID) and "Consumer Secret" (Client Secret)',
-        'Login URL is usually https://login.salesforce.com (or your custom domain)'
+        'Log in to your Zendesk account in your browser',
+        'Click the gear icon (⚙️) in the left sidebar to open the Admin Center',
+        'In the Admin Center, go to "Apps and integrations" → "Zendesk API"',
+        'Make sure "Token Access" is turned ON (toggle it if it\'s off)',
+        'Click the "Add API token" button and give it a label like "Drexii"',
+        'Zendesk will generate a token — click "Copy" to save it. You won\'t be able to see it again',
+        'For the Subdomain field: look at your Zendesk URL in the browser. If it\'s https://mycompany.zendesk.com, your subdomain is just "mycompany"',
+        'For the Email field: use the email address you log in to Zendesk with (must be an agent account)',
+        'Paste the subdomain, email, and token into the fields above and click "Test Connection"'
       ]
     }
   },
@@ -165,23 +163,31 @@ const integrations = [
     name: 'Google Calendar',
     icon: 'i-lucide-calendar',
     color: '#4285F4',
-    description: 'List events, check availability, schedule meetings, and manage your Google Calendar.',
+    description: 'View upcoming events, check your availability, schedule new meetings, and manage your calendar — all through Drexii chat. Great for quickly checking "what\'s next" or booking meetings without leaving your workflow.',
     fields: [
       { key: 'client_id', label: 'Client ID', placeholder: 'your-client-id.apps.googleusercontent.com', type: 'password' },
       { key: 'client_secret', label: 'Client Secret', placeholder: 'your-client-secret', type: 'password' },
       { key: 'refresh_token', label: 'Refresh Token', placeholder: 'your-refresh-token', type: 'password' }
     ],
     guide: {
-      title: 'How to get Google Calendar credentials',
+      title: 'How to connect Google Calendar',
       steps: [
-        'Go to console.cloud.google.com and create or select a project',
-        'Enable the "Google Calendar API" in APIs & Services → Library',
-        'Go to APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID',
-        'Set application type to "Web application", add https://developers.google.com/oauthplayground as redirect URI',
-        'Copy your Client ID and Client Secret',
-        'Go to developers.google.com/oauthplayground, click Settings (gear icon), enable "Use your own OAuth credentials", enter your Client ID + Secret',
-        'In Step 1, select "Google Calendar API v3" and all calendar scopes → Authorize APIs',
-        'In Step 2, click "Exchange authorization code for tokens" → copy the Refresh Token'
+        'If you already set up Gmail, you can reuse the same Client ID and Client Secret — skip to step 11',
+        'Open console.cloud.google.com and sign in with your Google account',
+        'Select your existing project (or create a new one)',
+        'Go to "APIs & Services" → "Library" in the left sidebar',
+        'Search for "Google Calendar API" and click "Enable"',
+        'Go to "APIs & Services" → "Credentials" in the left sidebar',
+        'Click "+ Create Credentials" → "OAuth client ID"',
+        'Set Application type to "Web application"',
+        'Under "Authorized redirect URIs", add: https://developers.google.com/oauthplayground',
+        'Click "Create" and copy the Client ID and Client Secret',
+        'Open a new tab and go to developers.google.com/oauthplayground',
+        'Click the gear icon (⚙️) in the top right. Check "Use your own OAuth credentials" and paste your Client ID and Client Secret',
+        'On the left panel (Step 1), scroll to "Google Calendar API v3" and expand it. Select all calendar scopes, then click "Authorize APIs"',
+        'Sign in with your Google account and allow access when prompted',
+        'On Step 2, click "Exchange authorization code for tokens" and copy the Refresh Token',
+        'Paste all three values into the fields above and click "Test Connection"'
       ]
     }
   },
@@ -190,20 +196,30 @@ const integrations = [
     name: 'Google Drive',
     icon: 'i-lucide-hard-drive',
     color: '#34A853',
-    description: 'Search files, read Google Docs and Sheets, and create new documents in your Drive.',
+    description: 'Search for files by name, read the contents of Google Docs and Sheets, list recent files, and create new documents — so Drexii can find and summarize your files or create new ones for you.',
     fields: [
       { key: 'client_id', label: 'Client ID', placeholder: 'your-client-id.apps.googleusercontent.com', type: 'password' },
       { key: 'client_secret', label: 'Client Secret', placeholder: 'your-client-secret', type: 'password' },
       { key: 'refresh_token', label: 'Refresh Token', placeholder: 'your-refresh-token', type: 'password' }
     ],
     guide: {
-      title: 'How to get Google Drive credentials',
+      title: 'How to connect Google Drive',
       steps: [
-        'Same Google Cloud project as Google Calendar — enable "Google Drive API" and "Google Docs API"',
-        'Use the same OAuth 2.0 Client ID and Client Secret',
-        'In OAuth Playground Step 1, also select "Drive API v3" and "Docs API v1" scopes',
-        'Exchange for a Refresh Token and paste it here',
-        'Tip: you can reuse the same credentials across Gmail, Calendar, and Drive'
+        'If you already set up Gmail or Calendar, you can reuse the same Client ID and Client Secret — skip to step 9',
+        'Open console.cloud.google.com and select your project',
+        'Go to "APIs & Services" → "Library"',
+        'Search for "Google Drive API" and click "Enable"',
+        'Also search for "Google Docs API" and enable that too (needed to read and create documents)',
+        'Go to "APIs & Services" → "Credentials" and use your existing OAuth client (or create a new one with the Playground redirect URI)',
+        'Copy the Client ID and Client Secret',
+        'You need a new Refresh Token that includes Drive permissions, even if you have one from Gmail or Calendar',
+        'Open developers.google.com/oauthplayground',
+        'Click the gear icon (⚙️), check "Use your own OAuth credentials", and paste your Client ID and Client Secret',
+        'On the left panel (Step 1), scroll to "Drive API v3" and select all scopes. Also expand "Google Docs API v1" and select its scopes',
+        'Click "Authorize APIs", sign in, and allow access',
+        'On Step 2, click "Exchange authorization code for tokens" and copy the Refresh Token',
+        'Paste all three values into the fields above and click "Test Connection"',
+        'Tip: If you want one token for Gmail + Calendar + Drive, select all three APIs\' scopes in Step 1 before authorizing'
       ]
     }
   },
@@ -212,20 +228,23 @@ const integrations = [
     name: 'Jira',
     icon: 'i-simple-icons-jira',
     color: '#0052CC',
-    description: 'Search issues, view details, create new tickets, and add comments in Jira.',
+    description: 'Search and filter issues across projects, view full ticket details with priority and assignee, create new bugs or tasks, and add comments — all from chat. Drexii reads your Jira board so you never have to context-switch.',
     fields: [
       { key: 'subdomain', label: 'Subdomain', placeholder: 'yourcompany (from yourcompany.atlassian.net)', type: 'text' },
       { key: 'email', label: 'Account Email', placeholder: 'you@yourcompany.com', type: 'email' },
       { key: 'api_token', label: 'API Token', placeholder: 'your-jira-api-token', type: 'password' }
     ],
     guide: {
-      title: 'How to get your Jira credentials',
+      title: 'How to connect Jira',
       steps: [
-        'Log in to your Atlassian account at id.atlassian.com',
-        'Go to Security → Create and manage API tokens → Create API token',
-        'Give it a label (e.g. "Drexii") and copy the token',
-        'Your subdomain is the part before .atlassian.net in your Jira URL',
-        'Use the email address of your Atlassian account'
+        'Open your browser and go to id.atlassian.com/manage-profile/security/api-tokens',
+        'Click "Create API token"',
+        'Give it a label like "Drexii" and click "Create"',
+        'A popup will show your new token — click "Copy" to save it. You won\'t see it again after closing the popup',
+        'For the Subdomain field: look at your Jira URL in the browser. If it\'s https://mycompany.atlassian.net, your subdomain is just "mycompany" — do NOT include the full URL',
+        'For the Email field: use the email address you use to log in to your Atlassian/Jira account',
+        'Paste the subdomain, email, and token into the fields above and click "Test Connection"',
+        'Note: The token inherits the same permissions as your Jira account — Drexii can access any project you can see'
       ]
     }
   },
@@ -234,36 +253,22 @@ const integrations = [
     name: 'Linear',
     icon: 'i-simple-icons-linear',
     color: '#5E6AD2',
-    description: 'Search issues, view details, create new issues, and add comments in Linear.',
+    description: 'Search issues by keyword, pull up full issue details with status and assignee, create new issues, add comments, and list everything assigned to you — all without leaving the chat. Built on Linear\'s GraphQL API for fast, real-time data.',
     fields: [
       { key: 'api_key', label: 'Personal API Key', placeholder: 'lin_api_your-key', type: 'password' }
     ],
     guide: {
-      title: 'How to get your Linear API Key',
+      title: 'How to connect Linear',
       steps: [
-        'Log in to Linear and go to Settings (bottom-left avatar)',
-        'Go to Account → API → Personal API keys',
-        'Click "New API key", give it a label, and copy the key (starts with lin_api_)',
-        'The key is only shown once — save it immediately'
-      ]
-    }
-  },
-  {
-    id: 'asana',
-    name: 'Asana',
-    icon: 'i-simple-icons-asana',
-    color: '#F06A6A',
-    description: 'Search tasks, view details, create and update tasks, and mark them complete.',
-    fields: [
-      { key: 'access_token', label: 'Personal Access Token', placeholder: 'your-asana-pat', type: 'password' }
-    ],
-    guide: {
-      title: 'How to get your Asana Personal Access Token',
-      steps: [
-        'Log in to Asana and click your profile photo → My Settings',
-        'Go to the "Apps" tab → "Manage Developer Apps"',
-        'Scroll to "Personal access tokens" and click "+ New access token"',
-        'Give it a name and copy the token (shown only once)'
+        'Open your browser and go to linear.app, then log in to your workspace',
+        'Click your avatar or initials in the bottom-left corner — this opens Settings',
+        'In the left sidebar, scroll down and click "Account"',
+        'Click "API" under your account settings',
+        'You\'ll see a "Personal API keys" section. Click "Create key"',
+        'Give it a descriptive label like "Drexii Integration" and click "Create"',
+        'Linear will show you the key — it starts with lin_api_. Copy it immediately because it\'s only shown once',
+        'Paste the key into the field above and click "Test Connection"',
+        'Note: This key has the same permissions as your Linear account — Drexii can read and create issues in any project you have access to'
       ]
     }
   }

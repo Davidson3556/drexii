@@ -3,13 +3,11 @@ import { notion, createNotionAdapter } from './notion'
 import { slack, createSlackAdapter } from './slack'
 import { discord, createDiscordAdapter } from './discord'
 import { zendesk, createZendeskAdapter } from './zendesk'
-import { salesforce, createSalesforceAdapter } from './salesforce'
 import { createGmailAdapter, GMAIL_WRITE_TOOLS } from './gmail'
 import { createGoogleCalendarAdapter, CALENDAR_WRITE_TOOLS } from './google-calendar'
 import { createGoogleDriveAdapter, DRIVE_WRITE_TOOLS } from './google-drive'
 import { createJiraAdapter, JIRA_WRITE_TOOLS } from './jira'
 import { createLinearAdapter, LINEAR_WRITE_TOOLS } from './linear'
-import { createAsanaAdapter, ASANA_WRITE_TOOLS } from './asana'
 import { logToolExecution } from '../audit'
 
 export interface IntegrationAdapter {
@@ -21,7 +19,7 @@ export interface IntegrationAdapter {
 }
 
 // Default adapters using env vars
-const defaultAdapters: IntegrationAdapter[] = [notion, slack, discord, zendesk, salesforce]
+const defaultAdapters: IntegrationAdapter[] = [notion, slack, discord, zendesk]
 
 // Tools that perform write/create/send operations — require confirmation before execution
 const WRITE_TOOLS = new Set([
@@ -29,13 +27,11 @@ const WRITE_TOOLS = new Set([
   'discord_send_message',
   'notion_create_page',
   'zendesk_create_ticket',
-  'salesforce_create_record',
   ...GMAIL_WRITE_TOOLS,
   ...CALENDAR_WRITE_TOOLS,
   ...DRIVE_WRITE_TOOLS,
   ...JIRA_WRITE_TOOLS,
-  ...LINEAR_WRITE_TOOLS,
-  ...ASANA_WRITE_TOOLS
+  ...LINEAR_WRITE_TOOLS
 ])
 
 export function isWriteTool(toolName: string): boolean {
@@ -66,11 +62,6 @@ export function createAdapterFromCredentials(record: UserIntegrationRecord): Int
         return createZendeskAdapter({ subdomain: c.subdomain, email: c.email, token: c.api_token })
       }
       break
-    case 'salesforce':
-      if (c.login_url && c.client_id && c.client_secret) {
-        return createSalesforceAdapter({ loginUrl: c.login_url, clientId: c.client_id, clientSecret: c.client_secret })
-      }
-      break
     case 'gmail':
       if (c.client_id && c.client_secret && c.refresh_token) {
         return createGmailAdapter({ client_id: c.client_id, client_secret: c.client_secret, refresh_token: c.refresh_token })
@@ -93,9 +84,6 @@ export function createAdapterFromCredentials(record: UserIntegrationRecord): Int
       break
     case 'linear':
       if (c.api_key) return createLinearAdapter(c.api_key)
-      break
-    case 'asana':
-      if (c.access_token) return createAsanaAdapter(c.access_token)
       break
   }
   return null

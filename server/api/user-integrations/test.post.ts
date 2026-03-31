@@ -21,8 +21,10 @@ export default defineEventHandler(async (event) => {
 
   try {
     const healthy = await adapter.healthCheck()
-    return { success: healthy, error: healthy ? null : 'Connection test failed. Please check your credentials.' }
+    return { success: healthy, error: healthy ? null : 'Connection test failed. Please check your credentials and ensure the API is enabled.' }
   } catch (error: unknown) {
-    return { success: false, error: (error as Error).message || 'Connection test failed' }
+    const msg = (error as Error).message || 'Connection test failed'
+    console.error(`[test-integration] ${body.integration} health check error:`, error)
+    return { success: false, error: msg }
   }
 })

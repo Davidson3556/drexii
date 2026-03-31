@@ -270,11 +270,9 @@ export function createGoogleDriveAdapter(creds: {
       }
     },
     async healthCheck() {
-      try {
-        const accessToken = await getAccessToken(tokens)
-        await $fetch(`${DRIVE_API}/about`, { headers: authHeader(accessToken), query: { fields: 'user' } })
-        return true
-      } catch { return false }
+      const accessToken = await getAccessToken(tokens)
+      await $fetch(`${DRIVE_API}/about`, { headers: authHeader(accessToken), query: { fields: 'user' } })
+      return true
     }
   }
 }
