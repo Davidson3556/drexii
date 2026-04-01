@@ -59,6 +59,10 @@ const introRef0 = (el: Element | ComponentPublicInstance | null) => setIntroRef(
 const introRef1 = (el: Element | ComponentPublicInstance | null) => setIntroRef(el as HTMLElement | null, 1)
 const introRef2 = (el: Element | ComponentPublicInstance | null) => setIntroRef(el as HTMLElement | null, 2)
 
+// ── Splash screen ─────────────────────────────────────────────
+const showSplash = ref(true)
+const splashFading = ref(false)
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
   const observer = new IntersectionObserver(
@@ -68,6 +72,14 @@ onMounted(() => {
   nextTick(() => {
     document.querySelectorAll('.fade-in-up, .scale-in, .text-reveal').forEach(el => observer.observe(el))
   })
+
+  // Show splash for minimum 1.5s then fade out
+  setTimeout(() => {
+    splashFading.value = true
+    setTimeout(() => {
+      showSplash.value = false
+    }, 600) // matches fade-out duration
+  }, 1500)
 })
 
 onUnmounted(() => window.removeEventListener('scroll', handleScroll))
@@ -80,6 +92,37 @@ function handleSuggestion(text: string) {
 
 <template>
   <div>
+    <!-- ======== SPLASH SCREEN ======== -->
+    <div
+      v-if="showSplash"
+      class="splash-overlay"
+      :class="{ 'splash-fading': splashFading }"
+    >
+      <div class="splash-content">
+        <!-- Logo with ring -->
+        <div class="splash-logo-wrapper">
+          <div class="splash-ring">
+            <div class="splash-ring-track" />
+          </div>
+          <div class="splash-logo">
+            <img
+              src="/logo.png"
+              alt="Drexii"
+              class="w-full h-full object-cover"
+            >
+          </div>
+        </div>
+        <span class="splash-brand">
+          Drexii
+        </span>
+        <div class="splash-dots">
+          <span class="splash-dot" />
+          <span class="splash-dot" />
+          <span class="splash-dot" />
+        </div>
+      </div>
+    </div>
+
     <!-- ======== HERO ======== -->
     <section ref="heroRef" class="hero-bg">
       <div class="hero-overlay" :style="heroParallax" />
@@ -533,5 +576,121 @@ function handleSuggestion(text: string) {
 @keyframes marquee-scroll {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+
+/* ── Splash screen ────────────────────────────────────────────── */
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.splash-fading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: splash-arrive 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes splash-arrive {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.splash-logo-wrapper {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
+.splash-logo {
+  position: absolute;
+  inset: 8px;
+  border-radius: 16px;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.splash-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.splash-ring-track {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  animation: splash-spin 2s linear infinite;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 60deg,
+    #c49746 90deg,
+    #e8c574 120deg,
+    #feeaa5 150deg,
+    #e8c574 180deg,
+    #c49746 210deg,
+    transparent 240deg,
+    transparent 360deg
+  );
+}
+
+@keyframes splash-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.splash-brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.splash-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.splash-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(196, 151, 70, 0.6);
+  animation: splash-pulse 1.4s ease-in-out infinite;
+}
+
+.splash-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.splash-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes splash-pulse {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1.2); }
 }
 </style>

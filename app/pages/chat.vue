@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Message } from '~/shared/types'
 
-const { currentThread, messages, isStreaming, streamingContent, agentSteps, error, pendingActions, lastMessageContent, createThread, loadThread, send, confirmAction, cancelAction } = useThread()
+const { currentThread, messages, isStreaming, isLoadingThread, streamingContent, agentSteps, error, pendingActions, lastMessageContent, createThread, loadThread, send, confirmAction, cancelAction } = useThread()
 
 async function clearChat() {
   if (isStreaming.value) return
@@ -197,6 +197,16 @@ function handleInputChange() {
 }
 
 const hasMessages = computed(() => messages.value.length > 0)
+const confirmingActionId = ref<string | null>(null)
+
+async function handleConfirmAction(actionId: string) {
+  confirmingActionId.value = actionId
+  try {
+    await confirmAction(actionId)
+  } finally {
+    confirmingActionId.value = null
+  }
+}
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -259,9 +269,40 @@ function toolLabel(name: string): string {
 
     <!-- ======== MAIN CHAT AREA ======== -->
     <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Loading State -->
+      <div
+        v-if="isLoadingThread"
+        class="flex-1 flex flex-col items-center justify-center px-4 sm:px-6"
+      >
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
+            <UIcon
+              name="i-lucide-loader-2"
+              class="w-5 h-5 text-amber-400 animate-spin"
+            />
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <p class="text-sm text-white/50">
+              Loading your conversation…
+            </p>
+            <div class="flex gap-1 mt-2">
+              <span class="loading-bar" />
+              <span
+                class="loading-bar"
+                style="animation-delay: 0.15s"
+              />
+              <span
+                class="loading-bar"
+                style="animation-delay: 0.3s"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Empty State (Welcome Screen) -->
       <div
-        v-if="!hasMessages"
+        v-else-if="!hasMessages"
         class="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 relative overflow-hidden"
       >
         <!-- Ambient glow -->
@@ -525,13 +566,20 @@ function toolLabel(name: string): string {
                 <pre class="text-xs text-white/40 font-mono bg-white/5 rounded-lg p-2.5 overflow-x-auto">{{ JSON.stringify(action.params, null, 2) }}</pre>
                 <div class="flex gap-2">
                   <button
-                    class="px-3 py-1.5 rounded-lg bg-amber-500/80 hover:bg-amber-500 text-white text-xs font-medium transition-colors"
-                    @click="confirmAction(action.actionId)"
+                    class="px-3 py-1.5 rounded-lg bg-amber-500/80 hover:bg-amber-500 text-white text-xs font-medium transition-colors flex items-center gap-1.5 disabled:opacity-60"
+                    :disabled="confirmingActionId === action.actionId"
+                    @click="handleConfirmAction(action.actionId)"
                   >
-                    Confirm
+                    <UIcon
+                      v-if="confirmingActionId === action.actionId"
+                      name="i-lucide-loader-2"
+                      class="w-3.5 h-3.5 animate-spin"
+                    />
+                    {{ confirmingActionId === action.actionId ? 'Processing…' : 'Confirm' }}
                   </button>
                   <button
                     class="px-3 py-1.5 rounded-lg bg-white/8 hover:bg-white/12 text-white/60 text-xs font-medium transition-colors"
+                    :disabled="confirmingActionId === action.actionId"
                     @click="cancelAction(action.actionId)"
                   >
                     Cancel
@@ -853,4 +901,27 @@ function toolLabel(name: string): string {
 
 /* Light mode */
 :global(html:not(.dark)) .typing-dot-sm { background: rgba(0,0,0,0.3); }
+
+/* Loading bars animation */
+.loading-bar {
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(232, 194, 116, 0.3);
+  animation: loading-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes loading-pulse {
+  0%, 100% { opacity: 0.3; transform: scaleX(0.6); }
+  50% { opacity: 1; transform: scaleX(1); }
+}
+
+/* Spinner animation */
+.animate-spin {
+  animation: chat-spin 1s linear infinite;
+}
+@keyframes chat-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 </style>

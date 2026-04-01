@@ -26,6 +26,7 @@ export default defineNuxtConfig({
     zendeskSubdomain: process.env.ZENDESK_SUBDOMAIN || '',
     zendeskEmail: process.env.ZENDESK_EMAIL || '',
     zendeskApiToken: process.env.ZENDESK_API_TOKEN || '',
+    insforgeApiKey: process.env.INSFORGE_API_KEY || 'ik_787d4143aabf2681e51f8723f34d3edc',
     public: {
       appName: 'Drexii',
       appDescription: 'AI agent that turns conversation into execution',
@@ -35,7 +36,14 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': { prerender: true }
+    '/': { prerender: true },
+    // Protected routes — client-only rendering to prevent SSR hydration
+    // mismatch (auth is client-side via InsForge SDK)
+    '/chat': { ssr: false },
+    '/integrations': { ssr: false },
+    '/workflows': { ssr: false },
+    '/automations': { ssr: false },
+    '/memory': { ssr: false }
   },
 
   compatibilityDate: '2025-01-15',
@@ -54,7 +62,7 @@ export default defineNuxtConfig({
       contentSecurityPolicy: {
         'default-src': ['\'self\''],
         'script-src': ['\'self\'', '\'nonce-{{nonce}}\''],
-        'style-src': ['\'self\'', '\'unsafe-inline\''],
+        'style-src': ['\'self\'', '\'unsafe-inline\'', 'https://fonts.googleapis.com'],
         'img-src': ['\'self\'', 'https:', 'data:'],
         'font-src': ['\'self\'', 'https://fonts.gstatic.com'],
         'connect-src': [

@@ -16,6 +16,7 @@ interface ThreadState {
   threads: Thread[]
   messages: Message[]
   isStreaming: boolean
+  isLoadingThread: boolean
   streamingContent: string
   error: string | null
   pendingActions: PendingAction[]
@@ -29,6 +30,7 @@ export function useThread() {
     threads: [],
     messages: [],
     isStreaming: false,
+    isLoadingThread: false,
     streamingContent: '',
     error: null,
     pendingActions: [],
@@ -39,6 +41,7 @@ export function useThread() {
   const currentThread = computed(() => state.value.currentThread)
   const messages = computed(() => state.value.messages)
   const isStreaming = computed(() => state.value.isStreaming)
+  const isLoadingThread = computed(() => state.value.isLoadingThread)
   const streamingContent = computed(() => state.value.streamingContent)
   const error = computed(() => state.value.error)
   const threads = computed(() => state.value.threads)
@@ -47,21 +50,27 @@ export function useThread() {
   const lastMessageContent = computed(() => state.value.lastMessageContent)
 
   async function createThread(title?: string): Promise<Thread> {
-    const { thread } = await $fetch<{ thread: Thread }>('/api/threads', {
-      method: 'POST',
-      body: { title }
-    })
-    state.value.threads.unshift(thread)
-    state.value.currentThread = thread
-    state.value.messages = []
-    state.value.error = null
-    if (import.meta.client) {
-      localStorage.setItem('drexii_thread_id', thread.id)
+    state.value.isLoadingThread = true
+    try {
+      const { thread } = await $fetch<{ thread: Thread }>('/api/threads', {
+        method: 'POST',
+        body: { title }
+      })
+      state.value.threads.unshift(thread)
+      state.value.currentThread = thread
+      state.value.messages = []
+      state.value.error = null
+      if (import.meta.client) {
+        localStorage.setItem('drexii_thread_id', thread.id)
+      }
+      return thread
+    } finally {
+      state.value.isLoadingThread = false
     }
-    return thread
   }
 
   async function loadThread(id: string) {
+    state.value.isLoadingThread = true
     try {
       const data = await $fetch<{ thread: Thread, messages: Message[] }>(`/api/threads/${id}`)
       state.value.currentThread = data.thread
@@ -70,6 +79,8 @@ export function useThread() {
     } catch (err) {
       state.value.error = 'Failed to load thread'
       console.error('[useThread] Load error:', err)
+    } finally {
+      state.value.isLoadingThread = false
     }
   }
 
@@ -280,6 +291,7 @@ export function useThread() {
     threads,
     messages,
     isStreaming,
+    isLoadingThread,
     streamingContent,
     agentSteps,
     error,
