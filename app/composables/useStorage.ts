@@ -10,8 +10,8 @@ export function useStorage() {
     if (error) throw error
 
     return {
-      url: data.url,
-      key: data.key,
+      url: data!.url,
+      key: data!.key,
       name: file.name,
       size: file.size,
       type: file.type

@@ -126,7 +126,7 @@ async function handleResendCode() {
   }
 }
 
-async function handleOAuth(provider: string) {
+async function handleOAuth(provider: Parameters<typeof signInWithOAuth>[0]) {
   try {
     await signInWithOAuth(provider)
   } catch (err: unknown) {

@@ -49,9 +49,10 @@ export function useRealtime() {
     // Ensure connected first
     await connect()
 
-    const { ok, error } = await $insforge.realtime.subscribe(channel)
-    if (!ok) {
-      console.error('[useRealtime] Subscribe error:', error?.message)
+    const result = await $insforge.realtime.subscribe(channel)
+    if (!result.ok) {
+      const err = 'error' in result ? result.error : null
+      console.error('[useRealtime] Subscribe error:', err?.message)
       return false
     }
 

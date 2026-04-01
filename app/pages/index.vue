@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { ComponentPublicInstance } from 'vue'
-
 const router = useRouter()
 
 const categories = ['Actions', 'Calendar', 'Email', 'Code']
@@ -55,9 +53,9 @@ const heroParallax = computed(() => ({
 function setIntroRef(el: HTMLElement | null, index: number) {
   if (el) introRefs.value[index] = el
 }
-const introRef0 = (el: Element | ComponentPublicInstance | null) => setIntroRef(el as HTMLElement | null, 0)
-const introRef1 = (el: Element | ComponentPublicInstance | null) => setIntroRef(el as HTMLElement | null, 1)
-const introRef2 = (el: Element | ComponentPublicInstance | null) => setIntroRef(el as HTMLElement | null, 2)
+const introRef0 = (el: Element | null) => setIntroRef(el as HTMLElement | null, 0)
+const introRef1 = (el: Element | null) => setIntroRef(el as HTMLElement | null, 1)
+const introRef2 = (el: Element | null) => setIntroRef(el as HTMLElement | null, 2)
 
 // ── Splash screen ─────────────────────────────────────────────
 const showSplash = ref(true)

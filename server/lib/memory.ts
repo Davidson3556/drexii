@@ -26,14 +26,14 @@ export async function updateMemory(id: string, content: string, userId: string):
   const result = await db.update(memories)
     .set({ content, updatedAt: new Date() })
     .where(and(eq(memories.id, id), eq(memories.userId, userId)))
-  return (result.rowCount ?? 0) > 0
+  return ((result as unknown as { rowCount?: number }).rowCount ?? 0) > 0
 }
 
 export async function deleteMemory(id: string, userId: string): Promise<boolean> {
   const db = useDB()
   const result = await db.delete(memories)
     .where(and(eq(memories.id, id), eq(memories.userId, userId)))
-  return (result.rowCount ?? 0) > 0
+  return ((result as unknown as { rowCount?: number }).rowCount ?? 0) > 0
 }
 
 export async function searchMemories(query: string, limit = 10, userId?: string) {

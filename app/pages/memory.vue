@@ -29,7 +29,7 @@ const isSaving = ref(false)
 // Delete state
 const deletingId = ref<string | null>(null)
 
-function headers() {
+function headers(): Record<string, string> {
   return user.value?.id ? { 'x-user-id': user.value.id } : {}
 }
 

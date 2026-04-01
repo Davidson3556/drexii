@@ -30,11 +30,12 @@ export function useAuth() {
         state.value.user = null
         state.value.isAuthenticated = false
       } else {
+        const u = data.user
         state.value.user = {
-          id: data.user.id,
-          email: data.user.email,
-          name: data.user.name,
-          avatar_url: data.user.avatar_url
+          id: u.id,
+          email: u.email,
+          name: u.profile?.name,
+          avatar_url: u.profile?.avatar_url
         }
         state.value.isAuthenticated = true
       }
@@ -50,11 +51,12 @@ export function useAuth() {
   async function signIn(email: string, password: string) {
     const { data, error } = await $insforge.auth.signInWithPassword({ email, password })
     if (error) throw error
+    if (!data) throw new Error('No data returned from sign in')
     state.value.user = {
       id: data.user.id,
       email: data.user.email,
-      name: data.user.name,
-      avatar_url: data.user.avatar_url
+      name: data.user.profile?.name,
+      avatar_url: data.user.profile?.avatar_url
     }
     state.value.isAuthenticated = true
     return data
@@ -69,11 +71,12 @@ export function useAuth() {
   async function verifyEmail(email: string, otp: string) {
     const { data, error } = await $insforge.auth.verifyEmail({ email, otp })
     if (error) throw error
+    if (!data) throw new Error('No data returned from verification')
     state.value.user = {
       id: data.user.id,
       email: data.user.email,
-      name: data.user.name,
-      avatar_url: data.user.avatar_url
+      name: data.user.profile?.name,
+      avatar_url: data.user.profile?.avatar_url
     }
     state.value.isAuthenticated = true
     return data
@@ -83,7 +86,7 @@ export function useAuth() {
     await $insforge.auth.resendVerificationEmail({ email })
   }
 
-  async function signInWithOAuth(provider: string) {
+  async function signInWithOAuth(provider: 'google' | 'github' | 'discord' | 'linkedin' | 'facebook' | 'instagram' | 'tiktok' | 'apple' | 'x' | 'spotify' | 'microsoft') {
     await $insforge.auth.signInWithOAuth({
       provider,
       redirectTo: `${window.location.origin}/chat`

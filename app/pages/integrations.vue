@@ -604,7 +604,7 @@ onMounted(() => {
                     v-for="(step, idx) in activeIntegrationDef.guide.steps"
                     :key="idx"
                   >
-                    <span class="intg-guide-num">{{ idx + 1 }}</span>
+                    <span class="intg-guide-num">{{ Number(idx) + 1 }}</span>
                     {{ step }}
                   </li>
                 </ol>

@@ -72,7 +72,7 @@ function toggleTheme() {
       <button
         v-for="(item, i) in navItems"
         :key="item.id"
-        :ref="(el) => { buttonRefs[i] = el as HTMLElement }"
+        :ref="(el: Element | ComponentPublicInstance | null) => { buttonRefs[i] = el as HTMLElement }"
         class="nav-btn"
         :class="{ 'nav-btn--active': activeItem === item.id }"
         :aria-label="item.label"

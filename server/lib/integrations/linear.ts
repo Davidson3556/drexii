@@ -13,7 +13,7 @@ async function gql<T>(apiKey: string, query: string, variables?: Record<string, 
     headers: authHeader(apiKey),
     body: { query, variables }
   })
-  if (data.errors?.length) throw new Error(data.errors[0].message)
+  if (data.errors?.length) throw new Error(data.errors[0]?.message ?? 'GraphQL error')
   return data.data
 }
 

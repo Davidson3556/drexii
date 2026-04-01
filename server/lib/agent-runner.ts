@@ -177,11 +177,11 @@ function evaluateChainCondition(condition: string | null, output: string, status
 
   // "output contains X" pattern
   const containsMatch = condition.match(/output\s+contains?\s+["']?(.+?)["']?$/i)
-  if (containsMatch) return output.toLowerCase().includes(containsMatch[1].toLowerCase())
+  if (containsMatch?.[1]) return output.toLowerCase().includes(containsMatch[1].toLowerCase())
 
   // "output includes X" pattern
   const includesMatch = condition.match(/output\s+includes?\s+["']?(.+?)["']?$/i)
-  if (includesMatch) return output.toLowerCase().includes(includesMatch[1].toLowerCase())
+  if (includesMatch?.[1]) return output.toLowerCase().includes(includesMatch[1].toLowerCase())
 
   return true
 }
