@@ -89,7 +89,7 @@ export function useAuth() {
   async function signInWithOAuth(provider: 'google' | 'github' | 'discord' | 'linkedin' | 'facebook' | 'instagram' | 'tiktok' | 'apple' | 'x' | 'spotify' | 'microsoft') {
     await $insforge.auth.signInWithOAuth({
       provider,
-      redirectTo: `${window.location.origin}/chat`
+      redirectTo: `${window.location.origin}/auth/callback`
     })
   }
 

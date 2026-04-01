@@ -30,8 +30,8 @@ const newPasswordConfirm = ref('')
 
 // OAuth providers enabled on this InsForge project
 const oauthProviders = [
-  { id: 'google', label: 'Google', icon: 'i-simple-icons-google' },
-  { id: 'github', label: 'GitHub', icon: 'i-simple-icons-github' }
+  { id: 'google' as const, label: 'Google', icon: 'i-simple-icons-google' },
+  { id: 'github' as const, label: 'GitHub', icon: 'i-simple-icons-github' }
 ]
 
 async function handleSignIn() {
