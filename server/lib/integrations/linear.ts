@@ -4,7 +4,7 @@ import type { IntegrationAdapter } from './index'
 const LINEAR_API = 'https://api.linear.app/graphql'
 
 function authHeader(apiKey: string) {
-  return { Authorization: apiKey, 'Content-Type': 'application/json' }
+  return { 'Authorization': apiKey, 'Content-Type': 'application/json' }
 }
 
 async function gql<T>(apiKey: string, query: string, variables?: Record<string, unknown>): Promise<T> {
@@ -136,7 +136,7 @@ async function listMyIssues(apiKey: string): Promise<ToolResult> {
     const issues = data.viewer.assignedIssues.nodes
     if (!issues.length) return { toolCallId: 'linear_my_issues', content: 'No open issues assigned to you.' }
 
-    const lines = issues.map(i => {
+    const lines = issues.map((i) => {
       const state = (i.state as Record<string, string>)?.name
       const team = (i.team as Record<string, string>)?.name
       return `- [${i.identifier}] ${i.title} | ${state} | ${team}`

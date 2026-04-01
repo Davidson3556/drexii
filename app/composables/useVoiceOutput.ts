@@ -51,12 +51,16 @@ export function useVoiceOutput() {
     currentUtterance.volume = 1.0
     if (selectedVoice.value) currentUtterance.voice = selectedVoice.value
 
-    currentUtterance.onstart = () => { isSpeaking.value = true }
+    currentUtterance.onstart = () => {
+      isSpeaking.value = true
+    }
     currentUtterance.onend = () => {
       isSpeaking.value = false
       onEnd?.()
     }
-    currentUtterance.onerror = () => { isSpeaking.value = false }
+    currentUtterance.onerror = () => {
+      isSpeaking.value = false
+    }
 
     window.speechSynthesis.speak(currentUtterance)
   }

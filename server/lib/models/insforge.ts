@@ -2,11 +2,11 @@ import type { MessagePayload } from '../../../shared/types'
 import { useInsforge } from '../insforge-client'
 import { getRecentMemories, formatMemoriesForPrompt } from '../memory'
 
-export type InsforgeModel =
-  | 'anthropic/claude-haiku-4.5'
-  | 'anthropic/claude-sonnet-4.5'
-  | 'anthropic/claude-opus-4.6'
-  | 'openai/gpt-4o-mini'
+export type InsforgeModel
+  = | 'anthropic/claude-haiku-4.5'
+    | 'anthropic/claude-sonnet-4.5'
+    | 'anthropic/claude-opus-4.6'
+    | 'openai/gpt-4o-mini'
 
 export interface InsforgeStreamOptions {
   maxTokens?: number

@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
   if (body?.message?.data) {
     try {
       const decoded = Buffer.from(body.message.data, 'base64').toString('utf-8')
-      const notification = JSON.parse(decoded) as { emailAddress: string, historyId: number }
+      const _notification = JSON.parse(decoded) as { emailAddress: string, historyId: number }
 
       // Find user by email in their Gmail integration credentials
       const allIntegrations = await db.select()
@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
       // Find the user whose Gmail account matches this notification
       for (const integration of allIntegrations) {
-        const creds = integration.credentials as Record<string, string>
+        const _creds = integration.credentials as Record<string, string>
         // Process automations for this user
         await processEmailAutomations(db, integration.userId)
       }

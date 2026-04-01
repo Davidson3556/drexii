@@ -300,7 +300,9 @@ onMounted(fetchAutomations)
                   v-model="form.parentAutomationId"
                   class="w-full bg-white/5 border border-white/8 rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-amber-500/40 transition-colors"
                 >
-                  <option value="">Select an automation…</option>
+                  <option value="">
+                    Select an automation…
+                  </option>
                   <option
                     v-for="a in automations"
                     :key="a.id"
@@ -316,10 +318,18 @@ onMounted(fetchAutomations)
                   v-model="form.chainOn"
                   class="w-full bg-white/5 border border-white/8 rounded-lg px-3 py-2 text-sm text-white/80 outline-none focus:border-amber-500/40 transition-colors"
                 >
-                  <option value="success">Parent succeeds</option>
-                  <option value="failure">Parent fails</option>
-                  <option value="always">Always</option>
-                  <option value="custom">Custom condition</option>
+                  <option value="success">
+                    Parent succeeds
+                  </option>
+                  <option value="failure">
+                    Parent fails
+                  </option>
+                  <option value="always">
+                    Always
+                  </option>
+                  <option value="custom">
+                    Custom condition
+                  </option>
                 </select>
               </div>
               <div v-if="form.chainOn === 'custom'">

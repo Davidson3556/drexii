@@ -60,7 +60,7 @@ const CODE_KEYWORDS = [
 
 // Prefixes that indicate a simple lite query
 const LITE_STARTERS = [
-  'what is ', 'what are ', "what's ", 'who is ', 'where is ', 'when is ',
+  'what is ', 'what are ', 'what\'s ', 'who is ', 'where is ', 'when is ',
   'how do ', 'how does ', 'hi', 'hello', 'hey', 'thanks', 'thank you',
   'ok', 'okay', 'yes', 'no', 'sure', 'got it', 'is it ', 'does it ',
   'can you tell me', 'do you know', 'what does '
@@ -105,7 +105,7 @@ export function getActiveProvider(): AIProvider {
   return 'insforge'
 }
 
-export function getProviderForMessages(messages: MessagePayload[]): AIProvider {
+export function getProviderForMessages(_messages: MessagePayload[]): AIProvider {
   return 'insforge'
 }
 

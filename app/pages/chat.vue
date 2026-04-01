@@ -172,7 +172,9 @@ async function handleFileSelected(event: Event) {
   } catch (err) {
     console.error('[chat] Upload error:', err)
     uploadError.value = `Upload failed: ${(err as Error).message || 'Unknown error'}`
-    setTimeout(() => { uploadError.value = '' }, 5000)
+    setTimeout(() => {
+      uploadError.value = ''
+    }, 5000)
   } finally {
     isUploading.value = false
     if (fileInput.value) fileInput.value.value = ''
@@ -330,8 +332,14 @@ function toolLabel(name: string): string {
           <div class="glass-card p-1 mb-5">
             <div class="glass-input px-4 pt-4 pb-3">
               <!-- Upload error -->
-              <div v-if="uploadError" class="flex items-center gap-2 mb-3 px-2 py-1.5 bg-red-500/10 border border-red-500/20 rounded-lg">
-                <UIcon name="i-lucide-alert-circle" class="w-4 h-4 text-red-400 shrink-0" />
+              <div
+                v-if="uploadError"
+                class="flex items-center gap-2 mb-3 px-2 py-1.5 bg-red-500/10 border border-red-500/20 rounded-lg"
+              >
+                <UIcon
+                  name="i-lucide-alert-circle"
+                  class="w-4 h-4 text-red-400 shrink-0"
+                />
                 <span class="text-xs text-red-300 flex-1">{{ uploadError }}</span>
               </div>
               <!-- Uploaded file preview -->
@@ -702,8 +710,14 @@ function toolLabel(name: string): string {
           <div class="glass-card p-1">
             <div class="glass-input px-4 pt-3.5 pb-3">
               <!-- Upload error -->
-              <div v-if="uploadError" class="flex items-center gap-2 mb-3 px-2 py-1.5 bg-red-500/10 border border-red-500/20 rounded-lg">
-                <UIcon name="i-lucide-alert-circle" class="w-4 h-4 text-red-400 shrink-0" />
+              <div
+                v-if="uploadError"
+                class="flex items-center gap-2 mb-3 px-2 py-1.5 bg-red-500/10 border border-red-500/20 rounded-lg"
+              >
+                <UIcon
+                  name="i-lucide-alert-circle"
+                  class="w-4 h-4 text-red-400 shrink-0"
+                />
                 <span class="text-xs text-red-300 flex-1">{{ uploadError }}</span>
               </div>
               <!-- Uploaded file preview -->
@@ -818,7 +832,10 @@ function toolLabel(name: string): string {
               :disabled="isStreaming"
               @click="clearChat"
             >
-              <UIcon name="i-lucide-trash-2" class="w-3 h-3" />
+              <UIcon
+                name="i-lucide-trash-2"
+                class="w-3 h-3"
+              />
               Clear chat
             </button>
             <span class="text-white/10">·</span>

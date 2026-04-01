@@ -240,10 +240,16 @@ function handleSubmit() {
             class="w-full h-full object-cover"
           >
         </div>
-        <h1 class="text-xl font-semibold tracking-tight" style="color: var(--color-drexii-text);">
+        <h1
+          class="text-xl font-semibold tracking-tight"
+          style="color: var(--color-drexii-text);"
+        >
           Drexii
         </h1>
-        <p class="text-sm mt-1" style="color: var(--color-drexii-text-muted);">
+        <p
+          class="text-sm mt-1"
+          style="color: var(--color-drexii-text-muted);"
+        >
           {{
             resetStep !== 'idle' ? 'Reset your password'
             : needsVerification ? 'Verify your email'
@@ -263,11 +269,17 @@ function handleSubmit() {
         <template v-if="resetStep !== 'idle'">
           <!-- Step 1: Enter email -->
           <template v-if="resetStep === 'email'">
-            <p class="text-sm text-center" style="color: var(--color-drexii-text-muted);">
+            <p
+              class="text-sm text-center"
+              style="color: var(--color-drexii-text-muted);"
+            >
               Enter your email and we'll send a reset code.
             </p>
             <div>
-              <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Email</label>
+              <label
+                class="block text-xs mb-1.5"
+                style="color: var(--color-drexii-text-muted);"
+              >Email</label>
               <input
                 v-model="resetEmail"
                 type="email"
@@ -282,11 +294,20 @@ function handleSubmit() {
 
           <!-- Step 2: Enter code -->
           <template v-else-if="resetStep === 'code'">
-            <p class="text-sm text-center" style="color: var(--color-drexii-text-muted);">
-              We sent a 6-digit code to <span class="font-medium" style="color: var(--color-drexii-text);">{{ resetEmail }}</span>
+            <p
+              class="text-sm text-center"
+              style="color: var(--color-drexii-text-muted);"
+            >
+              We sent a 6-digit code to <span
+                class="font-medium"
+                style="color: var(--color-drexii-text);"
+              >{{ resetEmail }}</span>
             </p>
             <div>
-              <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Reset code</label>
+              <label
+                class="block text-xs mb-1.5"
+                style="color: var(--color-drexii-text-muted);"
+              >Reset code</label>
               <input
                 v-model="resetCode"
                 type="text"
@@ -302,7 +323,10 @@ function handleSubmit() {
           <!-- Step 3: New password -->
           <template v-else-if="resetStep === 'newpass'">
             <div>
-              <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">New password</label>
+              <label
+                class="block text-xs mb-1.5"
+                style="color: var(--color-drexii-text-muted);"
+              >New password</label>
               <input
                 v-model="newPassword"
                 type="password"
@@ -313,7 +337,10 @@ function handleSubmit() {
               >
             </div>
             <div>
-              <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Confirm password</label>
+              <label
+                class="block text-xs mb-1.5"
+                style="color: var(--color-drexii-text-muted);"
+              >Confirm password</label>
               <input
                 v-model="newPasswordConfirm"
                 type="password"
@@ -335,12 +362,21 @@ function handleSubmit() {
         </template>
 
         <template v-else-if="needsVerification">
-          <p class="text-sm text-center" style="color: var(--color-drexii-text-muted);">
-            We sent a 6-digit code to <span class="font-medium" style="color: var(--color-drexii-text);">{{ verificationEmail }}</span>
+          <p
+            class="text-sm text-center"
+            style="color: var(--color-drexii-text-muted);"
+          >
+            We sent a 6-digit code to <span
+              class="font-medium"
+              style="color: var(--color-drexii-text);"
+            >{{ verificationEmail }}</span>
           </p>
 
           <div>
-            <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Verification code</label>
+            <label
+              class="block text-xs mb-1.5"
+              style="color: var(--color-drexii-text-muted);"
+            >Verification code</label>
             <input
               v-model="otpCode"
               type="text"
@@ -381,7 +417,10 @@ function handleSubmit() {
 
           <!-- Name (sign up only) -->
           <div v-if="mode === 'signup'">
-            <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Name</label>
+            <label
+              class="block text-xs mb-1.5"
+              style="color: var(--color-drexii-text-muted);"
+            >Name</label>
             <input
               v-model="name"
               type="text"
@@ -395,7 +434,10 @@ function handleSubmit() {
 
           <!-- Email -->
           <div>
-            <label class="block text-xs mb-1.5" style="color: var(--color-drexii-text-muted);">Email</label>
+            <label
+              class="block text-xs mb-1.5"
+              style="color: var(--color-drexii-text-muted);"
+            >Email</label>
             <input
               v-model="email"
               type="email"
@@ -410,7 +452,10 @@ function handleSubmit() {
           <!-- Password -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <label class="block text-xs" style="color: var(--color-drexii-text-muted);">Password</label>
+              <label
+                class="block text-xs"
+                style="color: var(--color-drexii-text-muted);"
+              >Password</label>
               <button
                 v-if="mode === 'signin'"
                 type="button"
@@ -432,7 +477,8 @@ function handleSubmit() {
               >
               <button
                 type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style="color: var(--color-drexii-text-muted); opacity: 0.5;"
+                class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                style="color: var(--color-drexii-text-muted); opacity: 0.5;"
                 @click="showPassword = !showPassword"
               >
                 <UIcon

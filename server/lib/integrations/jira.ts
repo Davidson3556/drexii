@@ -9,7 +9,7 @@ interface JiraConfig {
 
 function authHeader(config: JiraConfig) {
   const encoded = Buffer.from(`${config.email}:${config.token}`).toString('base64')
-  return { Authorization: `Basic ${encoded}`, 'Content-Type': 'application/json', Accept: 'application/json' }
+  return { 'Authorization': `Basic ${encoded}`, 'Content-Type': 'application/json', 'Accept': 'application/json' }
 }
 
 function base(config: JiraConfig) {

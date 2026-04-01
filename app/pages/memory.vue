@@ -156,27 +156,52 @@ function formatDate(d: string) {
       <div class="memory-header">
         <div class="memory-header-left">
           <div class="memory-icon-wrap">
-            <UIcon name="i-lucide-brain" class="w-5 h-5" />
+            <UIcon
+              name="i-lucide-brain"
+              class="w-5 h-5"
+            />
           </div>
           <div>
-            <h1 class="memory-title">Memory</h1>
-            <p class="memory-subtitle">What Drexii remembers about you</p>
+            <h1 class="memory-title">
+              Memory
+            </h1>
+            <p class="memory-subtitle">
+              What Drexii remembers about you
+            </p>
           </div>
         </div>
-        <button class="add-btn" @click="showAddForm = !showAddForm">
-          <UIcon name="i-lucide-plus" class="w-4 h-4" />
+        <button
+          class="add-btn"
+          @click="showAddForm = !showAddForm"
+        >
+          <UIcon
+            name="i-lucide-plus"
+            class="w-4 h-4"
+          />
           Add Memory
         </button>
       </div>
 
       <!-- Add form -->
       <Transition name="slide-down">
-        <div v-if="showAddForm" class="add-form">
+        <div
+          v-if="showAddForm"
+          class="add-form"
+        >
           <div class="add-form-row">
-            <select v-model="addForm.category" class="category-select">
-              <option value="fact">Fact</option>
-              <option value="preference">Preference</option>
-              <option value="context">Context</option>
+            <select
+              v-model="addForm.category"
+              class="category-select"
+            >
+              <option value="fact">
+                Fact
+              </option>
+              <option value="preference">
+                Preference
+              </option>
+              <option value="context">
+                Context
+              </option>
             </select>
             <input
               v-model="addForm.content"
@@ -184,12 +209,26 @@ function formatDate(d: string) {
               placeholder="e.g. I prefer bullet points over paragraphs"
               @keydown.enter="addMemory"
             >
-            <button class="save-btn" :disabled="isAdding || !addForm.content.trim()" @click="addMemory">
-              <UIcon v-if="isAdding" name="i-lucide-loader-circle" class="w-4 h-4 animate-spin" />
+            <button
+              class="save-btn"
+              :disabled="isAdding || !addForm.content.trim()"
+              @click="addMemory"
+            >
+              <UIcon
+                v-if="isAdding"
+                name="i-lucide-loader-circle"
+                class="w-4 h-4 animate-spin"
+              />
               <span v-else>Save</span>
             </button>
-            <button class="cancel-btn" @click="showAddForm = false">
-              <UIcon name="i-lucide-x" class="w-4 h-4" />
+            <button
+              class="cancel-btn"
+              @click="showAddForm = false"
+            >
+              <UIcon
+                name="i-lucide-x"
+                class="w-4 h-4"
+              />
             </button>
           </div>
         </div>
@@ -198,7 +237,10 @@ function formatDate(d: string) {
       <!-- Search -->
       <div class="search-row">
         <div class="search-wrap">
-          <UIcon name="i-lucide-search" class="search-icon" />
+          <UIcon
+            name="i-lucide-search"
+            class="search-icon"
+          />
           <input
             v-model="searchQuery"
             class="search-input"
@@ -222,20 +264,35 @@ function formatDate(d: string) {
       </div>
 
       <!-- Loading -->
-      <div v-if="isLoading" class="loading-state">
-        <UIcon name="i-lucide-loader-circle" class="w-5 h-5 animate-spin opacity-40" />
+      <div
+        v-if="isLoading"
+        class="loading-state"
+      >
+        <UIcon
+          name="i-lucide-loader-circle"
+          class="w-5 h-5 animate-spin opacity-40"
+        />
       </div>
 
       <!-- Empty state -->
-      <div v-else-if="filteredMemories.length === 0" class="empty-state">
-        <UIcon name="i-lucide-brain" class="w-10 h-10 opacity-20" />
+      <div
+        v-else-if="filteredMemories.length === 0"
+        class="empty-state"
+      >
+        <UIcon
+          name="i-lucide-brain"
+          class="w-10 h-10 opacity-20"
+        />
         <p class="empty-text">
           {{ searchQuery ? 'No memories match your search' : 'No memories yet. Start chatting and Drexii will learn your preferences.' }}
         </p>
       </div>
 
       <!-- Memory list -->
-      <div v-else class="memory-list">
+      <div
+        v-else
+        class="memory-list"
+      >
         <div
           v-for="mem in filteredMemories"
           :key="mem.id"
@@ -244,7 +301,10 @@ function formatDate(d: string) {
           <div class="memory-card-top">
             <div class="memory-card-left">
               <span :class="['category-tag', categoryColor[mem.category]]">
-                <UIcon :name="categoryIcon[mem.category]" class="w-3 h-3" />
+                <UIcon
+                  :name="categoryIcon[mem.category]"
+                  class="w-3 h-3"
+                />
                 {{ mem.category }}
               </span>
               <span class="memory-date">{{ formatDate(mem.createdAt) }}</span>
@@ -256,7 +316,10 @@ function formatDate(d: string) {
                 title="Edit"
                 @click="startEdit(mem)"
               >
-                <UIcon name="i-lucide-pencil" class="w-3.5 h-3.5" />
+                <UIcon
+                  name="i-lucide-pencil"
+                  class="w-3.5 h-3.5"
+                />
               </button>
               <button
                 class="mem-btn mem-btn--danger"
@@ -269,16 +332,28 @@ function formatDate(d: string) {
                   name="i-lucide-loader-circle"
                   class="w-3.5 h-3.5 animate-spin"
                 />
-                <UIcon v-else name="i-lucide-trash-2" class="w-3.5 h-3.5" />
+                <UIcon
+                  v-else
+                  name="i-lucide-trash-2"
+                  class="w-3.5 h-3.5"
+                />
               </button>
             </div>
           </div>
 
           <!-- View mode -->
-          <p v-if="editingId !== mem.id" class="memory-content">{{ mem.content }}</p>
+          <p
+            v-if="editingId !== mem.id"
+            class="memory-content"
+          >
+            {{ mem.content }}
+          </p>
 
           <!-- Edit mode -->
-          <div v-else class="edit-row">
+          <div
+            v-else
+            class="edit-row"
+          >
             <textarea
               v-model="editContent"
               class="edit-textarea"
@@ -286,18 +361,34 @@ function formatDate(d: string) {
               @keydown.escape="cancelEdit"
             />
             <div class="edit-btns">
-              <button class="save-btn save-btn--sm" :disabled="isSaving" @click="saveEdit(mem.id)">
-                <UIcon v-if="isSaving" name="i-lucide-loader-circle" class="w-3.5 h-3.5 animate-spin" />
+              <button
+                class="save-btn save-btn--sm"
+                :disabled="isSaving"
+                @click="saveEdit(mem.id)"
+              >
+                <UIcon
+                  v-if="isSaving"
+                  name="i-lucide-loader-circle"
+                  class="w-3.5 h-3.5 animate-spin"
+                />
                 <span v-else>Save</span>
               </button>
-              <button class="cancel-btn cancel-btn--sm" @click="cancelEdit">Cancel</button>
+              <button
+                class="cancel-btn cancel-btn--sm"
+                @click="cancelEdit"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Footer count -->
-      <p v-if="memories.length > 0" class="memory-count">
+      <p
+        v-if="memories.length > 0"
+        class="memory-count"
+      >
         {{ memories.length }} memor{{ memories.length === 1 ? 'y' : 'ies' }} stored
       </p>
     </div>

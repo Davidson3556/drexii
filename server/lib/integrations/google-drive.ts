@@ -45,7 +45,7 @@ async function searchFiles(tokens: GoogleTokens, args: Record<string, unknown>):
     const maxResults = Math.min(Number(args.max_results) || 10, 20)
     const mimeFilter = args.file_type as string
 
-    let q = `name contains '${query.replace(/'/g, "\\'")}' and trashed = false`
+    let q = `name contains '${query.replace(/'/g, '\\\'')}' and trashed = false`
     if (mimeFilter === 'doc') q += ` and mimeType = 'application/vnd.google-apps.document'`
     else if (mimeFilter === 'sheet') q += ` and mimeType = 'application/vnd.google-apps.spreadsheet'`
     else if (mimeFilter === 'pdf') q += ` and mimeType = 'application/pdf'`

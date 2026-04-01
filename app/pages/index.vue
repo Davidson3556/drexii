@@ -66,7 +66,11 @@ const splashFading = ref(false)
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
   const observer = new IntersectionObserver(
-    (entries) => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') }) },
+    (entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) e.target.classList.add('visible')
+      })
+    },
     { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
   )
   nextTick(() => {
@@ -124,8 +128,14 @@ function handleSuggestion(text: string) {
     </div>
 
     <!-- ======== HERO ======== -->
-    <section ref="heroRef" class="hero-bg">
-      <div class="hero-overlay" :style="heroParallax" />
+    <section
+      ref="heroRef"
+      class="hero-bg"
+    >
+      <div
+        class="hero-overlay"
+        :style="heroParallax"
+      />
 
       <div class="relative z-10 flex flex-col items-center pt-24 md:pt-32 pb-24 md:pb-32 px-4 md:px-6 text-center min-h-[90vh] justify-start mt-[8vh]">
         <!-- Headline -->
@@ -142,56 +152,94 @@ function handleSuggestion(text: string) {
 
         <!-- CTAs -->
         <div class="fade-in-up stagger-3 flex flex-col sm:flex-row items-center gap-3 mb-12 md:mb-16 z-20">
-          <NuxtLink to="/chat" class="hero-cta-primary px-6 py-2.5 rounded-full text-[14px] font-semibold transition-all shadow-lg">
+          <NuxtLink
+            to="/chat"
+            class="hero-cta-primary px-6 py-2.5 rounded-full text-[14px] font-semibold transition-all shadow-lg"
+          >
             Start Chatting Free
           </NuxtLink>
-          <a href="#features" class="hero-cta-secondary px-6 py-2.5 rounded-full text-[14px] font-medium transition-all border">
+          <a
+            href="#features"
+            class="hero-cta-secondary px-6 py-2.5 rounded-full text-[14px] font-medium transition-all border"
+          >
             See What It Does
           </a>
         </div>
 
         <!-- Integration logos marquee -->
         <div class="fade-in-up stagger-4 mb-12 w-full">
-          <p class="text-[10px] text-white/20 uppercase tracking-[0.25em] text-center mb-5 font-semibold">Works perfectly with</p>
+          <p class="text-[10px] text-white/20 uppercase tracking-[0.25em] text-center mb-5 font-semibold">
+            Works perfectly with
+          </p>
           <div class="marquee-container overflow-hidden relative w-full">
             <div class="marquee-fade-left" />
             <div class="marquee-fade-right" />
             <div class="marquee-track flex items-center gap-12">
-              <template v-for="n in 2" :key="n">
+              <template
+                v-for="n in 2"
+                :key="n"
+              >
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-simple-icons-gmail" class="w-[18px] h-[18px] text-white/50" />
+                  <UIcon
+                    name="i-simple-icons-gmail"
+                    class="w-[18px] h-[18px] text-white/50"
+                  />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Gmail</span>
                 </div>
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-lucide-calendar" class="w-[18px] h-[18px] text-white/50" />
+                  <UIcon
+                    name="i-lucide-calendar"
+                    class="w-[18px] h-[18px] text-white/50"
+                  />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Calendar</span>
                 </div>
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-lucide-hard-drive" class="w-[18px] h-[18px] text-white/50" />
+                  <UIcon
+                    name="i-lucide-hard-drive"
+                    class="w-[18px] h-[18px] text-white/50"
+                  />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Drive</span>
                 </div>
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-simple-icons-slack" class="w-[18px] h-[18px] text-white/50" />
+                  <UIcon
+                    name="i-simple-icons-slack"
+                    class="w-[18px] h-[18px] text-white/50"
+                  />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Slack</span>
                 </div>
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-simple-icons-notion" class="w-[18px] h-[18px] text-white/50" />
+                  <UIcon
+                    name="i-simple-icons-notion"
+                    class="w-[18px] h-[18px] text-white/50"
+                  />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Notion</span>
                 </div>
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-simple-icons-jira" class="w-[18px] h-[18px] text-white/50" />
+                  <UIcon
+                    name="i-simple-icons-jira"
+                    class="w-[18px] h-[18px] text-white/50"
+                  />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Jira</span>
                 </div>
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-simple-icons-linear" class="w-[18px] h-[18px] text-white/50" />
+                  <UIcon
+                    name="i-simple-icons-linear"
+                    class="w-[18px] h-[18px] text-white/50"
+                  />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Linear</span>
                 </div>
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-simple-icons-discord" class="w-[18px] h-[18px] text-white/50" />
+                  <UIcon
+                    name="i-simple-icons-discord"
+                    class="w-[18px] h-[18px] text-white/50"
+                  />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Discord</span>
                 </div>
                 <div class="marquee-item flex items-center gap-2.5 shrink-0">
-                  <UIcon name="i-simple-icons-zendesk" class="w-[18px] h-[18px] text-white/50" />
+                  <UIcon
+                    name="i-simple-icons-zendesk"
+                    class="w-[18px] h-[18px] text-white/50"
+                  />
                   <span class="text-[13px] text-white/50 font-medium tracking-wide">Zendesk</span>
                 </div>
               </template>
@@ -210,7 +258,11 @@ function handleSuggestion(text: string) {
             <div class="flex items-center justify-between mb-8 md:mb-12">
               <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl overflow-hidden flex-shrink-0">
-                  <img src="/logo.png" class="w-full h-full object-cover" alt="Drexii">
+                  <img
+                    src="/logo.png"
+                    class="w-full h-full object-cover"
+                    alt="Drexii"
+                  >
                 </div>
                 <span class="text-[13px] font-semibold text-white/70">Drexii</span>
               </div>
@@ -239,13 +291,28 @@ function handleSuggestion(text: string) {
               >
               <div class="flex items-center justify-between mt-2">
                 <div class="flex items-center gap-3 md:gap-4 px-1">
-                  <UIcon name="i-lucide-paperclip" class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors" />
-                  <UIcon name="i-lucide-mic" class="w-4 h-4 text-white/25 cursor-pointer hover:text-amber-400 transition-colors" />
-                  <UIcon name="i-lucide-zap" class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors" />
+                  <UIcon
+                    name="i-lucide-paperclip"
+                    class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors"
+                  />
+                  <UIcon
+                    name="i-lucide-mic"
+                    class="w-4 h-4 text-white/25 cursor-pointer hover:text-amber-400 transition-colors"
+                  />
+                  <UIcon
+                    name="i-lucide-zap"
+                    class="w-4 h-4 text-white/25 cursor-pointer hover:text-white/50 transition-colors"
+                  />
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="card-send-btn w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors" @click="handleSuggestion(inputValue)">
-                    <UIcon name="i-lucide-arrow-up" class="w-4 h-4" />
+                  <div
+                    class="card-send-btn w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+                    @click="handleSuggestion(inputValue)"
+                  >
+                    <UIcon
+                      name="i-lucide-arrow-up"
+                      class="w-4 h-4"
+                    />
                   </div>
                 </div>
               </div>
@@ -263,7 +330,10 @@ function handleSuggestion(text: string) {
                   {{ cat }}
                 </button>
               </div>
-              <UIcon name="i-lucide-search" class="w-4 h-4 text-white/25 cursor-pointer" />
+              <UIcon
+                name="i-lucide-search"
+                class="w-4 h-4 text-white/25 cursor-pointer"
+              />
             </div>
 
             <!-- Suggestions -->
@@ -275,11 +345,17 @@ function handleSuggestion(text: string) {
                 @click="handleSuggestion(suggestion.text)"
               >
                 <div class="flex items-center gap-3">
-                  <UIcon :name="suggestion.icon" class="w-4 h-4 text-white/25 shrink-0" />
+                  <UIcon
+                    :name="suggestion.icon"
+                    class="w-4 h-4 text-white/25 shrink-0"
+                  />
                   <span class="text-[14px] text-white/50 group-hover:text-white/75 transition-colors">{{ suggestion.text }}</span>
                 </div>
                 <div class="card-suggestion-arrow w-6 h-6 rounded-full border border-white/10 flex items-center justify-center shrink-0 ml-3">
-                  <UIcon name="i-lucide-arrow-right" class="w-3 h-3 opacity-40 group-hover:opacity-100 transition-opacity" />
+                  <UIcon
+                    name="i-lucide-arrow-right"
+                    class="w-3 h-3 opacity-40 group-hover:opacity-100 transition-opacity"
+                  />
                 </div>
               </div>
             </div>
@@ -291,24 +367,36 @@ function handleSuggestion(text: string) {
     </section>
 
     <!-- ======== INTRO ======== -->
-    <section id="about" class="intro-section relative z-20">
+    <section
+      id="about"
+      class="intro-section relative z-20"
+    >
       <div class="max-w-4xl mx-auto px-6 text-center">
         <div class="fade-in-up flex items-center justify-center gap-2 mb-12">
           <span class="w-2 h-2 rounded-full bg-accent-glow" />
           <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40">How It Works</span>
         </div>
 
-        <p :ref="introRef0" class="intro-text intro-scrub mb-10 mx-auto text-[24px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out">
+        <p
+          :ref="introRef0"
+          class="intro-text intro-scrub mb-10 mx-auto text-[24px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
+        >
           Ask in plain English. Drexii searches your emails, checks your Calendar,
           reads Drive docs, and queries your project tools — then gives you a real answer with sources.
         </p>
 
-        <p :ref="introRef1" class="intro-text intro-scrub stagger-2 mb-10 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out">
+        <p
+          :ref="introRef1"
+          class="intro-text intro-scrub stagger-2 mb-10 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
+        >
           Say the action. Drexii creates the Jira ticket, drafts the Gmail reply, updates the Linear issue,
           and posts to Slack — without you leaving the chat.
         </p>
 
-        <p :ref="introRef2" class="intro-text intro-scrub stagger-3 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out">
+        <p
+          :ref="introRef2"
+          class="intro-text intro-scrub stagger-3 mx-auto text-[20px] md:text-[32px] font-light leading-snug transition-colors duration-100 ease-out"
+        >
           Set an automation and Drexii runs while you're offline — chaining actions across tools,
           handling emails as they arrive, keeping everything moving.
         </p>
@@ -316,7 +404,10 @@ function handleSuggestion(text: string) {
     </section>
 
     <!-- ======== FEATURES ======== -->
-    <section id="features" class="py-32 px-6 relative z-20 bg-[var(--color-drexii-bg2)]">
+    <section
+      id="features"
+      class="py-32 px-6 relative z-20 bg-[var(--color-drexii-bg2)]"
+    >
       <div class="max-w-[1100px] mx-auto">
         <div class="flex flex-col items-center mb-20 text-center">
           <div class="fade-in-up flex items-center justify-center gap-2 mb-6">
@@ -330,14 +421,18 @@ function handleSuggestion(text: string) {
 
         <!-- Bento Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
           <!-- 01 Multi-Model AI — 2 cols -->
           <div class="fade-in-up feature-card feature-card--amber lg:col-span-2 group">
             <span class="fc-num">01</span>
             <div class="fc-icon fc-icon--amber">
-              <UIcon name="i-lucide-brain" class="w-6 h-6 text-amber-400" />
+              <UIcon
+                name="i-lucide-brain"
+                class="w-6 h-6 text-amber-400"
+              />
             </div>
-            <h3 class="fc-title">Multi-Model AI Routing</h3>
+            <h3 class="fc-title">
+              Multi-Model AI Routing
+            </h3>
             <p class="fc-desc">
               The right model for every task — Opus for deep analysis, Sonnet for writing, Haiku for quick replies, DeepSeek for code. Automatic fallback if any model goes down.
             </p>
@@ -351,9 +446,14 @@ function handleSuggestion(text: string) {
           <div class="fade-in-up stagger-1 feature-card feature-card--blue group">
             <span class="fc-num">02</span>
             <div class="fc-icon fc-icon--blue">
-              <UIcon name="i-lucide-plug-zap" class="w-6 h-6 text-blue-400" />
+              <UIcon
+                name="i-lucide-plug-zap"
+                class="w-6 h-6 text-blue-400"
+              />
             </div>
-            <h3 class="fc-title">11 Integrations<br>50+ Tools</h3>
+            <h3 class="fc-title">
+              11 Integrations<br>50+ Tools
+            </h3>
             <p class="fc-desc">
               Gmail, Calendar, Drive, Notion, Slack, Discord, Jira, Linear, Asana, Zendesk, Salesforce — all from one chat.
             </p>
@@ -363,9 +463,14 @@ function handleSuggestion(text: string) {
           <div class="fade-in-up stagger-1 feature-card feature-card--purple group">
             <span class="fc-num">03</span>
             <div class="fc-icon fc-icon--purple">
-              <UIcon name="i-lucide-link" class="w-6 h-6 text-purple-400" />
+              <UIcon
+                name="i-lucide-link"
+                class="w-6 h-6 text-purple-400"
+              />
             </div>
-            <h3 class="fc-title">Chained Automations</h3>
+            <h3 class="fc-title">
+              Chained Automations
+            </h3>
             <p class="fc-desc">
               Automations that trigger each other. Email arrives → summarise → create ticket → post to Slack. Set conditions in plain English.
             </p>
@@ -375,9 +480,14 @@ function handleSuggestion(text: string) {
           <div class="fade-in-up stagger-2 feature-card feature-card--rose group">
             <span class="fc-num">04</span>
             <div class="fc-icon fc-icon--rose">
-              <UIcon name="i-lucide-mic" class="w-6 h-6 text-rose-400" />
+              <UIcon
+                name="i-lucide-mic"
+                class="w-6 h-6 text-rose-400"
+              />
             </div>
-            <h3 class="fc-title">Voice In & Out</h3>
+            <h3 class="fc-title">
+              Voice In & Out
+            </h3>
             <p class="fc-desc">
               Speak your requests. Drexii listens, acts, and reads responses aloud. Hands-free mode available for continuous back-and-forth.
             </p>
@@ -391,9 +501,14 @@ function handleSuggestion(text: string) {
           <div class="fade-in-up stagger-2 feature-card feature-card--emerald group">
             <span class="fc-num">05</span>
             <div class="fc-icon fc-icon--emerald">
-              <UIcon name="i-lucide-shield-check" class="w-6 h-6 text-emerald-400" />
+              <UIcon
+                name="i-lucide-shield-check"
+                class="w-6 h-6 text-emerald-400"
+              />
             </div>
-            <h3 class="fc-title">Confirm Before Acting</h3>
+            <h3 class="fc-title">
+              Confirm Before Acting
+            </h3>
             <p class="fc-desc">
               Write operations — send email, create ticket, post message — are held for your approval. Nothing fires without your say-so.
             </p>
@@ -405,28 +520,45 @@ function handleSuggestion(text: string) {
             <div class="flex flex-col md:flex-row md:items-center gap-8 md:gap-16">
               <div class="flex-1">
                 <div class="fc-icon fc-icon--cyan mb-6">
-                  <UIcon name="i-lucide-brain-circuit" class="w-6 h-6 text-cyan-400" />
+                  <UIcon
+                    name="i-lucide-brain-circuit"
+                    class="w-6 h-6 text-cyan-400"
+                  />
                 </div>
-                <h3 class="fc-title text-2xl md:text-3xl">Persistent Memory</h3>
+                <h3 class="fc-title text-2xl md:text-3xl">
+                  Persistent Memory
+                </h3>
                 <p class="fc-desc max-w-sm">
                   Drexii remembers your preferences, context, and facts across every conversation. View, edit, and delete what it knows about you — full transparency, full control.
                 </p>
               </div>
               <div class="flex flex-col gap-2.5 md:w-72 shrink-0">
                 <div class="memory-chip">
-                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <UIcon
+                    name="i-lucide-bookmark"
+                    class="w-3.5 h-3.5 text-cyan-400 shrink-0"
+                  />
                   "Always reply formally to enterprise clients"
                 </div>
                 <div class="memory-chip">
-                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <UIcon
+                    name="i-lucide-bookmark"
+                    class="w-3.5 h-3.5 text-cyan-400 shrink-0"
+                  />
                   "Linear team ID for backend is ENG"
                 </div>
                 <div class="memory-chip">
-                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <UIcon
+                    name="i-lucide-bookmark"
+                    class="w-3.5 h-3.5 text-cyan-400 shrink-0"
+                  />
                   "Post bugs to #engineering on Slack"
                 </div>
                 <div class="memory-chip memory-chip--faded">
-                  <UIcon name="i-lucide-bookmark" class="w-3.5 h-3.5 text-white/20 shrink-0" />
+                  <UIcon
+                    name="i-lucide-bookmark"
+                    class="w-3.5 h-3.5 text-white/20 shrink-0"
+                  />
                   + more stored context...
                 </div>
               </div>
@@ -447,14 +579,25 @@ function handleSuggestion(text: string) {
           Everything in one place.<br><span class="text-white/30">No tab-switching. No copy-pasting.</span>
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-          <div v-for="item in [
-            { icon: 'i-lucide-layers', title: 'Cross-tool agent', desc: 'One request can span Gmail, Calendar, Jira, and Slack — Drexii chains the steps automatically.' },
-            { icon: 'i-lucide-eye', title: 'Full transparency', desc: 'Every tool call is logged. Every action needs your approval. You always know what ran and why.' },
-            { icon: 'i-lucide-timer', title: 'Works offline', desc: 'Set automations and Drexii keeps running in the background — handling emails, triggering chains.' }
-          ]" :key="item.title" class="fade-in-up p-5 rounded-2xl border border-white/6 bg-white/[0.02]">
-            <UIcon :name="item.icon" class="w-5 h-5 text-amber-400 mb-3" />
-            <h3 class="text-[14px] font-semibold text-white/85 mb-2">{{ item.title }}</h3>
-            <p class="text-[13px] text-white/40 leading-relaxed">{{ item.desc }}</p>
+          <div
+            v-for="item in [
+              { icon: 'i-lucide-layers', title: 'Cross-tool agent', desc: 'One request can span Gmail, Calendar, Jira, and Slack — Drexii chains the steps automatically.' },
+              { icon: 'i-lucide-eye', title: 'Full transparency', desc: 'Every tool call is logged. Every action needs your approval. You always know what ran and why.' },
+              { icon: 'i-lucide-timer', title: 'Works offline', desc: 'Set automations and Drexii keeps running in the background — handling emails, triggering chains.' }
+            ]"
+            :key="item.title"
+            class="fade-in-up p-5 rounded-2xl border border-white/6 bg-white/[0.02]"
+          >
+            <UIcon
+              :name="item.icon"
+              class="w-5 h-5 text-amber-400 mb-3"
+            />
+            <h3 class="text-[14px] font-semibold text-white/85 mb-2">
+              {{ item.title }}
+            </h3>
+            <p class="text-[13px] text-white/40 leading-relaxed">
+              {{ item.desc }}
+            </p>
           </div>
         </div>
       </div>
@@ -467,12 +610,22 @@ function handleSuggestion(text: string) {
           Stop switching tabs.<br><span class="text-white/30">Start asking Drexii.</span>
         </h2>
         <div class="fade-in-up stagger-1 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <NuxtLink to="/chat" class="cta-footer-primary px-8 py-3.5 rounded-full text-[15px] font-semibold transition-all shadow-lg">
+          <NuxtLink
+            to="/chat"
+            class="cta-footer-primary px-8 py-3.5 rounded-full text-[15px] font-semibold transition-all shadow-lg"
+          >
             Open Chat Now
           </NuxtLink>
-          <a href="https://discord.gg/3vg69uJP4n" target="_blank" rel="noopener noreferrer"
-            class="cta-footer-secondary px-8 py-3.5 rounded-full text-[15px] font-medium transition-all border flex items-center gap-2">
-            <UIcon name="i-lucide-message-circle" class="w-4 h-4" />
+          <a
+            href="https://discord.gg/3vg69uJP4n"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="cta-footer-secondary px-8 py-3.5 rounded-full text-[15px] font-medium transition-all border flex items-center gap-2"
+          >
+            <UIcon
+              name="i-lucide-message-circle"
+              class="w-4 h-4"
+            />
             Join Discord
           </a>
         </div>
@@ -484,16 +637,37 @@ function handleSuggestion(text: string) {
       <div class="max-w-[1100px] mx-auto border-t border-white/6 pt-12 flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg overflow-hidden">
-            <img src="/logo.png" class="w-9 h-9 object-cover opacity-70" alt="Drexii Logo">
+            <img
+              src="/logo.png"
+              class="w-9 h-9 object-cover opacity-70"
+              alt="Drexii Logo"
+            >
           </div>
           <span class="text-[14px] font-medium text-white/35">Drexii © {{ new Date().getFullYear() }}</span>
         </div>
         <div class="flex items-center gap-8">
-          <a href="https://discord.gg/3vg69uJP4n" target="_blank" rel="noopener noreferrer" class="footer-link text-[14px] font-medium transition-colors">Discord</a>
-          <a href="#" class="footer-link text-[14px] font-medium transition-colors">Twitter</a>
-          <a href="#" class="footer-link text-[14px] font-medium transition-colors">GitHub</a>
-          <a href="#" class="footer-link text-[14px] font-medium transition-colors">Privacy</a>
-          <a href="#" class="footer-link text-[14px] font-medium transition-colors">Terms</a>
+          <a
+            href="https://discord.gg/3vg69uJP4n"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link text-[14px] font-medium transition-colors"
+          >Discord</a>
+          <a
+            href="#"
+            class="footer-link text-[14px] font-medium transition-colors"
+          >Twitter</a>
+          <a
+            href="#"
+            class="footer-link text-[14px] font-medium transition-colors"
+          >GitHub</a>
+          <a
+            href="#"
+            class="footer-link text-[14px] font-medium transition-colors"
+          >Privacy</a>
+          <a
+            href="#"
+            class="footer-link text-[14px] font-medium transition-colors"
+          >Terms</a>
         </div>
       </div>
     </footer>
