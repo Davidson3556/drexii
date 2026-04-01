@@ -107,7 +107,8 @@ const navLinks = [
   { id: 'integrations', label: 'Integrations', section: null, to: '/integrations' },
   { id: 'workflows', label: 'Workflows', section: null, to: '/workflows' },
   { id: 'automations', label: 'Automations', section: null, to: '/automations' },
-  { id: 'memory', label: 'Memory', section: null, to: '/memory' }
+  { id: 'memory', label: 'Memory', section: null, to: '/memory' },
+  { id: 'docs', label: 'Docs', section: null, to: '/docs' }
 ]
 
 const activeItem = ref(
@@ -121,7 +122,9 @@ const activeItem = ref(
           ? 'automations'
           : route.path === '/memory'
             ? 'memory'
-            : 'how-it-works'
+            : route.path === '/docs'
+              ? 'docs'
+              : 'how-it-works'
 )
 const mobileOpen = ref(false)
 
@@ -229,7 +232,7 @@ function navigate(link: typeof navLinks[0]) {
 }
 
 const isOnChat = computed(() => route.path === '/chat')
-const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automations', '/memory'].includes(route.path))
+const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automations', '/memory', '/docs'].includes(route.path))
 </script>
 
 <template>
