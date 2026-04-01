@@ -1,3 +1,41 @@
+interface SpeechRecognitionResult {
+  readonly isFinal: boolean
+  readonly length: number
+  [index: number]: { readonly transcript: string, readonly confidence: number }
+}
+
+interface SpeechRecognitionResultList {
+  readonly length: number
+  [index: number]: SpeechRecognitionResult
+}
+
+interface SpeechRecognitionEvent {
+  readonly resultIndex: number
+  readonly results: SpeechRecognitionResultList
+}
+
+interface SpeechRecognitionErrorEvent {
+  readonly error: string
+  readonly message: string
+}
+
+interface SpeechRecognition extends EventTarget {
+  lang: string
+  interimResults: boolean
+  continuous: boolean
+  maxAlternatives: number
+  onresult: ((event: SpeechRecognitionEvent) => void) | null
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null
+  onend: (() => void) | null
+  start(): void
+  stop(): void
+  abort(): void
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition
+}
+
 export function useVoiceInput() {
   const isListening = ref(false)
   const transcript = ref('')
@@ -5,12 +43,13 @@ export function useVoiceInput() {
   const isSupported = ref(false)
   const error = ref<string | null>(null)
 
-  let recognition: any = null
+  let recognition: SpeechRecognition | null = null
   let shouldRestart = false
 
   onMounted(() => {
     if (import.meta.client) {
-      const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      const w = window as unknown as Record<string, unknown>
+      const SR = (w.SpeechRecognition ?? w.webkitSpeechRecognition) as SpeechRecognitionConstructor | undefined
       if (SR) {
         isSupported.value = true
         recognition = new SR()
@@ -19,7 +58,7 @@ export function useVoiceInput() {
         recognition.continuous = true
         recognition.maxAlternatives = 1
 
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
           let interim = ''
           let final = ''
           for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -34,11 +73,10 @@ export function useVoiceInput() {
           interimTranscript.value = interim
         }
 
-        recognition.onerror = (event: any) => {
-          const errCode = event.error as string
+        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+          const errCode = event.error
           if (errCode === 'aborted') return
           if (errCode === 'no-speech') {
-            // No speech detected — auto-restart if still listening
             if (shouldRestart) {
               tryRestart()
             }
@@ -54,7 +92,6 @@ export function useVoiceInput() {
 
         recognition.onend = () => {
           interimTranscript.value = ''
-          // Auto-restart if the user hasn't explicitly stopped
           if (shouldRestart) {
             tryRestart()
           } else {
@@ -70,7 +107,6 @@ export function useVoiceInput() {
     try {
       recognition.start()
     } catch {
-      // Already started or other issue — give up
       shouldRestart = false
       isListening.value = false
     }
@@ -85,8 +121,9 @@ export function useVoiceInput() {
     isListening.value = true
     try {
       recognition.start()
-    } catch (e: any) {
-      error.value = `Could not start microphone: ${e.message || 'unknown error'}`
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'unknown error'
+      error.value = `Could not start microphone: ${msg}`
       shouldRestart = false
       isListening.value = false
     }
@@ -118,7 +155,9 @@ export function useVoiceInput() {
 
   onUnmounted(() => {
     shouldRestart = false
-    try { recognition?.abort() } catch { /* noop */ }
+    try {
+      recognition?.abort()
+    } catch { /* noop */ }
   })
 
   return {

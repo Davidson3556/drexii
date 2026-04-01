@@ -312,7 +312,10 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
           <span>AI Online</span>
         </div>
         <!-- User avatar dropdown -->
-        <div ref="dropdownRef" class="user-dropdown-wrapper">
+        <div
+          ref="dropdownRef"
+          class="user-dropdown-wrapper"
+        >
           <button
             class="user-avatar-btn"
             :title="`Signed in as ${user?.email ?? ''}`"
@@ -332,7 +335,10 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
 
           <!-- Dropdown menu -->
           <Transition name="dropdown">
-            <div v-if="userDropdownOpen" class="user-dropdown">
+            <div
+              v-if="userDropdownOpen"
+              class="user-dropdown"
+            >
               <!-- User info header -->
               <div class="dropdown-header">
                 <div class="dropdown-avatar">
@@ -342,7 +348,10 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
                     :alt="user?.name ?? 'User'"
                     class="w-full h-full object-cover rounded-full"
                   >
-                  <span v-else class="text-sm font-semibold text-white/70">
+                  <span
+                    v-else
+                    class="text-sm font-semibold text-white/70"
+                  >
                     {{ (user?.name ?? user?.email ?? '?').charAt(0).toUpperCase() }}
                   </span>
                 </div>
@@ -355,15 +364,27 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
               <div class="dropdown-divider" />
 
               <!-- Menu items -->
-              <button class="dropdown-item" @click="openSettings">
-                <UIcon name="i-lucide-settings" class="w-4 h-4" />
+              <button
+                class="dropdown-item"
+                @click="openSettings"
+              >
+                <UIcon
+                  name="i-lucide-settings"
+                  class="w-4 h-4"
+                />
                 <span>Settings</span>
               </button>
 
               <div class="dropdown-divider" />
 
-              <button class="dropdown-item dropdown-item--danger" @click="logout">
-                <UIcon name="i-lucide-log-out" class="w-4 h-4" />
+              <button
+                class="dropdown-item dropdown-item--danger"
+                @click="logout"
+              >
+                <UIcon
+                  name="i-lucide-log-out"
+                  class="w-4 h-4"
+                />
                 <span>Log out</span>
               </button>
             </div>
@@ -490,9 +511,17 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
       <div class="settings-modal">
         <!-- Modal header -->
         <div class="settings-header">
-          <h2 class="settings-title">Settings</h2>
-          <button class="settings-close" @click="closeSettings">
-            <UIcon name="i-lucide-x" class="w-5 h-5" />
+          <h2 class="settings-title">
+            Settings
+          </h2>
+          <button
+            class="settings-close"
+            @click="closeSettings"
+          >
+            <UIcon
+              name="i-lucide-x"
+              class="w-5 h-5"
+            />
           </button>
         </div>
 
@@ -503,7 +532,10 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
             :class="{ 'settings-tab--active': settingsTab === 'password' }"
             @click="settingsTab = 'password'"
           >
-            <UIcon name="i-lucide-lock" class="w-4 h-4" />
+            <UIcon
+              name="i-lucide-lock"
+              class="w-4 h-4"
+            />
             Change Password
           </button>
           <button
@@ -511,7 +543,10 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
             :class="{ 'settings-tab--active': settingsTab === 'danger' }"
             @click="settingsTab = 'danger'"
           >
-            <UIcon name="i-lucide-alert-triangle" class="w-4 h-4" />
+            <UIcon
+              name="i-lucide-alert-triangle"
+              class="w-4 h-4"
+            />
             Danger Zone
           </button>
         </div>
@@ -519,18 +554,33 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
         <!-- Tab content -->
         <div class="settings-body">
           <!-- Change Password tab -->
-          <div v-if="settingsTab === 'password'" class="settings-section">
+          <div
+            v-if="settingsTab === 'password'"
+            class="settings-section"
+          >
             <p class="settings-desc">
               For security, we'll send a password reset link to your email address.
               Click the link in the email to set a new password.
             </p>
 
-            <div v-if="passwordSuccess" class="settings-alert settings-alert--success">
-              <UIcon name="i-lucide-check-circle" class="w-4 h-4 shrink-0" />
+            <div
+              v-if="passwordSuccess"
+              class="settings-alert settings-alert--success"
+            >
+              <UIcon
+                name="i-lucide-check-circle"
+                class="w-4 h-4 shrink-0"
+              />
               <span>{{ passwordSuccess }}</span>
             </div>
-            <div v-if="passwordError" class="settings-alert settings-alert--error">
-              <UIcon name="i-lucide-alert-circle" class="w-4 h-4 shrink-0" />
+            <div
+              v-if="passwordError"
+              class="settings-alert settings-alert--error"
+            >
+              <UIcon
+                name="i-lucide-alert-circle"
+                class="w-4 h-4 shrink-0"
+              />
               <span>{{ passwordError }}</span>
             </div>
 
@@ -539,18 +589,34 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
               :disabled="passwordLoading"
               @click="handleChangePassword"
             >
-              <UIcon v-if="passwordLoading" name="i-lucide-loader-2" class="w-4 h-4 animate-spin" />
-              <UIcon v-else name="i-lucide-mail" class="w-4 h-4" />
+              <UIcon
+                v-if="passwordLoading"
+                name="i-lucide-loader-2"
+                class="w-4 h-4 animate-spin"
+              />
+              <UIcon
+                v-else
+                name="i-lucide-mail"
+                class="w-4 h-4"
+              />
               {{ passwordLoading ? 'Sending…' : 'Send Reset Link' }}
             </button>
           </div>
 
           <!-- Danger Zone tab -->
-          <div v-if="settingsTab === 'danger'" class="settings-section">
+          <div
+            v-if="settingsTab === 'danger'"
+            class="settings-section"
+          >
             <div class="danger-card">
               <div class="danger-card-header">
-                <UIcon name="i-lucide-alert-triangle" class="w-5 h-5 text-red-400" />
-                <h3 class="danger-card-title">Delete Account</h3>
+                <UIcon
+                  name="i-lucide-alert-triangle"
+                  class="w-5 h-5 text-red-400"
+                />
+                <h3 class="danger-card-title">
+                  Delete Account
+                </h3>
               </div>
               <p class="danger-card-desc">
                 Permanently delete your account and all associated data. This action cannot be undone.
@@ -561,12 +627,18 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
                   class="settings-btn settings-btn--danger"
                   @click="showDeleteConfirm = true"
                 >
-                  <UIcon name="i-lucide-trash-2" class="w-4 h-4" />
+                  <UIcon
+                    name="i-lucide-trash-2"
+                    class="w-4 h-4"
+                  />
                   Delete My Account
                 </button>
               </div>
 
-              <div v-else class="delete-confirm">
+              <div
+                v-else
+                class="delete-confirm"
+              >
                 <p class="delete-confirm-label">
                   Type <strong>DELETE</strong> to confirm:
                 </p>
@@ -576,8 +648,14 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
                   placeholder="Type DELETE"
                   autocomplete="off"
                 >
-                <div v-if="deleteError" class="settings-alert settings-alert--error mt-3">
-                  <UIcon name="i-lucide-alert-circle" class="w-4 h-4 shrink-0" />
+                <div
+                  v-if="deleteError"
+                  class="settings-alert settings-alert--error mt-3"
+                >
+                  <UIcon
+                    name="i-lucide-alert-circle"
+                    class="w-4 h-4 shrink-0"
+                  />
                   <span>{{ deleteError }}</span>
                 </div>
                 <div class="delete-confirm-actions">
@@ -592,7 +670,11 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
                     :disabled="deleteLoading || deleteConfirmText !== 'DELETE'"
                     @click="handleDeleteAccount"
                   >
-                    <UIcon v-if="deleteLoading" name="i-lucide-loader-2" class="w-4 h-4 animate-spin" />
+                    <UIcon
+                      v-if="deleteLoading"
+                      name="i-lucide-loader-2"
+                      class="w-4 h-4 animate-spin"
+                    />
                     {{ deleteLoading ? 'Deleting…' : 'Permanently Delete' }}
                   </button>
                 </div>
