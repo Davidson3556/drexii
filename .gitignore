@@ -18,6 +18,9 @@ logs
 .fleet
 .idea
 
+# MCP config (contains API keys)
+.mcp.json
+
 # Local env files
 .env
 .env.*

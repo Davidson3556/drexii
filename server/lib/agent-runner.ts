@@ -5,6 +5,7 @@ import { getToolDescriptionsText, executeTool, type IntegrationAdapter } from '.
 import { getUserAdapters } from './user-integrations'
 import { sanitizeToolOutput } from './sanitize'
 import { logToolExecution } from './audit'
+import { parseToolCalls } from './utils/parse-tool-calls'
 import type { MessagePayload } from '../../shared/types'
 
 interface AgentRunResult {
@@ -12,33 +13,6 @@ interface AgentRunResult {
   toolsUsed: string[]
   durationMs: number
   status: 'success' | 'error'
-}
-
-function parseToolCalls(text: string): Array<{ name: string, args: Record<string, unknown> }> {
-  const regex = /\[TOOL_CALL:\s*(\w+)\(([\s\S]*?)\)\]/g
-  const calls: Array<{ name: string, args: Record<string, unknown> }> = []
-  let match = regex.exec(text)
-  while (match) {
-    try {
-      const args = JSON.parse(match[2]!)
-      calls.push({ name: match[1]!, args })
-    } catch {
-      try {
-        const simpleArgs: Record<string, unknown> = {}
-        match[2]!.split(',').forEach((pair) => {
-          const [key, ...rest] = pair.split(':')
-          if (key && rest.length) {
-            simpleArgs[key.trim().replace(/"/g, '')] = rest.join(':').trim().replace(/^"|"$/g, '')
-          }
-        })
-        calls.push({ name: match[1]!, args: simpleArgs })
-      } catch {
-        // Skip unparseable tool calls
-      }
-    }
-    match = regex.exec(text)
-  }
-  return calls
 }
 
 function buildAgentPrompt(instructions: string, toolDescriptions: string, context: string): string {

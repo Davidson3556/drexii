@@ -198,9 +198,9 @@ export async function* streamChat(
     })
 
     for await (const chunk of stream) {
-      recordSuccess()
       yield chunk
     }
+    recordSuccess()
   } catch (error: unknown) {
     const err = error as Error
     const reason = err.message || 'Unknown InsForge AI error'
