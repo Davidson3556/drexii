@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "postapiauthloginwithvalidandinvalidcredentials",
+    "description": "Test POST /api/auth/login endpoint with valid credentials to receive 200 and session token, and with invalid credentials to receive 401 Unauthorized."
+  },
+  {
+    "id": "TC002",
+    "title": "postapiauthlogoutwithvalidsessiontoken",
+    "description": "Test POST /api/auth/logout endpoint with a valid session token to receive 200 success response."
+  },
+  {
+    "id": "TC003",
+    "title": "getapiauthcheckwithandwithoutsessiontoken",
+    "description": "Test GET /api/auth/check endpoint with valid session token to receive 200 with user info, and without token to receive 401 Unauthorized."
+  },
+  {
+    "id": "TC004",
+    "title": "postapiauthdeleteaccountandverifysessioninvalid",
+    "description": "Test POST /api/auth/delete-account with valid session token to receive 200 success, then verify old token is invalid by GET /api/auth/check returning 401."
+  },
+  {
+    "id": "TC005",
+    "title": "postapithreadscreateandpostmessageswithsanitization",
+    "description": "Test POST /api/threads to create a thread, then POST /api/threads/:id/messages with content containing tool output injection patterns to verify server sanitizes output and returns 200 with sanitized response."
+  },
+  {
+    "id": "TC006",
+    "title": "postapiautomationscreateandprocesswithchaincondition",
+    "description": "Test POST /api/automations to create automation, then POST /api/automations/process with triggerContext that satisfies chain condition to verify chained steps execute and logs reflect execution."
+  },
+  {
+    "id": "TC007",
+    "title": "postapiworkflowscreateandrunwithtoolcalls",
+    "description": "Test POST /api/workflows to create workflow with steps including tool schemas, then POST /api/workflows/:id/run to execute workflow and verify tool calls are parsed and executed, returning aggregated run results."
+  },
+  {
+    "id": "TC008",
+    "title": "getapiuserintegrationslistandposttestintegration",
+    "description": "Test GET /api/user-integrations to list user integrations, then POST /api/user-integrations/test with valid and invalid integrationId to verify success and failure responses."
+  },
+  {
+    "id": "TC009",
+    "title": "postapimemorycreateupdateanddeleteentries",
+    "description": "Test POST /api/memory to create memory entry, PATCH /api/memory/:id to update it, and DELETE /api/memory/:id to delete, verifying 200 success responses and data consistency."
+  },
+  {
+    "id": "TC010",
+    "title": "getapiactionspendingandpostconfirmcancel",
+    "description": "Test GET /api/actions/pending to list pending actions, then POST /api/actions/:id/confirm and POST /api/actions/:id/cancel to confirm and cancel actions, verifying 200 success and updated pending list."
+  }
+]

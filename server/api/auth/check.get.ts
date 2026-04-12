@@ -1,6 +1,18 @@
-// Auth check is now handled client-side via InsForge SDK.
-// This endpoint is kept as a lightweight server-side fallback
-// for any API routes that need to verify the session exists.
-export default defineEventHandler(() => {
-  return { authenticated: true, provider: 'insforge' }
+// Auth session validation via InsForge SDK.
+// Returns the current user if a valid session exists.
+import { useInsforge } from '../../lib/insforge-client'
+
+export default defineEventHandler(async () => {
+  try {
+    const insforge = useInsforge()
+    const { data, error } = await insforge.auth.getCurrentUser()
+
+    if (error || !data?.user) {
+      return { authenticated: false, provider: 'insforge', user: null }
+    }
+
+    return { authenticated: true, provider: 'insforge', user: data.user }
+  } catch {
+    return { authenticated: false, provider: 'insforge', user: null }
+  }
 })

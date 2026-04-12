@@ -157,7 +157,9 @@ function evaluateChainCondition(condition: string | null, output: string, status
   const includesMatch = condition.match(/output\s+includes?\s+["']?(.+?)["']?$/i)
   if (includesMatch?.[1]) return output.toLowerCase().includes(includesMatch[1].toLowerCase())
 
-  return true
+  // Unknown condition — do not fire the chain to avoid unintended executions
+  console.warn(`[AgentRunner] Unrecognized chain condition "${condition}" — skipping chain`)
+  return false
 }
 
 /**

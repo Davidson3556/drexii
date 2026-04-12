@@ -1,0 +1,371 @@
+version: "2"
+type: frontend
+tech_stack:
+  - language: TypeScript
+  - framework: Nuxt 4, Vue 3, Nuxt UI, Pinia, Tailwind CSS
+  - database: PostgreSQL (via Drizzle ORM)
+  - other: Anthropic SDK, Google Generative AI, InsForge Auth SDK, nuxt-security
+features:
+  - name: Authentication
+    description: User login, logout, session check, and account deletion via InsForge SDK
+    files:
+      - app/pages/login.vue
+      - app/pages/auth/callback.vue
+      - server/api/auth/login.post.ts
+      - server/api/auth/logout.post.ts
+      - server/api/auth/check.get.ts
+      - server/api/auth/delete-account.post.ts
+    endpoints:
+      - method: POST
+        path: /api/auth/login
+        description: Log in the user
+        auth_required: false
+        response_schema:
+          "200": "{ success: true }"
+          "401": Unauthorized
+      - method: POST
+        path: /api/auth/logout
+        description: Log out the current user
+        auth_required: true
+        response_schema:
+          "200": "{ success: true }"
+      - method: GET
+        path: /api/auth/check
+        description: Check if user session is valid
+        auth_required: true
+        response_schema:
+          "200": "{ user: User }"
+          "401": Unauthorized
+      - method: POST
+        path: /api/auth/delete-account
+        description: Delete the authenticated user's account
+        auth_required: true
+        response_schema:
+          "200": "{ success: true }"
+    depends_on: []
+
+  - name: Chat / AI Threads
+    description: Create conversation threads and send messages to the AI agent (Drexii)
+    files:
+      - app/pages/chat.vue
+      - server/api/threads/index.post.ts
+      - server/api/threads/[id].get.ts
+      - server/api/threads/[id]/messages.post.ts
+    endpoints:
+      - method: POST
+        path: /api/threads
+        description: Create a new conversation thread
+        auth_required: true
+        response_schema:
+          "200": Thread
+      - method: GET
+        path: /api/threads/:id
+        description: Get a thread and its messages
+        auth_required: true
+        response_schema:
+          "200": "{ thread: Thread, messages: Message[] }"
+          "404": Not found
+      - method: POST
+        path: /api/threads/:id/messages
+        description: Send a message and get an AI response (streaming)
+        auth_required: true
+        request_schema:
+          body:
+            content: string
+        response_schema:
+          "200": "{ message: Message, response: string }"
+    depends_on:
+      - Authentication
+
+  - name: Automations
+    description: Create, list, toggle, delete, and process automations with optional chaining
+    files:
+      - app/pages/automations.vue
+      - server/api/automations/index.get.ts
+      - server/api/automations/index.post.ts
+      - server/api/automations/[id].delete.ts
+      - server/api/automations/[id]/logs.get.ts
+      - server/api/automations/[id]/toggle.post.ts
+      - server/api/automations/process.post.ts
+      - server/lib/agent-runner.ts
+    endpoints:
+      - method: GET
+        path: /api/automations
+        description: List all automations for the authenticated user
+        auth_required: true
+        response_schema:
+          "200": Automation[]
+      - method: POST
+        path: /api/automations
+        description: Create a new automation
+        auth_required: true
+        request_schema:
+          body:
+            name: string
+            instructions: string
+            trigger: string
+        response_schema:
+          "200": Automation
+          "400": Validation error
+      - method: DELETE
+        path: /api/automations/:id
+        description: Delete an automation by ID
+        auth_required: true
+        response_schema:
+          "200": "{ success: true }"
+          "404": Not found
+      - method: GET
+        path: /api/automations/:id/logs
+        description: Get execution logs for an automation
+        auth_required: true
+        response_schema:
+          "200": AutomationLog[]
+      - method: POST
+        path: /api/automations/:id/toggle
+        description: Toggle an automation active/inactive
+        auth_required: true
+        response_schema:
+          "200": "{ isActive: boolean }"
+      - method: POST
+        path: /api/automations/process
+        description: Trigger processing of an automation (internal/webhook)
+        auth_required: true
+        request_schema:
+          body:
+            automationId: string
+            triggerContext: string
+        response_schema:
+          "200": "{ success: true }"
+    depends_on:
+      - Authentication
+
+  - name: Workflows
+    description: Create, list, run, and delete multi-step agent workflows
+    files:
+      - app/pages/workflows.vue
+      - server/api/workflows/index.get.ts
+      - server/api/workflows/index.post.ts
+      - server/api/workflows/[id].delete.ts
+      - server/api/workflows/[id]/run.post.ts
+    endpoints:
+      - method: GET
+        path: /api/workflows
+        description: List all workflows for the authenticated user
+        auth_required: true
+        response_schema:
+          "200": Workflow[]
+      - method: POST
+        path: /api/workflows
+        description: Create a new workflow
+        auth_required: true
+        request_schema:
+          body:
+            name: string
+            steps: WorkflowStep[]
+        response_schema:
+          "200": Workflow
+          "400": Validation error
+      - method: DELETE
+        path: /api/workflows/:id
+        description: Delete a workflow by ID
+        auth_required: true
+        response_schema:
+          "200": "{ success: true }"
+      - method: POST
+        path: /api/workflows/:id/run
+        description: Execute a workflow
+        auth_required: true
+        response_schema:
+          "200": WorkflowRunResult
+    depends_on:
+      - Authentication
+
+  - name: Integrations
+    description: View available integrations and manage user-specific integration credentials
+    files:
+      - app/pages/integrations.vue
+      - server/api/integrations.get.ts
+      - server/api/user-integrations/index.get.ts
+      - server/api/user-integrations/index.post.ts
+      - server/api/user-integrations/[id].delete.ts
+      - server/api/user-integrations/test.post.ts
+    endpoints:
+      - method: GET
+        path: /api/integrations
+        description: List all available integration types
+        auth_required: false
+        response_schema:
+          "200": Integration[]
+      - method: GET
+        path: /api/user-integrations
+        description: List user's configured integrations
+        auth_required: true
+        response_schema:
+          "200": UserIntegration[]
+      - method: POST
+        path: /api/user-integrations
+        description: Add a new integration for the user
+        auth_required: true
+        request_schema:
+          body:
+            type: string
+            credentials: object
+        response_schema:
+          "200": UserIntegration
+      - method: DELETE
+        path: /api/user-integrations/:id
+        description: Remove a user integration
+        auth_required: true
+        response_schema:
+          "200": "{ success: true }"
+      - method: POST
+        path: /api/user-integrations/test
+        description: Test a user integration connection
+        auth_required: true
+        request_schema:
+          body:
+            integrationId: string
+        response_schema:
+          "200": "{ success: boolean, message: string }"
+    depends_on:
+      - Authentication
+
+  - name: Memory
+    description: Store and manage persistent memory entries for the AI agent
+    files:
+      - app/pages/memory.vue
+      - server/api/memory.get.ts
+      - server/api/memory.post.ts
+      - server/api/memory/[id].delete.ts
+      - server/api/memory/[id].patch.ts
+    endpoints:
+      - method: GET
+        path: /api/memory
+        description: List memory entries for the user
+        auth_required: true
+        response_schema:
+          "200": MemoryEntry[]
+      - method: POST
+        path: /api/memory
+        description: Create a new memory entry
+        auth_required: true
+        request_schema:
+          body:
+            content: string
+        response_schema:
+          "200": MemoryEntry
+      - method: DELETE
+        path: /api/memory/:id
+        description: Delete a memory entry
+        auth_required: true
+        response_schema:
+          "200": "{ success: true }"
+      - method: PATCH
+        path: /api/memory/:id
+        description: Update a memory entry
+        auth_required: true
+        request_schema:
+          body:
+            content: string
+        response_schema:
+          "200": MemoryEntry
+    depends_on:
+      - Authentication
+
+  - name: Audit Log
+    description: View tool execution audit trail for the agent
+    files:
+      - server/api/audit.get.ts
+    endpoints:
+      - method: GET
+        path: /api/audit
+        description: Get audit log entries for the user
+        auth_required: true
+        response_schema:
+          "200": AuditLog[]
+    depends_on:
+      - Authentication
+
+  - name: Pending Actions
+    description: Review and confirm or cancel pending agent actions requiring user approval
+    files:
+      - server/api/actions/pending.get.ts
+      - server/api/actions/[id]/confirm.post.ts
+      - server/api/actions/[id]/cancel.post.ts
+    endpoints:
+      - method: GET
+        path: /api/actions/pending
+        description: List pending actions awaiting user confirmation
+        auth_required: true
+        response_schema:
+          "200": PendingAction[]
+      - method: POST
+        path: /api/actions/:id/confirm
+        description: Confirm a pending action
+        auth_required: true
+        response_schema:
+          "200": "{ success: true }"
+      - method: POST
+        path: /api/actions/:id/cancel
+        description: Cancel a pending action
+        auth_required: true
+        response_schema:
+          "200": "{ success: true }"
+    depends_on:
+      - Authentication
+
+  - name: Model Status
+    description: Check AI model availability and routing status
+    files:
+      - server/api/model/status.get.ts
+    endpoints:
+      - method: GET
+        path: /api/model/status
+        description: Get current AI model routing status
+        auth_required: false
+        response_schema:
+          "200": "{ models: ModelStatus[] }"
+    depends_on: []
+
+  - name: Gmail Webhook
+    description: Receive Gmail push notifications to trigger automations
+    files:
+      - server/api/webhooks/gmail.post.ts
+    endpoints:
+      - method: POST
+        path: /api/webhooks/gmail
+        description: Handle incoming Gmail push notification
+        auth_required: false
+        request_schema:
+          body:
+            message: object
+            subscription: string
+        response_schema:
+          "200": "{ success: true }"
+    depends_on:
+      - Automations
+
+  - name: Landing Page
+    description: Public marketing landing page for Drexii
+    files:
+      - app/pages/index.vue
+    endpoints: []
+    depends_on: []
+
+  - name: Documentation
+    description: In-app documentation page
+    files:
+      - app/pages/docs.vue
+    endpoints: []
+    depends_on: []
+
+known_limitations:
+  - issue: Agent tool injection risk — external tool output is sanitized but passed back into prompts
+    location: server/lib/agent-runner.ts
+    impact: Potential prompt injection if sanitizeToolOutput is insufficient
+  - issue: Chain condition evaluation uses simple string matching, not a full expression evaluator
+    location: server/lib/agent-runner.ts:147
+    impact: Complex chain conditions may not evaluate correctly
+  - issue: Auth is client-side only (InsForge SDK); server routes rely on session tokens that could be stale
+    location: server/api/auth/check.get.ts
+    impact: Edge cases where expired sessions are not immediately invalidated server-side

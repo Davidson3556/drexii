@@ -1,0 +1,962 @@
+[
+  {
+    "id": "TC001",
+    "title": "Sanitized tool output is shown safely in chat history",
+    "description": "Verifies that when a message contains common prompt-injection phrases, the displayed conversation shows a safe, sanitized tool-context output rather than raw injection content.",
+    "category": "Prompt Injection Sanitizer (sanitizeToolOutput / wrapToolContext)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the chat page from the app entry route"
+      },
+      {
+        "type": "action",
+        "description": "Click to create a new chat thread"
+      },
+      {
+        "type": "action",
+        "description": "Fill a message containing tool-output-like text that includes an instruction to ignore previous instructions into the message composer"
+      },
+      {
+        "type": "action",
+        "description": "Send the message"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the assistant response to finish streaming"
+      },
+      {
+        "type": "action",
+        "description": "Reload the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the thread history is persisted and displays sanitized tool-context output without showing raw prompt-injection instructions"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Short casual message routes as a lightweight task",
+    "description": "Verifies that sending a short casual user message results in the UI indicating a lightweight classification or routing outcome for the response.",
+    "category": "AI Task Classifier (classifyTask)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the chat page from the app entry route"
+      },
+      {
+        "type": "action",
+        "description": "Click to create a new chat thread"
+      },
+      {
+        "type": "action",
+        "description": "Fill a short casual message into the message composer"
+      },
+      {
+        "type": "action",
+        "description": "Send the message"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the assistant response to finish streaming"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the UI indicates the message was classified or routed as a lightweight task"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Add an integration credential and see it listed",
+    "description": "Verifies an authenticated user can add an integration credential and it appears in their configured integrations list.",
+    "category": "Integrations",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to integrations"
+      },
+      {
+        "type": "action",
+        "description": "Start adding a new integration by selecting a type"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required credential fields with valid-looking values"
+      },
+      {
+        "type": "action",
+        "description": "Submit to save the integration"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new integration appears in the user's configured integrations list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Create memory entry and see it in the memory list",
+    "description": "Verifies an authenticated user can create a memory entry and it appears in their memory list.",
+    "category": "Memory",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to memory"
+      },
+      {
+        "type": "action",
+        "description": "Create a new memory entry with content \"Prefers concise answers\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new memory entry appears in the memory list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Code-like message routes as a code task",
+    "description": "Verifies that sending a message containing programming keywords results in the UI indicating a code-capable classification or routing outcome.",
+    "category": "AI Task Classifier (classifyTask)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the chat page from the app entry route"
+      },
+      {
+        "type": "action",
+        "description": "Click to create a new chat thread"
+      },
+      {
+        "type": "action",
+        "description": "Fill a message requesting code and containing code keywords into the message composer"
+      },
+      {
+        "type": "action",
+        "description": "Send the message"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the assistant response to finish streaming"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the UI indicates the message was classified or routed as a code task"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Test an existing integration connection",
+    "description": "Verifies an authenticated user can run the integration test action and see a success or failure outcome displayed.",
+    "category": "Integrations",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to integrations"
+      },
+      {
+        "type": "action",
+        "description": "Add a new integration by selecting a type and saving required credential fields"
+      },
+      {
+        "type": "action",
+        "description": "Run the test action for the newly added integration"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the UI shows a test result outcome for the integration"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Delete a memory entry",
+    "description": "Verifies an authenticated user can delete a memory entry and it is removed from the memory list.",
+    "category": "Memory",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to memory"
+      },
+      {
+        "type": "action",
+        "description": "Create a new memory entry with content \"Temporary note\""
+      },
+      {
+        "type": "action",
+        "description": "Delete the newly created memory entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the deleted memory entry no longer appears in the memory list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC008",
+    "title": "Remove an integration credential",
+    "description": "Verifies an authenticated user can remove a configured integration and it disappears from the list.",
+    "category": "Integrations",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to integrations"
+      },
+      {
+        "type": "action",
+        "description": "Add a new integration by selecting a type and saving required credential fields"
+      },
+      {
+        "type": "action",
+        "description": "Remove the newly added integration"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the removed integration no longer appears in the user's configured integrations list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC009",
+    "title": "Multiple injection patterns are filtered throughout the content",
+    "description": "Verifies that when a message contains multiple prompt-injection patterns, the conversation shows that all such content is filtered consistently rather than partially leaked.",
+    "category": "Prompt Injection Sanitizer (sanitizeToolOutput / wrapToolContext)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the chat page from the app entry route"
+      },
+      {
+        "type": "action",
+        "description": "Click to create a new chat thread"
+      },
+      {
+        "type": "action",
+        "description": "Fill a message containing multiple prompt-injection patterns in different casing into the message composer"
+      },
+      {
+        "type": "action",
+        "description": "Send the message"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the assistant response to finish streaming"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the displayed conversation does not expose any of the injected instruction strings and instead shows filtered placeholders or sanitized tool-context content"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC010",
+    "title": "Edit an existing memory entry",
+    "description": "Verifies an authenticated user can update a memory entry and the updated content is shown in the list.",
+    "category": "Memory",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to memory"
+      },
+      {
+        "type": "action",
+        "description": "Create a new memory entry with content \"Likes weekend workouts\""
+      },
+      {
+        "type": "action",
+        "description": "Edit that memory entry and change content to \"Likes weekday workouts\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the memory list shows the updated content \"Likes weekday workouts\""
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC011",
+    "title": "Create and run a workflow end-to-end",
+    "description": "Verifies a user can create a workflow with steps and run it to obtain aggregated run results.",
+    "category": "Workflows",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to workflows"
+      },
+      {
+        "type": "action",
+        "description": "Create a new workflow with a name and at least one valid step"
+      },
+      {
+        "type": "action",
+        "description": "Run the newly created workflow"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify workflow run results are displayed with an overall completion status"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC012",
+    "title": "Empty tool output does not break chat message send",
+    "description": "Verifies that sending an empty-content tool-output-like message does not error and the assistant still responds normally.",
+    "category": "Prompt Injection Sanitizer (sanitizeToolOutput / wrapToolContext)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the chat page from the app entry route"
+      },
+      {
+        "type": "action",
+        "description": "Click to create a new chat thread"
+      },
+      {
+        "type": "action",
+        "description": "Fill an empty string into the message composer"
+      },
+      {
+        "type": "action",
+        "description": "Press Enter to send"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the assistant response to finish streaming"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an assistant response is displayed in the thread without an error state"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC013",
+    "title": "Run a workflow that triggers a tool call and returns per-step outputs",
+    "description": "Verifies running a workflow with a tool-using step produces per-step outputs and an aggregated result view.",
+    "category": "Workflows",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to workflows"
+      },
+      {
+        "type": "action",
+        "description": "Create a new workflow configured with a step that uses an available tool in the app"
+      },
+      {
+        "type": "action",
+        "description": "Run the workflow"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the run results show step-level outputs including a tool execution result"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC014",
+    "title": "Workflow run with tool-capable steps returns aggregated results in UI",
+    "description": "Verifies that running a workflow configured with steps that can produce tool calls completes and shows an aggregated workflow result to the user.",
+    "category": "Tool Schema Translator (toAnthropicTools / toGeminiTools)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the workflows area from the app entry route"
+      },
+      {
+        "type": "action",
+        "description": "Create a new workflow with at least one step configured to allow tool usage"
+      },
+      {
+        "type": "action",
+        "description": "Save the workflow"
+      },
+      {
+        "type": "action",
+        "description": "Run the workflow"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a workflow run result is displayed and includes aggregated output from the steps"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC015",
+    "title": "List previously created workflows",
+    "description": "Verifies a user can view their workflows list after creating a workflow and see it present.",
+    "category": "Workflows",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to workflows"
+      },
+      {
+        "type": "action",
+        "description": "Create a new workflow with a unique name and at least one valid step"
+      },
+      {
+        "type": "action",
+        "description": "Return to the workflows list view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the newly created workflow appears in the workflows list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC016",
+    "title": "Delete a workflow",
+    "description": "Verifies a user can delete a workflow and it no longer appears in the workflows list.",
+    "category": "Workflows",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to workflows"
+      },
+      {
+        "type": "action",
+        "description": "Create a new workflow with a unique name and at least one valid step"
+      },
+      {
+        "type": "action",
+        "description": "Delete the newly created workflow from the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the deleted workflow no longer appears in the workflows list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC017",
+    "title": "Classifier fallback applies when last message is not a user message",
+    "description": "Verifies that if the latest visible message context is not a user message (e.g., assistant message is last), the next run falls back to the default classification behavior shown in the UI.",
+    "category": "AI Task Classifier (classifyTask)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the chat page from the app entry route"
+      },
+      {
+        "type": "action",
+        "description": "Click to create a new chat thread"
+      },
+      {
+        "type": "action",
+        "description": "Fill a normal user message into the message composer"
+      },
+      {
+        "type": "action",
+        "description": "Send the message"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the assistant response to finish streaming"
+      },
+      {
+        "type": "action",
+        "description": "Fill a follow-up message that references the previous assistant reply into the message composer"
+      },
+      {
+        "type": "action",
+        "description": "Send the message"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the UI indicates a default or fallback classification/routing was used for the follow-up"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC018",
+    "title": "Navigate from landing page to sign-in",
+    "description": "Verifies a visitor can start sign-in by navigating from the landing page to the login page.",
+    "category": "Landing Page",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click the sign-in link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the login page"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC019",
+    "title": "Prevent workflow creation with invalid steps",
+    "description": "Verifies the workflow builder blocks saving when steps are invalid and shows a validation error.",
+    "category": "Workflows",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to workflows"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new workflow with a name"
+      },
+      {
+        "type": "action",
+        "description": "Leave the steps configuration invalid or incomplete"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to save the workflow"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is visible and the workflow is not created"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC020",
+    "title": "Memory list reflects create and delete in one session",
+    "description": "Verifies memory list state updates correctly after creating and deleting entries without needing a full page reload.",
+    "category": "Memory",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to memory"
+      },
+      {
+        "type": "action",
+        "description": "Create a new memory entry with content \"Session state check\""
+      },
+      {
+        "type": "action",
+        "description": "Delete the same memory entry from the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the memory list updates to remove the deleted entry without requiring a manual refresh"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC021",
+    "title": "Navigate from documentation to sign-in",
+    "description": "Verifies a visitor can start sign-in from the documentation page by navigating to the login page.",
+    "category": "Documentation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /docs"
+      },
+      {
+        "type": "action",
+        "description": "Click the sign-in link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the login page"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC022",
+    "title": "Workflow run succeeds with no tools configured",
+    "description": "Verifies that running a workflow with no tool schemas configured completes without errors and still returns a workflow result.",
+    "category": "Tool Schema Translator (toAnthropicTools / toGeminiTools)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the workflows area from the app entry route"
+      },
+      {
+        "type": "action",
+        "description": "Create a new workflow with steps that do not configure any tools"
+      },
+      {
+        "type": "action",
+        "description": "Save the workflow"
+      },
+      {
+        "type": "action",
+        "description": "Run the workflow"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the workflow run completes and displays a result rather than an error state"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC023",
+    "title": "Handle integration test with malformed or missing integration selection",
+    "description": "Verifies the integration testing flow prevents running a test without selecting a valid configured integration and shows a validation error.",
+    "category": "Integrations",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to integrations"
+      },
+      {
+        "type": "action",
+        "description": "Open the integration test UI without selecting a configured integration"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to run the integration test"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is visible and no test result is produced"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC024",
+    "title": "View available integration types without authentication",
+    "description": "Verifies a user can view the catalog of available integration types.",
+    "category": "Integrations",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the integrations page via the app entry route"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to view integrations"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a list of available integration types is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC025",
+    "title": "Open documentation from landing page",
+    "description": "Verifies a visitor can reach in-app documentation from the landing page and view documentation content.",
+    "category": "Landing Page",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to view documentation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify documentation content is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC026",
+    "title": "View documentation page",
+    "description": "Verifies a visitor can load the documentation page and see readable documentation content.",
+    "category": "Documentation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /docs"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify documentation content is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC027",
+    "title": "Allow creating an empty memory entry",
+    "description": "Verifies an authenticated user can save a memory entry with empty content and it appears in the memory list.",
+    "category": "Memory",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to memory"
+      },
+      {
+        "type": "action",
+        "description": "Create a new memory entry leaving the content empty"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the memory list includes a newly created entry with empty content"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC028",
+    "title": "View landing page content",
+    "description": "Verifies a visitor can load the landing page and see primary marketing content without errors.",
+    "category": "Landing Page",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the landing page main content is displayed"
+      }
+    ],
+    "priority": "Low"
+  }
+]

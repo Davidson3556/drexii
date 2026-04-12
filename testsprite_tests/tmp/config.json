@@ -1,0 +1,19 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "backendAuthType": "public",
+  "executionArgs": {
+    "projectName": "drexii",
+    "projectPath": "/Users/user/Documents/drexii",
+    "testIds": [],
+    "additionalInstruction": "",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-e1EgvHH65o6wWAFvukNUioLgMXQom5SNQmVyuhqjtXZiYecx8mnu0Esk2giAEWm0B4cxPEPuiSKGnqaoOOVxZ5nGglImclvab_lrIqBcbacKBlo-9PtzH4G-yc6moKpN_hU"
+    }
+  },
+  "serverPort": 54785,
+  "proxy": "http://bd4959fe-5c9d-4b17-9d55-8a427c80f80a:A6FLnTcAORCQSMPVNSKN2Gp9DoEbho7V@tun.testsprite.com:8080"
+}

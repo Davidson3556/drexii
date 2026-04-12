@@ -19,5 +19,6 @@ export function sanitizeToolOutput(content: string): string {
 
 export function wrapToolContext(toolName: string, content: string): string {
   const sanitized = sanitizeToolOutput(content)
-  return `<tool_context source="${toolName}">\n${sanitized}\n</tool_context>`
+  const safeName = toolName.replace(/"/g, '&quot;').replace(/>/g, '&gt;')
+  return `<tool_context source="${safeName}">\n${sanitized}\n</tool_context>`
 }

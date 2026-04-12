@@ -25,28 +25,30 @@ export function useMarkdown() {
 
     const lines = html.split('\n')
     const processed: string[] = []
-    let inList = false
+    let listType: 'ul' | 'ol' | null = null
 
     for (const line of lines) {
       const bulletMatch = line.match(/^[\s]*[-*]\s+(.+)/)
       const numberedMatch = line.match(/^[\s]*(\d+)\.\s+(.+)/)
 
       if (bulletMatch) {
-        if (!inList) {
+        if (listType !== 'ul') {
+          if (listType === 'ol') processed.push('</ol>')
           processed.push('<ul class="space-y-1 my-2 ml-4">')
-          inList = true
+          listType = 'ul'
         }
         processed.push(`<li class="flex items-start gap-2"><span class="text-amber-400/60 mt-0.5 shrink-0">•</span><span>${bulletMatch[1]}</span></li>`)
       } else if (numberedMatch) {
-        if (!inList) {
+        if (listType !== 'ol') {
+          if (listType === 'ul') processed.push('</ul>')
           processed.push('<ol class="space-y-1 my-2 ml-4">')
-          inList = true
+          listType = 'ol'
         }
         processed.push(`<li class="flex items-start gap-2"><span class="text-amber-400/60 font-medium shrink-0">${numberedMatch[1]}.</span><span>${numberedMatch[2]}</span></li>`)
       } else {
-        if (inList) {
-          processed.push(line.includes('<ul') ? '</ul>' : '</ol>')
-          inList = false
+        if (listType) {
+          processed.push(listType === 'ul' ? '</ul>' : '</ol>')
+          listType = null
         }
         if (line.trim() === '') {
           processed.push('<div class="h-2"></div>')
@@ -56,8 +58,8 @@ export function useMarkdown() {
       }
     }
 
-    if (inList) {
-      processed.push('</ul>')
+    if (listType) {
+      processed.push(listType === 'ul' ? '</ul>' : '</ol>')
     }
 
     return processed.join('\n')

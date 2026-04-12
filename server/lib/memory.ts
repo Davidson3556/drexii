@@ -7,17 +7,19 @@ export async function saveMemory(
   content: string,
   source?: string,
   userId?: string
-): Promise<void> {
+): Promise<typeof memories.$inferSelect | null> {
   try {
     const db = useDB()
-    await db.insert(memories).values({
+    const [created] = await db.insert(memories).values({
       category,
       content,
       source: source || null,
       userId: userId || null
-    })
+    }).returning()
+    return created ?? null
   } catch (error) {
     console.error('[Memory] Failed to save memory:', error)
+    return null
   }
 }
 

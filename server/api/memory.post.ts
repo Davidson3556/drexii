@@ -12,7 +12,11 @@ export default defineEventHandler(async (event) => {
     ? body.category
     : 'fact'
 
-  await saveMemory(category, body.content, body.source, userId || undefined)
+  const created = await saveMemory(category, body.content, body.source, userId || undefined)
 
-  return { ok: true, category, content: body.content }
+  if (!created) {
+    throw createError({ statusCode: 500, message: 'Failed to save memory' })
+  }
+
+  return { ok: true, id: created.id, category: created.category, content: created.content, createdAt: created.createdAt }
 })
