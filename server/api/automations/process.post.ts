@@ -24,11 +24,12 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: 'Automation not found' })
     }
 
-    await processAutomation(
+    // Fire-and-forget: don't await the agent run so we return immediately
+    processAutomation(
       automation.id,
       body.context || `Manual trigger at ${new Date().toISOString()}`,
       { manual: true }
-    )
+    ).catch((err: unknown) => console.error('[automations/process] manual run failed:', err))
 
     return { ok: true, processed: 1 }
   }
@@ -51,7 +52,8 @@ export default defineEventHandler(async (event) => {
 
       if (now - lastRun >= intervalMinutes * 60 * 1000) {
         const context = `Scheduled run at ${new Date().toISOString()}. Interval: every ${intervalMinutes} minutes.`
-        await processAutomation(automation.id, context, { scheduled: true })
+        processAutomation(automation.id, context, { scheduled: true })
+          .catch((err: unknown) => console.error('[automations/process] scheduled run failed:', err))
         processed++
       }
     }

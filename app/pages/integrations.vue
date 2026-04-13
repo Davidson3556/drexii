@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { user } = useAuth()
 const toast = useToast()
+const route = useRoute()
 
 interface UserIntegration {
   id: string
@@ -28,6 +29,7 @@ const integrations = [
     icon: 'i-simple-icons-slack',
     color: '#E01E5A',
     description: 'Send messages to any channel, search through conversations, and list all channels in your Slack workspace — directly from Drexii chat.',
+    oauthType: 'slack' as const,
     fields: [
       { key: 'bot_token', label: 'Bot Token', placeholder: 'xoxb-your-bot-token', type: 'password' }
     ],
@@ -104,6 +106,7 @@ const integrations = [
     icon: 'i-simple-icons-gmail',
     color: '#EA4335',
     description: 'Search your inbox, read full emails, send new messages, and draft replies — all from Drexii. Perfect for triaging emails or auto-drafting responses without opening Gmail.',
+    oauthType: 'google' as const,
     fields: [
       { key: 'client_id', label: 'Client ID', placeholder: 'your-google-client-id.apps.googleusercontent.com', type: 'text' },
       { key: 'client_secret', label: 'Client Secret', placeholder: 'GOCSPX-your-client-secret', type: 'password' },
@@ -164,6 +167,7 @@ const integrations = [
     icon: 'i-lucide-calendar',
     color: '#4285F4',
     description: 'View upcoming events, check your availability, schedule new meetings, and manage your calendar — all through Drexii chat. Great for quickly checking "what\'s next" or booking meetings without leaving your workflow.',
+    oauthType: 'google' as const,
     fields: [
       { key: 'client_id', label: 'Client ID', placeholder: 'your-client-id.apps.googleusercontent.com', type: 'password' },
       { key: 'client_secret', label: 'Client Secret', placeholder: 'your-client-secret', type: 'password' },
@@ -197,6 +201,7 @@ const integrations = [
     icon: 'i-lucide-hard-drive',
     color: '#34A853',
     description: 'Search for files by name, read the contents of Google Docs and Sheets, list recent files, and create new documents — so Drexii can find and summarize your files or create new ones for you.',
+    oauthType: 'google' as const,
     fields: [
       { key: 'client_id', label: 'Client ID', placeholder: 'your-client-id.apps.googleusercontent.com', type: 'password' },
       { key: 'client_secret', label: 'Client Secret', placeholder: 'your-client-secret', type: 'password' },
@@ -273,6 +278,19 @@ const integrations = [
     }
   }
 ]
+
+// OAuth labels shown on connect buttons
+const oauthLabels: Record<string, { label: string, icon: string }> = {
+  google: { label: 'Connect with Google', icon: 'i-simple-icons-google' },
+  slack: { label: 'Connect with Slack', icon: 'i-simple-icons-slack' }
+}
+
+// Start an OAuth flow for the given provider
+function startOAuth(oauthType: string) {
+  if (!user.value?.id) return
+  const url = `/api/oauth/${oauthType}/authorize?userId=${encodeURIComponent(user.value.id)}`
+  window.location.href = url
+}
 
 // Load user integrations
 async function loadIntegrations() {
@@ -397,6 +415,22 @@ const connectedCount = computed(() =>
 
 onMounted(() => {
   loadIntegrations()
+
+  // Handle OAuth redirect results
+  const connected = route.query.connected as string | undefined
+  const oauthErr = route.query.error as string | undefined
+
+  if (connected === 'google') {
+    toast.add({ title: 'Google connected', description: 'Gmail, Calendar, and Drive are all live.', color: 'success' })
+  } else if (connected === 'slack') {
+    toast.add({ title: 'Slack connected', description: 'Your Slack workspace is ready to use.', color: 'success' })
+  } else if (oauthErr === 'oauth_denied') {
+    toast.add({ title: 'Access denied', description: 'You cancelled the permission request.', color: 'neutral' })
+  } else if (oauthErr === 'no_refresh_token') {
+    toast.add({ title: 'Google connection failed', description: 'Please revoke Drexii\'s access in your Google account and try again.', color: 'error' })
+  } else if (oauthErr) {
+    toast.add({ title: 'OAuth failed', description: 'Something went wrong during sign-in. Please try again.', color: 'error' })
+  }
 })
 </script>
 
@@ -479,6 +513,7 @@ onMounted(() => {
           <div class="intg-card-footer">
             <template v-if="isConnected(intg.id)">
               <button
+                v-if="!intg.oauthType"
                 class="intg-btn intg-btn--reconfigure"
                 @click="openSetup(intg.id)"
               >
@@ -487,6 +522,17 @@ onMounted(() => {
                   class="w-3.5 h-3.5"
                 />
                 Reconfigure
+              </button>
+              <button
+                v-else
+                class="intg-btn intg-btn--reconfigure"
+                @click="startOAuth(intg.oauthType)"
+              >
+                <UIcon
+                  :name="oauthLabels[intg.oauthType]?.icon ?? 'i-lucide-refresh-cw'"
+                  class="w-3.5 h-3.5"
+                />
+                Reconnect
               </button>
               <button
                 class="intg-btn intg-btn--disconnect"
@@ -500,17 +546,32 @@ onMounted(() => {
                 {{ disconnecting === intg.id ? 'Removing...' : 'Disconnect' }}
               </button>
             </template>
-            <button
-              v-else
-              class="intg-btn intg-btn--connect"
-              @click="openSetup(intg.id)"
-            >
-              <UIcon
-                name="i-lucide-plug"
-                class="w-3.5 h-3.5"
-              />
-              Connect
-            </button>
+            <template v-else>
+              <!-- OAuth-enabled integrations get a branded one-click button -->
+              <button
+                v-if="intg.oauthType"
+                class="intg-btn intg-btn--oauth"
+                @click="startOAuth(intg.oauthType)"
+              >
+                <UIcon
+                  :name="oauthLabels[intg.oauthType]?.icon ?? 'i-lucide-log-in'"
+                  class="w-3.5 h-3.5"
+                />
+                {{ oauthLabels[intg.oauthType]?.label ?? 'Connect' }}
+              </button>
+              <!-- Manual credential integrations open the form -->
+              <button
+                v-else
+                class="intg-btn intg-btn--connect"
+                @click="openSetup(intg.id)"
+              >
+                <UIcon
+                  name="i-lucide-plug"
+                  class="w-3.5 h-3.5"
+                />
+                Connect
+              </button>
+            </template>
           </div>
         </div>
       </div>
@@ -879,6 +940,20 @@ onMounted(() => {
 
 .intg-btn--ghost:hover {
   color: rgba(255, 255, 255, 0.6);
+}
+
+.intg-btn--oauth {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex: 1;
+  justify-content: center;
+}
+
+.intg-btn--oauth:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 /* ── Modal ─────────────────────────────────────────────────── */
