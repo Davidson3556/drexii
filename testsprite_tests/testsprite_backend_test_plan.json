@@ -1,52 +1,52 @@
 [
   {
     "id": "TC001",
-    "title": "postapiauthloginwithvalidandinvalidcredentials",
-    "description": "Test POST /api/auth/login endpoint with valid credentials to receive 200 and session token, and with invalid credentials to receive 401 Unauthorized."
+    "title": "post api auth login with valid and invalid credentials",
+    "description": "Test POST /api/auth/login endpoint with valid email and password to receive 200 response with ok true and provider insforge. Also test with missing or empty email/password to receive 400 error and with invalid credentials to receive 401 error."
   },
   {
     "id": "TC002",
-    "title": "postapiauthlogoutwithvalidsessiontoken",
-    "description": "Test POST /api/auth/logout endpoint with a valid session token to receive 200 success response."
+    "title": "post api auth logout returns success",
+    "description": "Test POST /api/auth/logout endpoint to ensure it returns 200 with success true as a no-op stub for client-side sign-out."
   },
   {
     "id": "TC003",
-    "title": "getapiauthcheckwithandwithoutsessiontoken",
-    "description": "Test GET /api/auth/check endpoint with valid session token to receive 200 with user info, and without token to receive 401 Unauthorized."
+    "title": "get api auth check returns authenticated user or null",
+    "description": "Test GET /api/auth/check endpoint to verify it returns 200 with authenticated boolean, provider insforge, and user object or null depending on session state."
   },
   {
     "id": "TC004",
-    "title": "postapiauthdeleteaccountandverifysessioninvalid",
-    "description": "Test POST /api/auth/delete-account with valid session token to receive 200 success, then verify old token is invalid by GET /api/auth/check returning 401."
+    "title": "post api auth delete account with and without user id",
+    "description": "Test POST /api/auth/delete-account endpoint with x-user-id header or body.userId and valid admin credentials to receive 200 success response. Also test without user id to receive 401 error and with missing admin key to receive 500 error."
   },
   {
     "id": "TC005",
-    "title": "postapithreadscreateandpostmessageswithsanitization",
-    "description": "Test POST /api/threads to create a thread, then POST /api/threads/:id/messages with content containing tool output injection patterns to verify server sanitizes output and returns 200 with sanitized response."
+    "title": "post api threads create and post messages with sanitization",
+    "description": "Test POST /api/threads to create a new thread and receive 200 with thread object. Test POST /api/threads/:id/messages with valid content to receive 200 with message and AI reply, and with missing content to receive 400 error. Verify prompt injection sanitizer is applied to AI replies."
   },
   {
     "id": "TC006",
-    "title": "postapiautomationscreateandprocesswithchaincondition",
-    "description": "Test POST /api/automations to create automation, then POST /api/automations/process with triggerContext that satisfies chain condition to verify chained steps execute and logs reflect execution."
+    "title": "get api threads id returns thread and messages or 404",
+    "description": "Test GET /api/threads/:id with existing thread id to receive 200 with thread and messages array, and with non-existent id to receive 404 error."
   },
   {
     "id": "TC007",
-    "title": "postapiworkflowscreateandrunwithtoolcalls",
-    "description": "Test POST /api/workflows to create workflow with steps including tool schemas, then POST /api/workflows/:id/run to execute workflow and verify tool calls are parsed and executed, returning aggregated run results."
+    "title": "post api automations create list toggle delete and process",
+    "description": "Test POST /api/automations with valid x-user-id and body to create automation and receive 200 with automation object. Test GET /api/automations with x-user-id to list automations. Test POST /api/automations without x-user-id to receive 401 error. Test POST /api/automations with invalid trigger to receive 400 error. Test POST /api/automations/process to process automations and receive 200 with processed count. Test POST /api/automations/:id/toggle to enable/disable automation and DELETE /api/automations/:id to delete automation."
   },
   {
     "id": "TC008",
-    "title": "getapiuserintegrationslistandposttestintegration",
-    "description": "Test GET /api/user-integrations to list user integrations, then POST /api/user-integrations/test with valid and invalid integrationId to verify success and failure responses."
+    "title": "post api workflows create list run and delete",
+    "description": "Test POST /api/workflows with name and prompt or steps to create workflow and receive 200 with workflow object. Test POST /api/workflows with missing name or prompt/steps to receive 400 error. Test GET /api/workflows to list workflows. Test POST /api/workflows/:id/run to run workflow and receive 200 with result string. Test DELETE /api/workflows/:id to delete workflow and receive 200 ok true."
   },
   {
     "id": "TC009",
-    "title": "postapimemorycreateupdateanddeleteentries",
-    "description": "Test POST /api/memory to create memory entry, PATCH /api/memory/:id to update it, and DELETE /api/memory/:id to delete, verifying 200 success responses and data consistency."
+    "title": "post api user integrations add update list test and delete",
+    "description": "Test POST /api/user-integrations with x-user-id and valid body to add or update integration and receive 200 with id, integration, and status. Test GET /api/user-integrations with x-user-id to list integrations with masked credentials. Test POST /api/user-integrations/test with valid and invalid credentials to receive 200 with success boolean and error string or null. Test DELETE /api/user-integrations/:id to remove integration and receive 200 ok true. Test endpoints without x-user-id to receive 401 error where applicable."
   },
   {
     "id": "TC010",
-    "title": "getapiactionspendingandpostconfirmcancel",
-    "description": "Test GET /api/actions/pending to list pending actions, then POST /api/actions/:id/confirm and POST /api/actions/:id/cancel to confirm and cancel actions, verifying 200 success and updated pending list."
+    "title": "get api model status returns ai providers availability",
+    "description": "Test GET /api/model/status to receive 200 with models array including provider names and availability status. Verify endpoint returns status objects even if some providers are unreachable without HTTP error."
   }
 ]

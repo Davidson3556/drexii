@@ -1,17 +1,27 @@
 import { getProviderStatus, runHealthCheck } from '../../lib/models/model-router'
 
 export default defineEventHandler(async () => {
-  const status = getProviderStatus()
-
-  const lastCheck = new Date(status.lastChecked).getTime()
+  const lastCheck = new Date(getProviderStatus().lastChecked).getTime()
   const staleThreshold = 60_000
+
+  let status = getProviderStatus()
+  let health: Record<string, boolean> | undefined
+
   if (Date.now() - lastCheck > staleThreshold) {
-    const health = await runHealthCheck()
-    return {
-      ...getProviderStatus(),
-      health
-    }
+    health = await runHealthCheck()
+    status = getProviderStatus()
   }
 
-  return status
+  return {
+    models: [
+      {
+        provider: status.provider,
+        state: status.state,
+        isHealthy: status.isHealthy,
+        isFallback: status.isFallback,
+        lastChecked: status.lastChecked
+      }
+    ],
+    ...(health ? { health } : {})
+  }
 })

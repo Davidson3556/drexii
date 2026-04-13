@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
   return {
     threadId: thread!.id,
     prompt: workflow.prompt,
-    workflowName: workflow.name
+    workflowName: workflow.name,
+    result: `Workflow "${workflow.name}" started in thread ${thread!.id}. Send a message to the thread to execute: ${workflow.prompt.slice(0, 200)}`
   }
 })

@@ -40,3 +40,5 @@ logs
 .roo
 .trae
 .windsurf
+.vercel
+.env*.local
