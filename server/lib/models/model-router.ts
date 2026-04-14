@@ -1,5 +1,6 @@
 import type { MessagePayload, AIProvider, RouterState, ProviderStatus, TaskComplexity } from '../../../shared/types'
 import * as insforgeAI from './insforge'
+import * as anthropicAI from './anthropic'
 import type { InsforgeModel } from './insforge'
 
 interface CircuitBreakerState {
@@ -206,15 +207,23 @@ export async function* streamChat(
     const reason = err.message || 'Unknown InsForge AI error'
     recordError(reason)
 
-    // Retry with fallback model if not already using it
-    if (model !== FALLBACK_MODEL) {
-      console.warn(`[ModelRouter] Retrying with fallback model: ${FALLBACK_MODEL}`)
-      yield* insforgeAI.streamChat(messages, {
-        ...modelOptions,
-        model: FALLBACK_MODEL
+    // Fall back to direct Anthropic API if InsForge is unauthorized or degraded
+    const isAuthError = reason.includes('AUTH_UNAUTHORIZED') || reason.includes('unauthorized') || reason.includes('401')
+    console.warn(`[ModelRouter] InsForge failed (${reason}). Falling back to direct Anthropic.`)
+
+    try {
+      yield* anthropicAI.streamChat(messages, {
+        maxTokens: modelOptions.maxTokens,
+        temperature: modelOptions.temperature,
+        systemPrompt: modelOptions.systemPrompt
       })
-    } else {
-      throw error
+      return
+    } catch (anthropicErr: unknown) {
+      // If direct Anthropic also fails, and InsForge was an auth error, bubble up a clearer message
+      if (isAuthError) {
+        throw new Error('AI service unavailable. InsForge session expired and direct Anthropic fallback failed. Check API keys.')
+      }
+      throw anthropicErr
     }
   }
 }
@@ -247,13 +256,21 @@ export async function completion(
     const reason = (error as Error).message || 'Unknown error'
     recordError(reason)
 
-    if (model !== FALLBACK_MODEL) {
-      return insforgeAI.chatCompletion(messages, {
-        ...modelOptions,
-        model: FALLBACK_MODEL
-      })
+    // Fall back to direct Anthropic API
+    console.warn(`[ModelRouter] InsForge completion failed (${reason}). Falling back to direct Anthropic.`)
+    try {
+      let result = ''
+      for await (const chunk of anthropicAI.streamChat(messages, {
+        maxTokens: modelOptions.maxTokens,
+        temperature: modelOptions.temperature,
+        systemPrompt: modelOptions.systemPrompt
+      })) {
+        result += chunk
+      }
+      return result
+    } catch (anthropicErr: unknown) {
+      throw anthropicErr
     }
-    throw error
   }
 }
 

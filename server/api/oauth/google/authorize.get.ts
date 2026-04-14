@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const clientId = process.env.GOOGLE_CLIENT_ID
   if (!clientId) {
-    throw createError({ statusCode: 500, message: 'Google OAuth is not configured on this server' })
+    return sendRedirect(event, '/integrations?error=oauth_not_configured&provider=google')
   }
 
   // Encode userId + timestamp in state to survive the redirect round-trip

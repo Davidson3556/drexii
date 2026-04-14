@@ -16,7 +16,7 @@ function closeDropdown() {
   userDropdownOpen.value = false
 }
 
-// Close dropdown when clicking outside (registered in onMounted)
+// Close dropdown + sidebar when clicking outside (registered in onMounted)
 function onClickOutside(e: MouseEvent) {
   if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
     userDropdownOpen.value = false
@@ -67,15 +67,19 @@ async function handleDeleteAccount() {
   deleteLoading.value = true
   deleteError.value = ''
   try {
-    // Call API to delete user data
     const uid = user.value?.id
-    const headers: Record<string, string> = {}
-    if (uid) headers['x-user-id'] = uid
-    await $fetch('/api/auth/delete-account', {
-      method: 'POST',
-      headers,
-      body: { userId: uid }
-    })
+
+    if (uid) {
+      // Session is active — call the delete API
+      await $fetch('/api/auth/delete-account', {
+        method: 'POST',
+        headers: { 'x-user-id': uid },
+        body: { userId: uid }
+      })
+    }
+    // If uid is missing the account is already gone (e.g. deleted from dashboard)
+    // — just sign out locally and redirect
+
     await signOut()
     await router.push('/login')
   } catch (err) {
@@ -100,37 +104,69 @@ function closeSettings() {
   showSettings.value = false
 }
 
+// Public nav links (pill bar — visible to everyone)
 const navLinks = [
   { id: 'how-it-works', label: 'How It Works', section: 'about', to: null },
   { id: 'features', label: 'Features', section: 'features', to: null },
-  { id: 'try-drexii', label: 'Try Drexii', section: null, to: '/chat' },
-  { id: 'integrations', label: 'Integrations', section: null, to: '/integrations' },
-  { id: 'workflows', label: 'Workflows', section: null, to: '/workflows' },
-  { id: 'automations', label: 'Automations', section: null, to: '/automations' },
-  { id: 'memory', label: 'Memory', section: null, to: '/memory' },
+  { id: 'chat', label: 'Chat', section: null, to: '/chat' },
   { id: 'docs', label: 'Docs', section: null, to: '/docs' }
 ]
 
+// App sidebar links (logged-in users only)
+const sidebarLinks = [
+  { id: 'chat', label: 'Chat', icon: 'i-lucide-message-square', to: '/chat' },
+  { id: 'integrations', label: 'Integrations', icon: 'i-lucide-plug-2', to: '/integrations' },
+  { id: 'workflows', label: 'Workflows', icon: 'i-lucide-git-branch', to: '/workflows' },
+  { id: 'automations', label: 'Automations', icon: 'i-lucide-zap', to: '/automations' },
+  { id: 'memory', label: 'Memory', icon: 'i-lucide-brain', to: '/memory' },
+  { id: 'docs', label: 'Docs', icon: 'i-lucide-book-open', to: '/docs' }
+]
+
+const sidebarOpen = ref(false)
+// True once window width ≥ 768 px — sidebar is always visible at that breakpoint
+const isDesktop = ref(false)
+
+// Sidebar is always shown on desktop, toggled on mobile
+const showSidebar = computed(() => !!user.value && (isDesktop.value || sidebarOpen.value))
+// Backdrop only makes sense on mobile (overlay behaviour)
+const showBackdrop = computed(() => !!user.value && sidebarOpen.value && !isDesktop.value)
+
+const activeSidebarLink = computed(() => {
+  const p = route.path
+  if (p === '/chat') return 'chat'
+  if (p === '/integrations') return 'integrations'
+  if (p === '/workflows') return 'workflows'
+  if (p === '/automations') return 'automations'
+  if (p === '/memory') return 'memory'
+  if (p === '/docs') return 'docs'
+  return null
+})
+
+function toggleSidebar() {
+  sidebarOpen.value = !sidebarOpen.value
+}
+function closeSidebar() {
+  sidebarOpen.value = false
+}
+
+function navigateSidebar(to: string) {
+  // On mobile close the overlay; on desktop navigate directly
+  if (!isDesktop.value) sidebarOpen.value = false
+  router.push(to)
+}
+
 const activeItem = ref(
   route.path === '/chat'
-    ? 'try-drexii'
-    : route.path === '/integrations'
-      ? 'integrations'
-      : route.path === '/workflows'
-        ? 'workflows'
-        : route.path === '/automations'
-          ? 'automations'
-          : route.path === '/memory'
-            ? 'memory'
-            : route.path === '/docs'
-              ? 'docs'
-              : 'how-it-works'
+    ? 'chat'
+    : route.path === '/docs'
+      ? 'docs'
+      : 'how-it-works'
 )
 const mobileOpen = ref(false)
 
 // ── Desktop pill indicator ────────────────────────────────────
 const pillContainerRef = ref<HTMLElement | null>(null)
-const pillRefs = ref<(HTMLElement | null)[]>(Array(navLinks.length).fill(null))
+const pillRefs = ref<(HTMLElement | null)[]>(Array(4).fill(null))
 const pillLeft = ref(0)
 const pillW = ref(0)
 const pillH = ref(0)
@@ -149,7 +185,7 @@ function updatePill() {
 
 // ── Mobile vertical indicator ─────────────────────────────────
 const mobContainerRef = ref<HTMLElement | null>(null)
-const mobRefs = ref<(HTMLElement | null)[]>(Array(navLinks.length).fill(null))
+const mobRefs = ref<(HTMLElement | null)[]>(Array(4).fill(null))
 const mobTop = ref(0)
 const mobW = ref(0)
 const mobH = ref(0)
@@ -167,6 +203,15 @@ function updateMob() {
 }
 
 // ── Watchers ──────────────────────────────────────────────────
+
+// Close settings + sidebar if session expires or account is deleted externally
+watch(user, (u) => {
+  if (!u) {
+    showSettings.value = false
+    sidebarOpen.value = false
+  }
+})
+
 watch(activeItem, () => nextTick(() => {
   updatePill()
   if (mobileOpen.value) updateMob()
@@ -179,17 +224,12 @@ watch(mobileOpen, (open) => {
 
 watch(() => route.path, (path) => {
   activeItem.value = path === '/chat'
-    ? 'try-drexii'
-    : path === '/integrations'
-      ? 'integrations'
-      : path === '/workflows'
-        ? 'workflows'
-        : path === '/automations'
-          ? 'automations'
-          : path === '/memory'
-            ? 'memory'
-            : 'how-it-works'
+    ? 'chat'
+    : path === '/docs'
+      ? 'docs'
+      : 'how-it-works'
   mobileOpen.value = false
+  sidebarOpen.value = false
   nextTick(updatePill)
 })
 
@@ -204,14 +244,24 @@ function handleScroll() {
   }
 }
 
+let mqDesktop: MediaQueryList | null = null
+function onMqChange(e: MediaQueryListEvent) {
+  isDesktop.value = e.matches
+}
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
   window.addEventListener('click', onClickOutside)
+  // Track ≥768px breakpoint for static sidebar
+  mqDesktop = window.matchMedia('(min-width: 768px)')
+  isDesktop.value = mqDesktop.matches
+  mqDesktop.addEventListener('change', onMqChange)
   nextTick(updatePill)
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  mqDesktop?.removeEventListener('change', onMqChange)
   window.removeEventListener('click', onClickOutside)
   if (import.meta.client) document.body.style.overflow = ''
 })
@@ -237,7 +287,10 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
 
 <template>
   <!-- ── Fixed header ────────────────────────────────────────── -->
-  <header class="app-header">
+  <header
+    v-if="!user"
+    class="app-header"
+  >
     <!-- Logo -->
     <NuxtLink
       to="/"
@@ -253,8 +306,9 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
       <span class="logo-text">Drexii</span>
     </NuxtLink>
 
-    <!-- Desktop golden ring pill nav -->
+    <!-- Desktop golden ring pill nav (hidden for logged-in users) -->
     <div
+      v-if="!user"
       ref="pillContainerRef"
       class="pill-nav"
     >
@@ -285,9 +339,9 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
 
     <!-- Desktop right -->
     <div class="header-right header-right--desktop">
-      <!-- Homepage: Open Chat CTA -->
+      <!-- Homepage CTA (logged-out only) -->
       <NuxtLink
-        v-if="!isOnChat"
+        v-if="!isOnChat && !user"
         to="/chat"
         class="cta-btn"
       >
@@ -393,14 +447,29 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
       </template>
     </div>
 
-    <!-- Mobile right: model dot + burger -->
+    <!-- Mobile right: model dot + sidebar toggle (logged-in) or burger (logged-out) -->
     <div class="header-right header-right--mobile">
       <span
         v-if="isOnApp"
         class="status-dot-sm"
         :class="isFallback ? 'status-dot-sm--amber' : 'status-dot-sm--green'"
       />
+      <!-- Logged-in: sidebar toggle -->
       <button
+        v-if="user"
+        class="sidebar-toggle-btn"
+        :class="{ 'sidebar-toggle-btn--active': sidebarOpen }"
+        aria-label="Toggle app menu"
+        @click.stop="toggleSidebar"
+      >
+        <UIcon
+          name="i-lucide-layout-sidebar"
+          class="w-4 h-4"
+        />
+      </button>
+      <!-- Logged-out: burger -->
+      <button
+        v-else
         class="burger-btn"
         :class="{ 'burger-btn--open': mobileOpen }"
         aria-label="Toggle menu"
@@ -499,6 +568,118 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
         </div>
       </div>
     </div>
+  </Transition>
+
+  <!-- ── Floating menu button (mobile logged-in only) ─────────── -->
+  <button
+    v-if="user && !isDesktop && !sidebarOpen"
+    class="sidebar-fab"
+    aria-label="Open menu"
+    @click="toggleSidebar"
+  >
+    <UIcon
+      name="i-lucide-menu"
+      class="w-5 h-5"
+    />
+  </button>
+
+  <!-- ── App Sidebar (logged-in users only) ────────────────── -->
+  <!-- Backdrop: mobile overlay only -->
+  <Transition name="sidebar-backdrop">
+    <div
+      v-if="showBackdrop"
+      class="sidebar-backdrop"
+      @click="closeSidebar"
+    />
+  </Transition>
+
+  <!-- Sidebar: always visible on desktop, toggled on mobile -->
+  <Transition name="sidebar">
+    <nav
+      v-if="showSidebar"
+      class="app-sidebar"
+    >
+      <!-- Sidebar header -->
+      <div class="sidebar-header">
+        <div class="flex items-center gap-2.5">
+          <div class="sidebar-logo-mark">
+            <img
+              src="/logo.png"
+              alt="Drexii"
+              class="w-full h-full object-cover"
+            >
+          </div>
+          <span class="sidebar-brand">Drexii</span>
+        </div>
+        <button
+          class="sidebar-close"
+          aria-label="Close menu"
+          @click="closeSidebar"
+        >
+          <UIcon
+            name="i-lucide-x"
+            class="w-4 h-4"
+          />
+        </button>
+      </div>
+
+      <!-- Nav links -->
+      <div class="sidebar-nav">
+        <button
+          v-for="link in sidebarLinks"
+          :key="link.id"
+          class="sidebar-link"
+          :class="{ 'sidebar-link--active': activeSidebarLink === link.id }"
+          @click="navigateSidebar(link.to)"
+        >
+          <UIcon
+            :name="link.icon"
+            class="w-4 h-4 shrink-0"
+          />
+          <span>{{ link.label }}</span>
+        </button>
+      </div>
+
+      <!-- User / account section -->
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar">
+          <img
+            v-if="user?.avatar_url"
+            :src="user.avatar_url"
+            :alt="user?.name ?? 'User'"
+            class="w-full h-full object-cover rounded-full"
+          >
+          <span
+            v-else
+            class="text-xs font-semibold"
+          >{{ (user?.name ?? user?.email ?? '?').charAt(0).toUpperCase() }}</span>
+        </div>
+        <div class="sidebar-user-info">
+          <span class="sidebar-user-name">{{ user?.name || 'User' }}</span>
+          <span class="sidebar-user-email">{{ user?.email }}</span>
+        </div>
+        <button
+          class="sidebar-icon-btn"
+          title="Account settings"
+          @click="openSettings"
+        >
+          <UIcon
+            name="i-lucide-settings"
+            class="w-3.5 h-3.5"
+          />
+        </button>
+        <button
+          class="sidebar-icon-btn sidebar-icon-btn--danger"
+          title="Log out"
+          @click="logout"
+        >
+          <UIcon
+            name="i-lucide-log-out"
+            class="w-3.5 h-3.5"
+          />
+        </button>
+      </div>
+    </nav>
   </Transition>
 
   <!-- ── Settings modal ──────────────────────────────────── -->
@@ -1294,6 +1475,281 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
 .dropdown-leave-to {
   opacity: 0;
   transform: translateY(-6px) scale(0.96);
+}
+
+/* ── Sidebar toggle button ──────────────────────────────────── */
+.sidebar-toggle-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.45);
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  flex-shrink: 0;
+}
+.sidebar-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.75);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.sidebar-toggle-btn--active {
+  background: rgba(232, 175, 72, 0.1);
+  border-color: rgba(232, 175, 72, 0.25);
+  color: rgba(232, 175, 72, 0.85);
+}
+
+/* ── Sidebar backdrop ───────────────────────────────────────── */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* ── Sidebar panel ──────────────────────────────────────────── */
+.app-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 56;
+  width: 248px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 10, 14, 0.97);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(24px);
+  z-index: 56;
+  width: 248px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 10, 14, 0.97);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 4px 0 32px rgba(0, 0, 0, 0.4);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.sidebar-logo-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  letter-spacing: -0.02em;
+}
+
+.sidebar-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.sidebar-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.82);
+}
+.sidebar-link--active {
+  background: rgba(232, 175, 72, 0.09);
+  border-color: rgba(232, 175, 72, 0.18);
+  color: rgba(232, 175, 72, 0.92);
+}
+.sidebar-link--active:hover {
+  background: rgba(232, 175, 72, 0.14);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.sidebar-user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+  font-weight: 700;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-user-name {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-email {
+  display: block;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.32);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+.sidebar-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.65);
+}
+.sidebar-icon-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: rgba(239, 68, 68, 0.75);
+}
+
+/* ── Floating menu button (mobile logged-in) ────────────────── */
+.sidebar-fab {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 57;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(18, 18, 22, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+.sidebar-fab:hover {
+  background: rgba(30, 30, 40, 0.98);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.9);
+}
+@media (min-width: 768px) {
+  .sidebar-fab { display: none; }
+}
+
+/* ── Sidebar transitions (mobile only — desktop sidebar is static) ── */
+@media (max-width: 767px) {
+  .sidebar-enter-active {
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .sidebar-leave-active {
+    transition: transform 0.22s ease-in;
+  }
+  .sidebar-enter-from,
+  .sidebar-leave-to {
+    transform: translateX(-100%);
+  }
+  /* Hide close button is shown on mobile */
+}
+
+/* On desktop: hide the close button (sidebar is always open) */
+@media (min-width: 768px) {
+  .sidebar-close {
+    display: none;
+  }
+}
+
+.sidebar-backdrop-enter-active {
+  transition: opacity 0.25s ease;
+}
+.sidebar-backdrop-leave-active {
+  transition: opacity 0.2s ease;
+}
+.sidebar-backdrop-enter-from,
+.sidebar-backdrop-leave-to {
+  opacity: 0;
 }
 
 /* ── Settings modal ────────────────────────────────────────── */

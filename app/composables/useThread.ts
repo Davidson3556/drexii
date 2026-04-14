@@ -111,7 +111,7 @@ export function useThread() {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
       if (userId) headers['x-user-id'] = userId
 
-      const response = await fetch(`/api/threads/${state.value.currentThread.id}/messages`, {
+      const response = await fetch(`/api/threads/${state.value.currentThread.id}/messages?stream=true`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ content })

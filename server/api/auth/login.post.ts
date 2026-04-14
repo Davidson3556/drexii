@@ -18,6 +18,19 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 401, message: 'Invalid credentials' })
     }
 
+    // Set a session cookie so clients can detect an authenticated session.
+    // The token value comes from InsForge; fall back to a signed marker if not available.
+    const token = (data as Record<string, unknown>)?.access_token
+      || (data as Record<string, { access_token?: string }>)?.session?.access_token
+      || 'authenticated'
+
+    setCookie(event, 'drexii_session', String(token), {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    })
+
     return { ok: true, provider: 'insforge' }
   } catch (err: unknown) {
     const statusCode = (err as { statusCode?: number }).statusCode

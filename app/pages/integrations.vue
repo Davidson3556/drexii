@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const { user } = useAuth()
 const toast = useToast()
-const route = useRoute()
 
 interface UserIntegration {
   id: string
@@ -29,7 +28,6 @@ const integrations = [
     icon: 'i-simple-icons-slack',
     color: '#E01E5A',
     description: 'Send messages to any channel, search through conversations, and list all channels in your Slack workspace — directly from Drexii chat.',
-    oauthType: 'slack' as const,
     fields: [
       { key: 'bot_token', label: 'Bot Token', placeholder: 'xoxb-your-bot-token', type: 'password' }
     ],
@@ -106,7 +104,6 @@ const integrations = [
     icon: 'i-simple-icons-gmail',
     color: '#EA4335',
     description: 'Search your inbox, read full emails, send new messages, and draft replies — all from Drexii. Perfect for triaging emails or auto-drafting responses without opening Gmail.',
-    oauthType: 'google' as const,
     fields: [
       { key: 'client_id', label: 'Client ID', placeholder: 'your-google-client-id.apps.googleusercontent.com', type: 'text' },
       { key: 'client_secret', label: 'Client Secret', placeholder: 'GOCSPX-your-client-secret', type: 'password' },
@@ -115,23 +112,17 @@ const integrations = [
     guide: {
       title: 'How to connect Gmail',
       steps: [
-        'Open console.cloud.google.com in your browser and sign in with your Google account',
-        'At the top, click the project dropdown and then "New Project". Name it anything (e.g. "Drexii") and click "Create"',
-        'Once created, make sure your new project is selected in the top dropdown',
-        'In the left sidebar, go to "APIs & Services" → "Library". Search for "Gmail API" and click "Enable"',
-        'Now go to "APIs & Services" → "Credentials" in the left sidebar',
-        'Click "+ Create Credentials" at the top and choose "OAuth client ID"',
-        'If asked to configure a consent screen, choose "External", fill in the app name and your email, then save',
-        'Back on Create Credentials: set Application type to "Web application"',
-        'Under "Authorized redirect URIs", click "Add URI" and paste: https://developers.google.com/oauthplayground',
-        'Click "Create" — a popup will show your Client ID and Client Secret. Copy both and save them somewhere',
-        'Now open a new tab and go to developers.google.com/oauthplayground',
-        'Click the gear icon (⚙️) in the top right. Check "Use your own OAuth credentials" and paste your Client ID and Client Secret',
-        'On the left panel (Step 1), scroll to "Gmail API v1" and expand it. Select all the scopes listed, then click "Authorize APIs"',
-        'Google will ask you to sign in and grant access — click through the prompts and allow everything',
-        'On Step 2, click "Exchange authorization code for tokens". Copy the "Refresh token" value',
-        'Paste all three values (Client ID, Client Secret, Refresh Token) into the fields above and click "Test Connection"',
-        'Tip: You can reuse the same Google Cloud project and Client ID for Calendar and Drive too'
+        'Go to console.cloud.google.com, sign in, and create or select a project',
+        'Go to "APIs & Services" → "Library", search "Gmail API", click Enable',
+        'Go to "APIs & Services" → "Credentials" → "+ Create Credentials" → "OAuth client ID"',
+        'If prompted to configure a consent screen: choose "External", fill in app name + your email, then Save & Continue',
+        'Set Application type to "Web application". Under "Authorized redirect URIs" add: https://developers.google.com/oauthplayground',
+        'Click Create — copy the Client ID and Client Secret from the popup that appears',
+        'Open developers.google.com/oauthplayground in a new tab',
+        'Click the gear ⚙️ top-right → check "Use your own OAuth credentials" → paste your Client ID and Client Secret',
+        'In the left panel (Step 1), find "Gmail API v1", expand it, select all scopes, then click "Authorize APIs" and sign in',
+        'In Step 2, click "Exchange authorization code for tokens" → copy the Refresh Token value',
+        'Paste all three values above and click "Test & Connect". Tip: same Client ID works for Calendar and Drive too'
       ]
     }
   },
@@ -167,7 +158,6 @@ const integrations = [
     icon: 'i-lucide-calendar',
     color: '#4285F4',
     description: 'View upcoming events, check your availability, schedule new meetings, and manage your calendar — all through Drexii chat. Great for quickly checking "what\'s next" or booking meetings without leaving your workflow.',
-    oauthType: 'google' as const,
     fields: [
       { key: 'client_id', label: 'Client ID', placeholder: 'your-client-id.apps.googleusercontent.com', type: 'password' },
       { key: 'client_secret', label: 'Client Secret', placeholder: 'your-client-secret', type: 'password' },
@@ -176,22 +166,14 @@ const integrations = [
     guide: {
       title: 'How to connect Google Calendar',
       steps: [
-        'If you already set up Gmail, you can reuse the same Client ID and Client Secret — skip to step 11',
-        'Open console.cloud.google.com and sign in with your Google account',
-        'Select your existing project (or create a new one)',
-        'Go to "APIs & Services" → "Library" in the left sidebar',
-        'Search for "Google Calendar API" and click "Enable"',
-        'Go to "APIs & Services" → "Credentials" in the left sidebar',
-        'Click "+ Create Credentials" → "OAuth client ID"',
-        'Set Application type to "Web application"',
-        'Under "Authorized redirect URIs", add: https://developers.google.com/oauthplayground',
-        'Click "Create" and copy the Client ID and Client Secret',
-        'Open a new tab and go to developers.google.com/oauthplayground',
-        'Click the gear icon (⚙️) in the top right. Check "Use your own OAuth credentials" and paste your Client ID and Client Secret',
-        'On the left panel (Step 1), scroll to "Google Calendar API v3" and expand it. Select all calendar scopes, then click "Authorize APIs"',
-        'Sign in with your Google account and allow access when prompted',
-        'On Step 2, click "Exchange authorization code for tokens" and copy the Refresh Token',
-        'Paste all three values into the fields above and click "Test Connection"'
+        'Already connected Gmail? Reuse the same Client ID and Client Secret — skip to step 5',
+        'Go to console.cloud.google.com → select your project → "APIs & Services" → "Library"',
+        'Search "Google Calendar API" and click Enable',
+        'Go to "Credentials" → use your existing OAuth client (or create a new "Web application" one with redirect URI: https://developers.google.com/oauthplayground) — copy Client ID and Client Secret',
+        'Open developers.google.com/oauthplayground in a new tab',
+        'Click the gear ⚙️ top-right → check "Use your own OAuth credentials" → paste your Client ID and Client Secret',
+        'In Step 1 (left panel), find "Google Calendar API v3", expand it, select all scopes, click "Authorize APIs" and sign in',
+        'In Step 2, click "Exchange authorization code for tokens" → copy the Refresh Token, then paste all three values above and click "Test & Connect"'
       ]
     }
   },
@@ -201,7 +183,6 @@ const integrations = [
     icon: 'i-lucide-hard-drive',
     color: '#34A853',
     description: 'Search for files by name, read the contents of Google Docs and Sheets, list recent files, and create new documents — so Drexii can find and summarize your files or create new ones for you.',
-    oauthType: 'google' as const,
     fields: [
       { key: 'client_id', label: 'Client ID', placeholder: 'your-client-id.apps.googleusercontent.com', type: 'password' },
       { key: 'client_secret', label: 'Client Secret', placeholder: 'your-client-secret', type: 'password' },
@@ -210,21 +191,14 @@ const integrations = [
     guide: {
       title: 'How to connect Google Drive',
       steps: [
-        'If you already set up Gmail or Calendar, you can reuse the same Client ID and Client Secret — skip to step 9',
-        'Open console.cloud.google.com and select your project',
-        'Go to "APIs & Services" → "Library"',
-        'Search for "Google Drive API" and click "Enable"',
-        'Also search for "Google Docs API" and enable that too (needed to read and create documents)',
-        'Go to "APIs & Services" → "Credentials" and use your existing OAuth client (or create a new one with the Playground redirect URI)',
-        'Copy the Client ID and Client Secret',
-        'You need a new Refresh Token that includes Drive permissions, even if you have one from Gmail or Calendar',
-        'Open developers.google.com/oauthplayground',
-        'Click the gear icon (⚙️), check "Use your own OAuth credentials", and paste your Client ID and Client Secret',
-        'On the left panel (Step 1), scroll to "Drive API v3" and select all scopes. Also expand "Google Docs API v1" and select its scopes',
-        'Click "Authorize APIs", sign in, and allow access',
-        'On Step 2, click "Exchange authorization code for tokens" and copy the Refresh Token',
-        'Paste all three values into the fields above and click "Test Connection"',
-        'Tip: If you want one token for Gmail + Calendar + Drive, select all three APIs\' scopes in Step 1 before authorizing'
+        'Already connected Gmail or Calendar? Reuse the same Client ID and Client Secret — skip to step 5',
+        'Go to console.cloud.google.com → select your project → "APIs & Services" → "Library"',
+        'Search "Google Drive API" and Enable it. Also enable "Google Docs API" (needed to read/create documents)',
+        'Go to "Credentials" → use your existing OAuth client (or create a new "Web application" one with redirect URI: https://developers.google.com/oauthplayground) — copy Client ID and Client Secret',
+        'Open developers.google.com/oauthplayground in a new tab',
+        'Click the gear ⚙️ top-right → check "Use your own OAuth credentials" → paste your Client ID and Client Secret',
+        'In Step 1 (left panel), find "Drive API v3" and select all scopes. Also expand "Google Docs API v1" and select its scopes. Click "Authorize APIs" and sign in',
+        'In Step 2, click "Exchange authorization code for tokens" → copy the Refresh Token, then paste all three values above and click "Test & Connect". Tip: select Gmail + Calendar + Drive scopes together to get one token for all three'
       ]
     }
   },
@@ -278,19 +252,6 @@ const integrations = [
     }
   }
 ]
-
-// OAuth labels shown on connect buttons
-const oauthLabels: Record<string, { label: string, icon: string }> = {
-  google: { label: 'Connect with Google', icon: 'i-simple-icons-google' },
-  slack: { label: 'Connect with Slack', icon: 'i-simple-icons-slack' }
-}
-
-// Start an OAuth flow for the given provider
-function startOAuth(oauthType: string) {
-  if (!user.value?.id) return
-  const url = `/api/oauth/${oauthType}/authorize?userId=${encodeURIComponent(user.value.id)}`
-  window.location.href = url
-}
 
 // Load user integrations
 async function loadIntegrations() {
@@ -415,22 +376,6 @@ const connectedCount = computed(() =>
 
 onMounted(() => {
   loadIntegrations()
-
-  // Handle OAuth redirect results
-  const connected = route.query.connected as string | undefined
-  const oauthErr = route.query.error as string | undefined
-
-  if (connected === 'google') {
-    toast.add({ title: 'Google connected', description: 'Gmail, Calendar, and Drive are all live.', color: 'success' })
-  } else if (connected === 'slack') {
-    toast.add({ title: 'Slack connected', description: 'Your Slack workspace is ready to use.', color: 'success' })
-  } else if (oauthErr === 'oauth_denied') {
-    toast.add({ title: 'Access denied', description: 'You cancelled the permission request.', color: 'neutral' })
-  } else if (oauthErr === 'no_refresh_token') {
-    toast.add({ title: 'Google connection failed', description: 'Please revoke Drexii\'s access in your Google account and try again.', color: 'error' })
-  } else if (oauthErr) {
-    toast.add({ title: 'OAuth failed', description: 'Something went wrong during sign-in. Please try again.', color: 'error' })
-  }
 })
 </script>
 
@@ -513,7 +458,6 @@ onMounted(() => {
           <div class="intg-card-footer">
             <template v-if="isConnected(intg.id)">
               <button
-                v-if="!intg.oauthType"
                 class="intg-btn intg-btn--reconfigure"
                 @click="openSetup(intg.id)"
               >
@@ -522,17 +466,6 @@ onMounted(() => {
                   class="w-3.5 h-3.5"
                 />
                 Reconfigure
-              </button>
-              <button
-                v-else
-                class="intg-btn intg-btn--reconfigure"
-                @click="startOAuth(intg.oauthType)"
-              >
-                <UIcon
-                  :name="oauthLabels[intg.oauthType]?.icon ?? 'i-lucide-refresh-cw'"
-                  class="w-3.5 h-3.5"
-                />
-                Reconnect
               </button>
               <button
                 class="intg-btn intg-btn--disconnect"
@@ -546,32 +479,17 @@ onMounted(() => {
                 {{ disconnecting === intg.id ? 'Removing...' : 'Disconnect' }}
               </button>
             </template>
-            <template v-else>
-              <!-- OAuth-enabled integrations get a branded one-click button -->
-              <button
-                v-if="intg.oauthType"
-                class="intg-btn intg-btn--oauth"
-                @click="startOAuth(intg.oauthType)"
-              >
-                <UIcon
-                  :name="oauthLabels[intg.oauthType]?.icon ?? 'i-lucide-log-in'"
-                  class="w-3.5 h-3.5"
-                />
-                {{ oauthLabels[intg.oauthType]?.label ?? 'Connect' }}
-              </button>
-              <!-- Manual credential integrations open the form -->
-              <button
-                v-else
-                class="intg-btn intg-btn--connect"
-                @click="openSetup(intg.id)"
-              >
-                <UIcon
-                  name="i-lucide-plug"
-                  class="w-3.5 h-3.5"
-                />
-                Connect
-              </button>
-            </template>
+            <button
+              v-else
+              class="intg-btn intg-btn--connect"
+              @click="openSetup(intg.id)"
+            >
+              <UIcon
+                name="i-lucide-plug"
+                class="w-3.5 h-3.5"
+              />
+              Connect
+            </button>
           </div>
         </div>
       </div>
@@ -962,23 +880,41 @@ onMounted(() => {
   inset: 0;
   z-index: 100;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(8px);
-  padding: 24px;
+  padding: 0;
+}
+
+@media (min-width: 640px) {
+  .intg-overlay {
+    align-items: center;
+    padding: 24px;
+  }
 }
 
 .intg-modal {
   width: 100%;
-  max-width: 480px;
-  background: rgba(18, 18, 22, 0.98);
+  max-width: 500px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  background: rgba(18, 18, 22, 0.99);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  border-radius: 20px 20px 0 0;
   overflow: hidden;
 }
 
+@media (min-width: 640px) {
+  .intg-modal {
+    border-radius: 20px;
+    max-height: 88vh;
+  }
+}
+
 .intg-modal-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1005,10 +941,14 @@ onMounted(() => {
 }
 
 .intg-modal-body {
+  flex: 1;
+  overflow-y: auto;
   padding: 20px;
+  overscroll-behavior: contain;
 }
 
 .intg-modal-footer {
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -1170,14 +1110,16 @@ onMounted(() => {
 }
 
 /* ── Responsive ────────────────────────────────────────────── */
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .intg-grid {
     grid-template-columns: 1fr;
   }
 
-  .intg-modal {
-    max-width: 100%;
-    border-radius: 16px;
+  /* Bottom-sheet slide-up animation on mobile */
+  .modal-enter-from .intg-modal,
+  .modal-leave-to .intg-modal {
+    transform: translateY(100%);
+    opacity: 1;
   }
 }
 

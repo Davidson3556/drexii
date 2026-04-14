@@ -16,11 +16,11 @@ export default defineEventHandler(async (event) => {
   const oauthError = query.error as string
 
   if (oauthError) {
-    return sendRedirect(event, '/integrations?error=oauth_denied')
+    return sendRedirect(event, '/oauth-callback?error=oauth_denied')
   }
 
   if (!code || !state) {
-    return sendRedirect(event, '/integrations?error=oauth_invalid')
+    return sendRedirect(event, '/oauth-callback?error=oauth_invalid')
   }
 
   // Decode + validate state
@@ -30,10 +30,10 @@ export default defineEventHandler(async (event) => {
     userId = decoded.userId
     if (!userId) throw new Error('missing userId')
     if (Date.now() - decoded.ts > 15 * 60 * 1000) {
-      return sendRedirect(event, '/integrations?error=oauth_expired')
+      return sendRedirect(event, '/oauth-callback?error=oauth_expired')
     }
   } catch {
-    return sendRedirect(event, '/integrations?error=oauth_invalid')
+    return sendRedirect(event, '/oauth-callback?error=oauth_invalid')
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID!
@@ -56,13 +56,13 @@ export default defineEventHandler(async (event) => {
     })
   } catch (err) {
     console.error('[oauth/google] token exchange failed:', err)
-    return sendRedirect(event, '/integrations?error=oauth_token_failed')
+    return sendRedirect(event, '/oauth-callback?error=oauth_token_failed')
   }
 
   if (!tokens.refresh_token) {
     // This happens when the user already granted access before and revoke wasn't forced.
     // We used prompt=consent so this shouldn't normally occur.
-    return sendRedirect(event, '/integrations?error=no_refresh_token')
+    return sendRedirect(event, '/oauth-callback?error=no_refresh_token')
   }
 
   // One refresh_token covers all three Google services — save credentials for each
@@ -101,5 +101,5 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  return sendRedirect(event, '/integrations?connected=google')
+  return sendRedirect(event, '/oauth-callback?connected=google')
 })

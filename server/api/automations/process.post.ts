@@ -1,6 +1,10 @@
 import { eq } from 'drizzle-orm'
 import { useDB, schema } from '../../db'
 import { processAutomation } from '../../lib/agent-runner'
+import { checkRateLimit } from '../../lib/rate-limiter'
+
+const RATE_LIMIT = 10          // max automation runs per window
+const RATE_WINDOW = 10 * 60 * 1000  // 10 minutes
 
 /**
  * Process all due scheduled automations.
@@ -10,6 +14,21 @@ import { processAutomation } from '../../lib/agent-runner'
  */
 export default defineEventHandler(async (event) => {
   const body = await readBody<{ automationId?: string, context?: string }>(event)
+
+  // Rate limit manual triggers (cron/scheduled triggers skip this check)
+  if (body?.automationId) {
+    const ip = getHeader(event, 'x-forwarded-for') || event.node.req.socket?.remoteAddress || 'unknown'
+    const rl = checkRateLimit(`automation:${ip}`, RATE_LIMIT, RATE_WINDOW)
+    setResponseHeader(event, 'X-RateLimit-Limit', String(RATE_LIMIT))
+    setResponseHeader(event, 'X-RateLimit-Remaining', String(rl.remaining))
+    setResponseHeader(event, 'X-RateLimit-Reset', String(Math.ceil(rl.resetAt / 1000)))
+    if (!rl.allowed) {
+      throw createError({
+        statusCode: 429,
+        message: `Too many automation runs. Please wait ${Math.ceil((rl.resetAt - Date.now()) / 60000)} minute(s) before trying again.`
+      })
+    }
+  }
 
   const db = useDB()
 

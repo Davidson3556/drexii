@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { user } = useAuth()
+
 useHead({
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -39,9 +41,21 @@ useSeoMeta({
 
 <template>
   <UApp>
-    <div class="min-h-screen bg-[var(--color-drexii-bg)]">
+    <div
+      class="min-h-screen bg-[var(--color-drexii-bg)]"
+      :class="{ 'app-has-sidebar': user }"
+    >
       <AppNav />
       <NuxtPage />
     </div>
   </UApp>
 </template>
+
+<style>
+/* Shift content right of the static sidebar on md+ screens */
+@media (min-width: 768px) {
+  .app-has-sidebar {
+    padding-left: 248px;
+  }
+}
+</style>

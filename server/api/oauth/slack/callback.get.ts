@@ -15,11 +15,11 @@ export default defineEventHandler(async (event) => {
   const oauthError = query.error as string
 
   if (oauthError) {
-    return sendRedirect(event, '/integrations?error=oauth_denied')
+    return sendRedirect(event, '/oauth-callback?error=oauth_denied')
   }
 
   if (!code || !state) {
-    return sendRedirect(event, '/integrations?error=oauth_invalid')
+    return sendRedirect(event, '/oauth-callback?error=oauth_invalid')
   }
 
   // Decode + validate state
@@ -29,10 +29,10 @@ export default defineEventHandler(async (event) => {
     userId = decoded.userId
     if (!userId) throw new Error('missing userId')
     if (Date.now() - decoded.ts > 15 * 60 * 1000) {
-      return sendRedirect(event, '/integrations?error=oauth_expired')
+      return sendRedirect(event, '/oauth-callback?error=oauth_expired')
     }
   } catch {
-    return sendRedirect(event, '/integrations?error=oauth_invalid')
+    return sendRedirect(event, '/oauth-callback?error=oauth_invalid')
   }
 
   const clientId = process.env.SLACK_CLIENT_ID!
@@ -55,12 +55,12 @@ export default defineEventHandler(async (event) => {
     })
   } catch (err) {
     console.error('[oauth/slack] token exchange failed:', err)
-    return sendRedirect(event, '/integrations?error=oauth_token_failed')
+    return sendRedirect(event, '/oauth-callback?error=oauth_token_failed')
   }
 
   if (!tokenData.ok || !tokenData.access_token) {
     console.error('[oauth/slack] token exchange error:', tokenData.error)
-    return sendRedirect(event, '/integrations?error=oauth_token_failed')
+    return sendRedirect(event, '/oauth-callback?error=oauth_token_failed')
   }
 
   const credentials = { bot_token: tokenData.access_token }
@@ -90,5 +90,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return sendRedirect(event, '/integrations?connected=slack')
+  return sendRedirect(event, '/oauth-callback?connected=slack')
 })

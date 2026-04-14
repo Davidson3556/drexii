@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const clientId = process.env.SLACK_CLIENT_ID
   if (!clientId) {
-    throw createError({ statusCode: 500, message: 'Slack OAuth is not configured on this server' })
+    return sendRedirect(event, '/integrations?error=oauth_not_configured&provider=slack')
   }
 
   const state = Buffer.from(JSON.stringify({ userId, ts: Date.now() })).toString('base64url')

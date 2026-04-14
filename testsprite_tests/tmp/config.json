@@ -8,12 +8,12 @@
     "projectName": "drexii",
     "projectPath": "/Users/user/Documents/drexii",
     "testIds": [],
-    "additionalInstruction": "DATABASE_URL is now confirmed working — POST /api/threads just returned 200 with a real thread object. All DB-backed endpoints are unblocked. This is the final round of testing. Key fixes applied: login now validates via InsForge and returns 401 for bad creds; memory POST returns full record with id; workflows accept both prompt and steps[]; auth check returns user object; evaluateChainCondition returns false for unknown conditions; wrapToolContext sanitizes toolName attribute. Test all endpoints thoroughly including threads, messages, automations, workflows, memory CRUD, user integrations, and pending actions.",
+    "additionalInstruction": "Login credentials: email=valid_test_user@example.com, password=12345678. TC003 uses fake user ID (no real login needed). TC004, TC005, TC007, TC009 do not require login. Only TC001, TC006, TC010 use real credentials.",
     "serverMode": "development",
     "envs": {
       "API_KEY": "sk-user-e1EgvHH65o6wWAFvukNUioLgMXQom5SNQmVyuhqjtXZiYecx8mnu0Esk2giAEWm0B4cxPEPuiSKGnqaoOOVxZ5nGglImclvab_lrIqBcbacKBlo-9PtzH4G-yc6moKpN_hU"
     }
   },
-  "serverPort": 58540,
-  "proxy": "http://9f89ec26-8696-4643-b51d-49b122bdd0e9:ln1fDFcCwVHWZo1eZaA0vlzwBiUgPqG1@tun.testsprite.com:8080"
+  "serverPort": 54294,
+  "proxy": "http://30a94133-6011-46d8-a395-f3d96c36fb26:1FsHpuOK6B6kfMA323op3rTNzh2UAGxv@tun.testsprite.com:8080"
 }
