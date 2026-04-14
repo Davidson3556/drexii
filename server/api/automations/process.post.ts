@@ -3,8 +3,8 @@ import { useDB, schema } from '../../db'
 import { processAutomation } from '../../lib/agent-runner'
 import { checkRateLimit } from '../../lib/rate-limiter'
 
-const RATE_LIMIT = 10          // max automation runs per window
-const RATE_WINDOW = 10 * 60 * 1000  // 10 minutes
+const RATE_LIMIT = 10 // max automation runs per window
+const RATE_WINDOW = 10 * 60 * 1000 // 10 minutes
 
 /**
  * Process all due scheduled automations.

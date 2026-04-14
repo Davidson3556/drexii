@@ -258,19 +258,15 @@ export async function completion(
 
     // Fall back to direct Anthropic API
     console.warn(`[ModelRouter] InsForge completion failed (${reason}). Falling back to direct Anthropic.`)
-    try {
-      let result = ''
-      for await (const chunk of anthropicAI.streamChat(messages, {
-        maxTokens: modelOptions.maxTokens,
-        temperature: modelOptions.temperature,
-        systemPrompt: modelOptions.systemPrompt
-      })) {
-        result += chunk
-      }
-      return result
-    } catch (anthropicErr: unknown) {
-      throw anthropicErr
+    let result = ''
+    for await (const chunk of anthropicAI.streamChat(messages, {
+      maxTokens: modelOptions.maxTokens,
+      temperature: modelOptions.temperature,
+      systemPrompt: modelOptions.systemPrompt
+    })) {
+      result += chunk
     }
+    return result
   }
 }
 

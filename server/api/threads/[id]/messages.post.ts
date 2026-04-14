@@ -8,8 +8,8 @@ import { sanitizeToolOutput } from '../../../lib/sanitize'
 import { parseToolCalls } from '../../../lib/utils/parse-tool-calls'
 import { checkRateLimit } from '../../../lib/rate-limiter'
 
-const RATE_LIMIT = 20          // max AI messages per window
-const RATE_WINDOW = 10 * 60 * 1000  // 10 minutes
+const RATE_LIMIT = 20 // max AI messages per window
+const RATE_WINDOW = 10 * 60 * 1000 // 10 minutes
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
@@ -248,7 +248,7 @@ export default defineEventHandler(async (event) => {
       const toolResultsContent = (await Promise.all(
         currentToolCalls
           .filter(call => !isWriteTool(call.name))
-          .map(async call => {
+          .map(async (call) => {
             const result = await executeTool(call.name, call.args, resolvedAdapters)
             return `<tool_context source="${call.name}">${sanitizeToolOutput(result.content)}</tool_context>`
           })

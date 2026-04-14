@@ -24,7 +24,7 @@ export function checkRateLimit(
   key: string,
   limit = 20,
   windowMs = 10 * 60 * 1000
-): { allowed: boolean; remaining: number; resetAt: number } {
+): { allowed: boolean, remaining: number, resetAt: number } {
   const now = Date.now()
   const entry = store.get(key)
 
@@ -47,7 +47,7 @@ export function getRateLimitInfo(
   key: string,
   limit = 20,
   windowMs = 10 * 60 * 1000
-): { remaining: number; resetAt: number } {
+): { remaining: number, resetAt: number } {
   const now = Date.now()
   const entry = store.get(key)
   if (!entry || now > entry.resetAt) {
