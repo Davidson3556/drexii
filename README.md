@@ -16,6 +16,14 @@
 
 ---
 
+## 🎬 Demo
+
+**[▶ Watch the full demo on Loom](https://www.loom.com/share/5d719df3d8184292a49119dbae21f086)**
+
+> See Drexii search Gmail, create a Notion page, and post a Slack message — all from one chat message, live.
+
+---
+
 ## 🎯 What is Drexii?
 
 Drexii is a **multi-model AI agent** that reads and writes to your real accounts in real time. Instead of switching between 10 apps, you describe what you need in plain English — and Drexii executes it across all of them.
