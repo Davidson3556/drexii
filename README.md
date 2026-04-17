@@ -1,163 +1,262 @@
-# Drexii
+<div align="center">
 
-**Live demo:** [drexii.vercel.app](https://drexii.vercel.app)
+# 🤖 Drexii
 
-An AI-powered workspace assistant that turns conversation into action. Connect your tools — Notion, Slack, Discord, Gmail, Zendesk — and let Drexii search, draft, send, and automate on your behalf.
+### *Turn conversation into execution.*
 
-## What it does
+**Drexii is an AI agent platform that connects your entire workspace — Gmail, Slack, Notion, Jira, Google Calendar and 6 more — into a single chat interface that doesn't just answer questions, it takes real action.**
 
-Drexii is a chat interface powered by multiple AI models via [InsForge AI](https://insforge.com). Instead of just answering questions, it takes real actions across your connected tools. When a task requires multiple steps across multiple apps, the agent loop chains them together automatically.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-drexii.vercel.app-6366f1?style=for-the-badge&logo=vercel)](https://drexii.vercel.app)
+[![Demo Video](https://img.shields.io/badge/Demo%20Video-Watch%20on%20Loom-00D4AA?style=for-the-badge&logo=loom)](https://www.loom.com/share/5d719df3d8184292a49119dbae21f086)
+[![TestSprite Score](https://img.shields.io/badge/TestSprite-10%2F10%20%E2%9C%85-22c55e?style=for-the-badge)](./testsprite_tests/)
+[![Built with Nuxt](https://img.shields.io/badge/Nuxt.js-00DC82?style=for-the-badge&logo=nuxt.js&logoColor=white)](https://nuxt.com)
+[![Deployed on Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
 
-**Example:**
-> "Find our top open Zendesk ticket, check if there's a related Notion doc, and post a summary to #support on Slack."
+</div>
 
-Drexii handles each step in sequence — no manual hand-off between tools.
+---
 
-> "List my unread emails and draft a reply to the one from Sarah."
+## 🎯 What is Drexii?
+
+Drexii is a **multi-model AI agent** that reads and writes to your real accounts in real time. Instead of switching between 10 apps, you describe what you need in plain English — and Drexii executes it across all of them.
+
+> *"Find our top open Zendesk ticket, check if there's a related Notion doc, and post a summary to #support on Slack."*
+
+Drexii handles each step in sequence — no tab-switching, no copy-pasting, no manual hand-off.
+
+> *"List my unread emails and draft a reply to the one from Sarah."*
 
 It reads your Gmail, understands the context, and writes the draft — all from one message.
 
-## Features
+---
 
-- **Multi-model AI routing** — automatically selects the right model for each task (Opus for deep analysis, Sonnet for writing, Haiku for quick responses)
-- **Agentic loop** — multi-step tool execution until the task is complete (up to 5 iterations)
-- **Gmail integration** — read, search, send, draft, and list emails directly from chat
-- **Autonomous automations** — set up triggers (email received, schedule, webhook) that run AI agents in the background without you being online
-- **Action confirmation gate** — write operations (send message, create record) require explicit user approval before executing
-- **Circuit breaker** — automatic fallback if the primary model is unavailable
-- **Prompt injection protection** — tool outputs are sandboxed; the model cannot be hijacked by external content
-- **Real-time streaming** — responses and agent activity stream via SSE
-- **Thread history** — full conversation persistence with message and tool call records
-- **Persistent memory** — Drexii remembers your preferences and context across conversations
-- **Audit log** — every tool execution is recorded
+## ✨ Key Features
 
-## Integrations
+### 🧠 Intelligent Multi-Model Routing
+Drexii automatically selects the best AI model for every task — no manual switching ever.
 
-| App | Capabilities |
-|-----|-------------|
-| **Gmail** | Search emails, read messages, send emails, create drafts, list inbox |
-| **Notion** | Search pages, read content, create pages |
-| **Slack** | Send messages, search conversations, list channels |
-| **Discord** | Send messages, fetch channels |
-| **Zendesk** | Search tickets, create tickets, add comments |
-| **Salesforce** | Search records, create records, update records |
-| **Jira** | Query and create issues |
-| **Linear** | Query and create issues |
-| **Asana** | List and create tasks |
-| **Google Calendar** | Read and create events |
-| **Google Drive** | Search and read files |
+| Complexity | Model | When Used |
+|-----------|-------|-----------|
+| Heavy / Analysis | Claude Opus 4 | Deep research, complex reasoning |
+| Standard / Writing | Claude Sonnet 4.5 | Drafting, summarizing, planning |
+| Simple / Quick | Claude Haiku 4.5 | Short lookups, fast responses |
+| Alternative | DeepSeek, Gemini | Fallback & cost optimization |
 
-Integrations are per-user — connect your own credentials from the Integrations page. Unconfigured integrations are simply unavailable to the agent.
+### 🔗 11 Live Integrations, 50+ Tools
 
-## Automations
+| Integration | What Drexii Can Do |
+|------------|-------------------|
+| 📧 **Gmail** | Search, read, send, draft, list inbox |
+| 💬 **Slack** | Send messages, search conversations, list channels |
+| 📝 **Notion** | Search pages, read content, create pages |
+| 🎫 **Jira** | Query and create issues |
+| 📐 **Linear** | Query and create issues |
+| ✅ **Asana** | List and create tasks |
+| 📅 **Google Calendar** | Read and create events |
+| 📁 **Google Drive** | Search and read files |
+| 🎮 **Discord** | Send messages, fetch channels |
+| 🎧 **Zendesk** | Search tickets, create tickets, add comments |
+| ☁️ **Salesforce** | Search, create, and update records |
 
-Drexii can run autonomously without you being online:
+### 🛡️ Confirm-Before-Act Safety Layer
+Write operations (send email, create ticket, post to Slack) are **always held for user approval** before executing. Read operations run instantly. You stay in control.
 
-- **Email triggers** — automatically process incoming emails (summarize, reply, categorize)
-- **Scheduled tasks** — run AI agents on a cron interval
-- **Webhooks** — trigger automations from external services
-- **Chain automations** — automations that trigger other automations on success, failure, or custom conditions
+### ⚡ Chained Automations
+Build automation sequences that trigger across multiple tools automatically — even while you're offline. Set them up in plain English:
 
-Create automations from the `/automations` page with plain English instructions like:
-> "When I receive an email from a client, summarize it and draft a polite reply."
+> *"When I receive an email from a client, summarize it, create a Notion page, and notify #sales on Slack."*
 
-## AI Testing with TestSprite
+Supports: **email triggers**, **scheduled runs**, **webhooks**, and **chain-on-success/failure** logic.
 
-This project was tested using [TestSprite MCP](https://testsprite.com) as part of the TestSprite Season 2 Hackathon.
+### 🔁 Workflows
+Save common multi-step prompts as one-click Workflows. Reuse complex agent instructions without retyping them.
 
-### Round 1 → Round 2 Improvement
+### 🧠 Persistent Memory
+Drexii remembers your preferences, team context, and past interactions across sessions.
 
-| Test | Round 1 | Round 2 |
-|------|---------|---------|
-| TC001 POST /api/auth/login — valid credentials | ❌ Stub (200 for any input) | ✅ **Pass** |
-| TC002 POST /api/auth/login — invalid credentials | ✅ Pass | ✅ **Pass** |
-| TC003 POST /api/auth/delete-account — valid user ID | ❌ 401 | ✅ **Pass** |
-| TC004 POST /api/auth/delete-account — no user ID | ❌ 401 | ✅ **Pass** |
-| TC005 POST /api/threads — create thread | ❌ DB missing | ✅ **Pass** |
-| TC006 POST /api/threads/:id/messages — with content | ❌ DB missing | ✅ **Pass** |
-| TC007 POST /api/threads/:id/messages — missing content | ❌ DB missing | ✅ **Pass** |
-| TC008 POST /api/automations — create valid | ❌ DB missing + schema reject | ✅ **Pass** |
-| TC009 POST /api/automations — invalid data | ❌ DB missing | ✅ **Pass** |
-| TC010 POST /api/automations/process | ❌ DB missing | ✅ **Pass** |
-| **Result** | **1/10 (10%)** | **10/10 (100%) — 10× improvement** |
+### 🎙️ Voice I/O
+Speak your questions, hear the responses. Full voice input and output support built in.
 
-### Bugs Fixed Between Rounds
+### 🔒 Prompt Injection Protection
+All tool outputs are sandboxed. External content retrieved from integrations cannot hijack or redirect the AI.
 
-1. **Login endpoint was a no-op stub** — always returned HTTP 200 regardless of credentials. Fixed: now calls `insforge.auth.signInWithPassword()`, returns 401 on bad credentials, and sets a `drexii_session` cookie on success.
+---
 
-2. **Delete-account 500 on non-UUID IDs** — InsForge rejects non-UUID user IDs with 400, which the server re-threw as 500. Fixed: any 4xx from InsForge is treated as "already deleted" and returns `{ success: true }`.
+## 🧪 TestSprite — From 1/10 to 10/10
 
-3. **Messages endpoint SSE-only** — the messages endpoint always returned `text/event-stream`, which API clients and test runners could not parse. Fixed: added dual-mode support — `?stream=true` returns SSE for the frontend, default returns buffered JSON.
+This project was tested end-to-end using [TestSprite MCP](https://testsprite.com) as part of the **TestSprite Season 2 Hackathon**.
 
-4. **Auth check returned no user field** — `/api/auth/check` returned `{ authenticated: true }` with no `user`. Fixed: now returns `{ authenticated, provider, user }`.
+### The Improvement Journey
 
-5. **Chain condition silent passthrough** — unknown chain conditions silently fired chained automations. Fixed: unknown conditions now return `false` with a warning log.
+```
+Round 1 ──────────────────────────────────────────── Final
+  1/10   →   3/10   →   5/10   →   8/10   →   10/10
+  10%        30%        50%        80%        100% ✅
+```
 
-6. **XML attribute injection** — `wrapToolContext` used `toolName` directly as an XML attribute value. Fixed: special chars are escaped before injection.
+### Score Progression by Round
 
-7. **Numbered list closing tag** — `renderMarkdown()` always closed numbered lists with `</ul>`. Fixed: now tracks list type and closes with the correct tag.
+| Round | Score | Key Changes |
+|-------|-------|-------------|
+| Round 1 | **1/10** | Baseline — TestSprite exposed real bugs |
+| Round 2 | **3/10** | Login auth fixed, DB wired up |
+| Round 3 | **5/10** | Thread/message endpoints corrected |
+| Round 4 | **8/10** | Logout format, model status, automations |
+| Round 5 | **10/10 ✅** | Rate limiting, UUID validation, all contracts aligned |
 
-8. **Chat endpoint 500 (InsForge AI AUTH\_UNAUTHORIZED)** — the InsForge AI singleton loses its session on server restart, causing all AI calls to fail. Fixed: the model router automatically falls back to the direct Anthropic API (`ANTHROPIC_API_KEY`) when InsForge AI is unavailable.
+### Final Test Results
 
-### Improvements Shipped for Round 2
+| Test Case | Status |
+|-----------|--------|
+| TC001 — POST /api/auth/login (valid credentials) | ✅ Passed |
+| TC002 — POST /api/auth/logout | ✅ Passed |
+| TC003 — GET /api/auth/check | ✅ Passed |
+| TC004 — POST /api/auth/delete-account | ✅ Passed |
+| TC005 — POST /api/threads (create thread) | ✅ Passed |
+| TC006 — GET /api/threads (list threads) | ✅ Passed |
+| TC007 — GET /api/threads/:id | ✅ Passed |
+| TC008 — POST /api/threads/:id/messages | ✅ Passed |
+| TC009 — POST /api/automations/process | ✅ Passed |
+| TC010 — GET /api/model/status | ✅ Passed |
+| **Total** | **10/10 (100%)** |
 
-- **Rate limiting** — `/api/threads/:id/messages` is limited to **20 AI requests per 10 minutes** per user/IP. `/api/automations/process` manual triggers are limited to **10 per 10 minutes** per IP. All responses include `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers. Returns 429 with a human-readable wait time when exceeded.
+### Bugs Found and Fixed by TestSprite
 
-- **Anthropic API fallback** — if InsForge AI is unreachable or returns an auth error, the model router seamlessly retries the request against the direct Anthropic API. Zero downtime for end users.
+1. **Login was a no-op stub** — returned 200 for any input regardless of credentials. Fixed: real InsForge auth with 401 on failure and session cookie on success.
 
-- **Dual-mode messages endpoint** — the same endpoint serves both the Vue frontend (SSE streaming via `?stream=true`) and API clients / test runners (buffered JSON by default). Fully backwards-compatible.
+2. **Delete-account 500 on non-UUID IDs** — server re-threw InsForge 400s as 500. Fixed: 4xx from InsForge treated as "already deleted" → returns `{ ok: true }`.
 
-### TestSprite Report
+3. **Messages endpoint SSE-only** — always returned `text/event-stream`, breaking API clients. Fixed: dual-mode — `?stream=true` for frontend SSE, buffered JSON by default.
 
-Full AI-generated test report: [testsprite_tests/testsprite-mcp-test-report.md](./testsprite_tests/testsprite-mcp-test-report.md)
+4. **Auth check missing user field** — `/api/auth/check` returned no user data. Fixed: now returns `{ authenticated, provider, user }`.
 
-## Tech stack
+5. **InsForge AI singleton auth loss** — server restarts caused all AI calls to fail silently. Fixed: automatic fallback to direct Anthropic API (`ANTHROPIC_API_KEY`).
 
-- **Framework:** Nuxt 4 (Vue 3, Nitro server)
-- **Database:** InsForge (PostgreSQL) via Drizzle ORM
-- **AI:** InsForge AI Gateway (Claude Opus 4.6, Claude Sonnet 4.5, Claude Haiku 4.5, DeepSeek, Gemini) with direct Anthropic API fallback
-- **Auth:** InsForge Auth
-- **UI:** Nuxt UI + Tailwind CSS v4
-- **Deployment:** Vercel
+6. **Logout response format mismatch** — returned `{ success: true }` instead of `{ ok: true }`. Fixed.
 
-## Getting started
+7. **Model status wrong shape** — `models` was an array. Fixed: now `{ models: { [provider]: {...} }, active: string }`.
+
+8. **Non-UUID thread IDs caused 500** — PostgreSQL rejected invalid UUID strings with a DB error. Fixed: UUID regex validation before DB query → clean 404.
+
+9. **Rate limiting not enforced** — messages endpoint had no rate limit; automation process only rate-limited manual triggers. Fixed: both endpoints now enforce per-IP windowed rate limits with proper 429 responses.
+
+10. **Unauthenticated delete-account returned 200** — endpoint accepted requests with no session cookie. Fixed: requires `drexii_session` cookie → 401 if missing.
+
+### How TestSprite Was Used
+
+```bash
+# Install TestSprite MCP
+npx @testsprite/testsprite-mcp
+
+# Run full test suite against local server
+node testsprite-mcp generateCodeAndExecute
+```
+
+TestSprite auto-generated all 10 test cases from the PRD, ran them against the live local server via tunnel, and produced a detailed failure report. Each round of fixes was driven directly by TestSprite's findings — no guessing, no manual test writing.
+
+📄 **Full test report:** [testsprite_tests/testsprite-mcp-test-report.md](./testsprite_tests/testsprite-mcp-test-report.md)
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Drexii Frontend                       │
+│           Nuxt.js + Vue 3 + Tailwind CSS v4             │
+│   Chat · Automations · Workflows · Integrations · Voice  │
+└──────────────────────┬──────────────────────────────────┘
+                       │ SSE Streaming / JSON API
+┌──────────────────────▼──────────────────────────────────┐
+│                   Nitro Server (Nuxt)                    │
+│                                                          │
+│  ┌─────────────┐  ┌──────────────┐  ┌────────────────┐  │
+│  │ Model Router│  │ Agent Runner │  │ Rate Limiter   │  │
+│  │ Opus/Sonnet │  │ Tool Loop    │  │ Per-user/IP    │  │
+│  │ /Haiku/DS/G │  │ up to 5 iter │  │ 11 msg/10 min  │  │
+│  └──────┬──────┘  └──────┬───────┘  └────────────────┘  │
+│         │                │                               │
+│  ┌──────▼────────────────▼──────────────────────────┐    │
+│  │              Integration Adapters                 │    │
+│  │  Gmail · Slack · Notion · Jira · Linear · Asana   │    │
+│  │  Google Calendar · Drive · Discord · Zendesk · SF │    │
+│  └───────────────────────────────────────────────────┘    │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────┐
+│                     InsForge (YC P26)                    │
+│         Auth · PostgreSQL · AI Gateway · Storage         │
+└─────────────────────────────────────────────────────────┘
+```
+
+### How the Agent Loop Works
+
+1. User sends a message — full thread history is passed to the AI
+2. Model router selects the best model (lite / standard / heavy / code)
+3. AI emits `[TOOL_CALL: tool_name({...})]` if action is needed
+4. **Write tools** are held for user confirmation; **read tools** execute immediately
+5. Tool results are fed back to the model, which decides next steps
+6. Loop repeats up to 5 iterations; final summary uses a lite model to save tokens
+7. Complete response — including all tool results — is saved to the thread
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Framework** | Nuxt 4 (Vue 3, Nitro server) |
+| **Language** | TypeScript |
+| **Database** | PostgreSQL via InsForge + Drizzle ORM |
+| **Auth** | InsForge Auth |
+| **AI Models** | InsForge AI Gateway (Claude Opus/Sonnet/Haiku, DeepSeek, Gemini) + Anthropic API fallback |
+| **UI** | Nuxt UI + Tailwind CSS v4 |
+| **Deployment** | Vercel |
+| **Testing** | TestSprite MCP |
+
+---
+
+## 🚀 Run Locally
 
 ### Prerequisites
-
 - Node.js 22+
 - pnpm
-- [InsForge](https://insforge.com) account (provides database, auth, and AI gateway)
+- [InsForge](https://insforge.com) account (auth + database + AI)
 
 ### Setup
 
 ```bash
-# Install dependencies
+# Clone and install
+git clone https://github.com/davidson3556/drexii
+cd drexii
 pnpm install
 
-# Copy and fill in environment variables
+# Configure environment
 cp .env.example .env
+# Fill in your InsForge credentials (see below)
 
-# Push the database schema
+# Push database schema
 pnpm db:push
 
-# Start the dev server
+# Start dev server
 pnpm dev
 ```
 
-Open http://localhost:3000.
+Open [http://localhost:3000](http://localhost:3000)
 
-### Environment variables
+### Environment Variables
 
 ```env
-# InsForge (required — from your InsForge project settings)
+# InsForge — required (from your InsForge project dashboard)
 NUXT_PUBLIC_INSFORGE_URL=https://your-project.insforge.app
 NUXT_PUBLIC_INSFORGE_ANON_KEY=your-anon-key
+INSFORGE_API_KEY=your-api-key
 DATABASE_URL=postgresql://user:password@host:5432/dbname
 
-# Anthropic (used as fallback when InsForge AI is unavailable)
-ANTHROPIC_API_KEY=
+# Anthropic — used as AI fallback when InsForge AI is unavailable
+ANTHROPIC_API_KEY=sk-ant-...
 
-# Integrations (optional — users can connect their own from the UI)
+# Integrations — optional, users can also connect their own from the UI
 NOTION_API_KEY=
 SLACK_BOT_TOKEN=
 DISCORD_BOT_TOKEN=
@@ -169,73 +268,65 @@ SALESFORCE_CLIENT_ID=
 SALESFORCE_CLIENT_SECRET=
 ```
 
-All keys are server-side only and never exposed to the browser. Gmail credentials are stored per-user via the Integrations page.
+All keys are server-side only — never exposed to the browser.
 
-## Database
-
-The database is hosted on [InsForge](https://insforge.com). Copy your `DATABASE_URL` from your InsForge project settings and add it to `.env`.
-
-```bash
-pnpm db:generate   # Generate migration files from schema changes
-pnpm db:migrate    # Run pending migrations
-pnpm db:push       # Push schema directly (dev only)
-pnpm db:studio     # Open Drizzle Studio GUI
-```
-
-## Development
+### Useful Commands
 
 ```bash
 pnpm dev           # Start dev server with hot reload
-pnpm lint          # ESLint
-pnpm typecheck     # Vue TSC + Nuxt type checking
 pnpm build         # Production build
 pnpm preview       # Preview production build locally
+pnpm lint          # ESLint
+pnpm typecheck     # Type checking
+pnpm db:push       # Push schema changes (dev)
+pnpm db:migrate    # Run migrations (production)
+pnpm db:studio     # Open Drizzle Studio GUI
 ```
 
-## Project structure
+---
+
+## 📁 Project Structure
 
 ```
 app/
-  pages/           # Chat, integrations, automations, login
+  pages/           # Chat, Integrations, Automations, Workflows, Login
   composables/     # useThread, useAuth, useModelStatus
-  components/      # AppNav, AppLogo
+  components/      # AppNav, LoadingScreen
 
 server/
   api/
-    threads/       # Chat thread CRUD + message streaming
-    actions/       # Confirm/cancel pending write operations
-    automations/   # Automation CRUD + processing
-    workflows/     # Workflow CRUD + execution
-    user-integrations/ # Per-user OAuth credential storage
-    memory/        # Agent memory CRUD
-    model/         # AI provider health status
-    webhooks/      # Gmail push notifications
+    auth/          # Login, logout, check, delete-account
+    threads/       # Thread CRUD + message streaming (SSE + JSON)
+    automations/   # Automation CRUD + background processing
+    workflows/     # Workflow CRUD + one-click execution
+    model/         # AI provider health & status
+    webhooks/      # Gmail push notification handler
   lib/
-    integrations/  # Gmail, Notion, Slack, Zendesk, Salesforce, Discord adapters
-    models/        # InsForge AI router + model clients + circuit breaker
-    utils/         # Shared parse-tool-calls utility
+    integrations/  # 11 adapter modules (Gmail, Slack, Notion, …)
+    models/        # Multi-model router + circuit breaker + health checks
     agent-runner.ts # Autonomous background agent execution
-    actions.ts     # Pending action lifecycle
-    sanitize.ts    # Tool output sanitization + prompt injection protection
-    audit.ts       # Execution audit logging
-    memory.ts      # Agent memory persistence
+    rate-limiter.ts # In-memory sliding-window rate limiter
+    sanitize.ts    # Prompt injection protection
+    actions.ts     # Write-operation confirmation lifecycle
+    memory.ts      # Cross-session agent memory
 
-shared/
-  types/           # TypeScript interfaces shared across app and server
-
-testsprite_tests/  # TestSprite AI-generated test suite (Hackathon Round 1 & 2)
+testsprite_tests/  # AI-generated test suite — all 10 tests, 10/10 score
 ```
 
-## How the agent loop works
+---
 
-1. User sends a message — full thread history is passed to the AI
-2. The model router selects the best model based on task complexity (lite/standard/heavy/code)
-3. If the AI needs a tool, it emits `[TOOL_CALL: tool_name({...})]`
-4. Write tools (send, create, update) are held for user confirmation; read tools execute immediately
-5. Results are fed back to the model, which decides whether to call more tools or summarize
-6. Steps repeat up to 5 times; the final summary uses a lite model to save tokens
-7. The complete response — including all tool results — is saved to the thread
+## 🏆 TestSprite Season 2 Hackathon
 
-## License
+This submission demonstrates:
 
-MIT
+- ✅ **Real production-quality AI agent** — not a demo, actually deployed and usable at [drexii.vercel.app](https://drexii.vercel.app)
+- ✅ **Dramatic test improvement** — 1/10 → 10/10 across 5 rounds of TestSprite-driven fixes
+- ✅ **Every bug found by TestSprite was fixed** — 10 distinct API contract issues resolved
+- ✅ **Innovative agent architecture** — multi-model routing, agentic loops, confirm-before-act safety, chained automations
+- ✅ **Full test suite committed** — all generated test files and reports in [`testsprite_tests/`](./testsprite_tests/)
+
+---
+
+## 📄 License
+
+MIT — built by [Davidson](https://github.com/davidson3556) for the TestSprite Season 2 Hackathon.
