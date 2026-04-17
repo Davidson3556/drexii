@@ -5,7 +5,7 @@ LOGIN_URL = f"{BASE_URL}/api/auth/login"
 AUTOMATIONS_URL = f"{BASE_URL}/api/automations"
 PROCESS_URL = f"{BASE_URL}/api/automations/process"
 
-EMAIL = "valid_test_user@example.com"
+EMAIL = "drexiitest@mailinator.com"
 PASSWORD = "12345678"
 TIMEOUT = 30
 

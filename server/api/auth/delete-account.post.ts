@@ -1,4 +1,9 @@
 export default defineEventHandler(async (event) => {
+  const sessionCookie = getCookie(event, 'drexii_session')
+  if (!sessionCookie) {
+    throw createError({ statusCode: 401, message: 'Authentication required. Please log in before deleting your account.' })
+  }
+
   // Accept user ID from header or body
   let userId = getHeader(event, 'x-user-id')
 
@@ -8,7 +13,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!userId) {
-    throw createError({ statusCode: 401, message: 'User ID is required. Please try again while logged in.' })
+    throw createError({ statusCode: 400, message: 'User ID is required. Please try again while logged in.' })
   }
 
   try {
@@ -46,7 +51,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    return { success: true, message: 'Account has been permanently deleted.' }
+    return { ok: true, message: 'Account has been permanently deleted.' }
   } catch (error: unknown) {
     console.error('[API] Delete account error:', error)
     throw createError({

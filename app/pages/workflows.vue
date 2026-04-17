@@ -10,13 +10,20 @@ interface Workflow {
 }
 
 const { loadThread, send: _send } = useThread()
+const { user } = useAuth()
 const router = useRouter()
+
+function authHeaders(): Record<string, string> {
+  return user.value?.id ? { 'x-user-id': user.value.id } : {}
+}
 
 const workflows = ref<Workflow[]>([])
 const isLoading = ref(true)
 const isCreating = ref(false)
 const runningId = ref<string | null>(null)
 const showForm = ref(false)
+const editingId = ref<string | null>(null)
+const deletingId = ref<string | null>(null)
 
 const form = reactive({ name: '', description: '', prompt: '' })
 const formError = ref('')
@@ -24,14 +31,36 @@ const formError = ref('')
 async function fetchWorkflows() {
   isLoading.value = true
   try {
-    const data = await $fetch<{ workflows: Workflow[] }>('/api/workflows')
+    const data = await $fetch<{ workflows: Workflow[] }>('/api/workflows', { headers: authHeaders() })
     workflows.value = data.workflows
   } finally {
     isLoading.value = false
   }
 }
 
-async function createWorkflow() {
+function resetForm() {
+  form.name = ''
+  form.description = ''
+  form.prompt = ''
+  formError.value = ''
+  editingId.value = null
+}
+
+function openCreate() {
+  resetForm()
+  showForm.value = true
+}
+
+function openEdit(wf: Workflow) {
+  editingId.value = wf.id
+  form.name = wf.name
+  form.description = wf.description ?? ''
+  form.prompt = wf.prompt
+  formError.value = ''
+  showForm.value = true
+}
+
+async function submitForm() {
   formError.value = ''
   if (!form.name.trim() || !form.prompt.trim()) {
     formError.value = 'Name and prompt are required.'
@@ -39,27 +68,46 @@ async function createWorkflow() {
   }
   isCreating.value = true
   try {
-    await $fetch('/api/workflows', {
-      method: 'POST',
-      body: { name: form.name, description: form.description || undefined, prompt: form.prompt }
-    })
-    form.name = ''
-    form.description = ''
-    form.prompt = ''
+    if (editingId.value) {
+      await $fetch(`/api/workflows/${editingId.value}`, {
+        method: 'PATCH',
+        headers: authHeaders(),
+        body: {
+          name: form.name,
+          description: form.description || null,
+          prompt: form.prompt
+        }
+      })
+    } else {
+      await $fetch('/api/workflows', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: { name: form.name, description: form.description || undefined, prompt: form.prompt }
+      })
+    }
     showForm.value = false
+    resetForm()
     await fetchWorkflows()
   } catch {
-    formError.value = 'Failed to create workflow. Try again.'
+    formError.value = editingId.value
+      ? 'Failed to update workflow. Try again.'
+      : 'Failed to create workflow. Try again.'
   } finally {
     isCreating.value = false
   }
+}
+
+function cancelForm() {
+  showForm.value = false
+  resetForm()
 }
 
 async function runWorkflow(workflow: Workflow) {
   runningId.value = workflow.id
   try {
     const data = await $fetch<{ threadId: string, prompt: string }>(`/api/workflows/${workflow.id}/run`, {
-      method: 'POST'
+      method: 'POST',
+      headers: authHeaders()
     })
     await loadThread(data.threadId)
     await router.push(`/chat?autorun=${encodeURIComponent(data.prompt)}`)
@@ -69,8 +117,14 @@ async function runWorkflow(workflow: Workflow) {
 }
 
 async function deleteWorkflow(id: string) {
-  await $fetch(`/api/workflows/${id}`, { method: 'DELETE' })
-  workflows.value = workflows.value.filter(w => w.id !== id)
+  if (!confirm('Delete this workflow? This cannot be undone.')) return
+  deletingId.value = id
+  try {
+    await $fetch(`/api/workflows/${id}`, { method: 'DELETE', headers: authHeaders() })
+    workflows.value = workflows.value.filter(w => w.id !== id)
+  } finally {
+    deletingId.value = null
+  }
 }
 
 function formatDate(iso: string | null): string {
@@ -99,7 +153,7 @@ onMounted(fetchWorkflows)
         </div>
         <button
           class="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/80 hover:bg-amber-500 text-white text-sm font-medium transition-colors"
-          @click="showForm = !showForm"
+          @click="showForm ? cancelForm() : openCreate()"
         >
           <UIcon
             name="i-lucide-plus"
@@ -116,7 +170,7 @@ onMounted(fetchWorkflows)
           class="glass-card p-5 mb-6 space-y-4"
         >
           <h2 class="text-sm font-medium text-white/70">
-            New Workflow
+            {{ editingId ? 'Edit Workflow' : 'New Workflow' }}
           </h2>
 
           <div class="space-y-3">
@@ -160,16 +214,19 @@ onMounted(fetchWorkflows)
             <div class="flex gap-2 justify-end">
               <button
                 class="px-4 py-2 rounded-lg bg-white/6 hover:bg-white/10 text-white/50 text-sm transition-colors"
-                @click="showForm = false; formError = ''"
+                @click="cancelForm"
               >
                 Cancel
               </button>
               <button
                 class="px-4 py-2 rounded-lg bg-amber-500/80 hover:bg-amber-500 text-white text-sm font-medium transition-colors disabled:opacity-40"
                 :disabled="isCreating"
-                @click="createWorkflow"
+                @click="submitForm"
               >
-                {{ isCreating ? 'Creating…' : 'Create Workflow' }}
+                {{ isCreating
+                  ? (editingId ? 'Saving…' : 'Creating…')
+                  : (editingId ? 'Save Changes' : 'Create Workflow')
+                }}
               </button>
             </div>
           </div>
@@ -177,12 +234,10 @@ onMounted(fetchWorkflows)
       </Transition>
 
       <!-- Loading -->
-      <div
+      <LoadingScreen
         v-if="isLoading"
-        class="flex items-center justify-center py-20"
-      >
-        <div class="w-5 h-5 border-2 border-white/20 border-t-amber-500/70 rounded-full animate-spin" />
-      </div>
+        message="Loading workflows…"
+      />
 
       <!-- Empty State -->
       <div
@@ -248,7 +303,7 @@ onMounted(fetchWorkflows)
             </div>
 
             <!-- Actions -->
-            <div class="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div class="flex items-center gap-2 shrink-0 wf-actions">
               <button
                 class="px-3 py-1.5 rounded-lg bg-amber-500/80 hover:bg-amber-500 text-white text-xs font-medium transition-colors disabled:opacity-40 flex items-center gap-1.5"
                 :disabled="runningId === wf.id"
@@ -268,13 +323,25 @@ onMounted(fetchWorkflows)
               </button>
 
               <button
-                class="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-500/15 text-white/25 hover:text-red-400 flex items-center justify-center transition-colors"
+                class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/70 flex items-center justify-center transition-colors"
+                title="Edit workflow"
+                @click="openEdit(wf)"
+              >
+                <UIcon
+                  name="i-lucide-pencil"
+                  class="w-3.5 h-3.5"
+                />
+              </button>
+
+              <button
+                class="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-500/15 text-white/25 hover:text-red-400 flex items-center justify-center transition-colors disabled:opacity-40"
                 title="Delete workflow"
+                :disabled="deletingId === wf.id"
                 @click="deleteWorkflow(wf.id)"
               >
                 <UIcon
-                  name="i-lucide-trash-2"
-                  class="w-3.5 h-3.5"
+                  :name="deletingId === wf.id ? 'i-lucide-loader-2' : 'i-lucide-trash-2'"
+                  :class="['w-3.5 h-3.5', deletingId === wf.id ? 'animate-spin' : '']"
                 />
               </button>
             </div>
@@ -300,5 +367,18 @@ onMounted(fetchWorkflows)
 .form-slide-leave-to {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+.wf-actions {
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+@media (min-width: 768px) {
+  .wf-actions {
+    opacity: 0.4;
+  }
+  .group:hover .wf-actions {
+    opacity: 1;
+  }
 }
 </style>

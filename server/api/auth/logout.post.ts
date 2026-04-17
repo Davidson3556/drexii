@@ -1,5 +1,6 @@
-// Sign-out is now handled client-side via InsForge SDK (insforge.auth.signOut()).
-// This endpoint is kept as a no-op stub for backward compatibility.
-export default defineEventHandler(() => {
-  return { success: true }
+// Sign-out is handled client-side via InsForge SDK (insforge.auth.signOut()).
+// This endpoint clears the session cookie and returns ok for API clients.
+export default defineEventHandler((event) => {
+  deleteCookie(event, 'drexii_session', { path: '/' })
+  return { ok: true }
 })

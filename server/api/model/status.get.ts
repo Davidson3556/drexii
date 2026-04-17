@@ -13,15 +13,15 @@ export default defineEventHandler(async () => {
   }
 
   return {
-    models: [
-      {
-        provider: status.provider,
+    models: {
+      [status.provider]: {
         state: status.state,
         isHealthy: status.isHealthy,
         isFallback: status.isFallback,
         lastChecked: status.lastChecked
       }
-    ],
+    },
+    active: status.provider,
     ...(health ? { health } : {})
   }
 })

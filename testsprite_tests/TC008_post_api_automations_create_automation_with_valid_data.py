@@ -6,7 +6,7 @@ CREATE_AUTOMATION_ENDPOINT = "/api/automations"
 DELETE_AUTOMATION_ENDPOINT = "/api/automations/{}"
 TIMEOUT = 30
 
-EMAIL = "valid_test_user@example.com"
+EMAIL = "drexiitest@mailinator.com"
 PASSWORD = "12345678"
 
 def test_post_api_automations_create_automation_with_valid_data():

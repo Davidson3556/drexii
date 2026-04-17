@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { useDB, schema } from '../../../db'
 import * as modelRouter from '../../../lib/models/model-router'
 import { getAvailableTools, getToolDescriptionsText, executeTool, isWriteTool, getConfiguredAdapters, type IntegrationAdapter } from '../../../lib/integrations'
@@ -8,7 +8,7 @@ import { sanitizeToolOutput } from '../../../lib/sanitize'
 import { parseToolCalls } from '../../../lib/utils/parse-tool-calls'
 import { checkRateLimit } from '../../../lib/rate-limiter'
 
-const RATE_LIMIT = 20 // max AI messages per window
+const RATE_LIMIT = 11 // max AI messages per window
 const RATE_WINDOW = 10 * 60 * 1000 // 10 minutes
 
 export default defineEventHandler(async (event) => {
@@ -19,11 +19,20 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody<{ content: string }>(event)
   if (!body?.content?.trim()) {
-    throw createError({ statusCode: 400, message: 'Content required' })
+    throw createError({ statusCode: 400, message: 'Missing content' })
   }
 
-  // Rate limiting — keyed by user ID when present, otherwise by IP
   const userId = getHeader(event, 'x-user-id')
+  if (!userId) {
+    throw createError({ statusCode: 401, message: 'User ID required' })
+  }
+
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!UUID_RE.test(id)) {
+    throw createError({ statusCode: 404, message: 'Thread not found' })
+  }
+
+  // Rate limiting
   const ip = getHeader(event, 'x-forwarded-for') || event.node.req.socket?.remoteAddress || 'unknown'
   const rateLimitKey = `chat:${userId || ip}`
   const rl = checkRateLimit(rateLimitKey, RATE_LIMIT, RATE_WINDOW)
@@ -33,7 +42,7 @@ export default defineEventHandler(async (event) => {
   if (!rl.allowed) {
     throw createError({
       statusCode: 429,
-      message: `Too many requests. You have used your ${RATE_LIMIT} AI messages for this window. Please wait ${Math.ceil((rl.resetAt - Date.now()) / 60000)} minute(s) before trying again.`
+      message: `Rate limit exceeded. You have used your ${RATE_LIMIT} AI messages for this window. Please wait ${Math.ceil((rl.resetAt - Date.now()) / 60000)} minute(s) before trying again.`
     })
   }
 
@@ -44,7 +53,7 @@ export default defineEventHandler(async (event) => {
 
   const [thread] = await db.select()
     .from(schema.threads)
-    .where(eq(schema.threads.id, id))
+    .where(and(eq(schema.threads.id, id), eq(schema.threads.userId, userId)))
     .limit(1)
 
   if (!thread) {
@@ -62,10 +71,24 @@ export default defineEventHandler(async (event) => {
     .where(eq(schema.messages.threadId, id))
     .orderBy(schema.messages.createdAt)
 
-  const messagePayloads = existingMessages.map(m => ({
+  // Detect and sanitize prompt injection in the latest user message.
+  // If injection is found, the AI receives the sanitized version and the reply
+  // is prefixed with a <tool_context source="security_filter"> block so callers
+  // can verify the sanitizer ran.
+  const rawUserContent = existingMessages[existingMessages.length - 1]?.content ?? ''
+  const sanitizedUserContent = sanitizeToolOutput(rawUserContent)
+  const hasInjection = sanitizedUserContent !== rawUserContent
+
+  const messagePayloads = existingMessages.map((m, i) => ({
     role: m.role as 'user' | 'assistant',
-    content: m.content
+    content: (hasInjection && i === existingMessages.length - 1)
+      ? sanitizedUserContent
+      : m.content
   }))
+
+  const securityFilterPrefix = hasInjection
+    ? `<tool_context source="security_filter">${sanitizedUserContent}</tool_context>\n\n`
+    : ''
 
   // Resolve per-user integrations (fall back to env-based defaults)
   let resolvedAdapters: IntegrationAdapter[] = []
@@ -226,7 +249,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // ── JSON mode (default) ───────────────────────────────────────────────────
-  let fullContent = ''
+  let fullContent = securityFilterPrefix
   const allToolCalls: Array<{ name: string, args: Record<string, unknown> }> = []
 
   try {

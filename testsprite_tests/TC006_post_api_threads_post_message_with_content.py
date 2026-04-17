@@ -5,7 +5,7 @@ LOGIN_URL = f"{BASE_URL}/api/auth/login"
 THREADS_URL = f"{BASE_URL}/api/threads"
 TIMEOUT = 30
 
-EMAIL = "valid_test_user@example.com"
+EMAIL = "drexiitest@mailinator.com"
 PASSWORD = "12345678"
 
 def test_post_api_threads_post_message_with_content():

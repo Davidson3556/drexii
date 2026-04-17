@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { user } = useAuth()
 const activeSectionId = ref('')
 const sections = [
   { id: 'overview', label: 'Overview' },
@@ -42,12 +43,19 @@ function scrollTo(id: string) {
 <template>
   <div
     class="docs-root"
+    :class="{ 'docs-root--auth': !!user }"
     style="background: var(--color-drexii-bg);"
   >
-    <div class="docs-layout max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+    <div
+      class="docs-layout max-w-7xl mx-auto px-4 sm:px-6 pb-20"
+      :class="user ? 'pt-10' : 'pt-24'"
+    >
       <!-- Sidebar nav -->
       <aside class="docs-sidebar hidden lg:block">
-        <div class="sticky top-24">
+        <div
+          class="sticky"
+          :class="user ? 'top-10' : 'top-24'"
+        >
           <p class="text-[10px] uppercase tracking-[0.2em] text-white/25 font-semibold mb-4">
             Documentation
           </p>
@@ -826,6 +834,10 @@ function scrollTo(id: string) {
 .docs-root {
   min-height: 100dvh;
   padding-top: 64px;
+}
+
+.docs-root--auth {
+  padding-top: 0;
 }
 
 .docs-layout {

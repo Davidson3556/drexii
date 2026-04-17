@@ -10,8 +10,8 @@ def test_post_api_auth_login_with_valid_and_invalid_credentials():
     # --- Test 1: Valid credentials ---
     # NOTE: Replace these with actual valid test credentials existing in InsForge for meaningful test
     valid_payload = {
-        "email": "valid_test_user@example.com",
-        "password": "valid_password"
+        "email": "drexiitest@mailinator.com",
+        "password": "12345678"
     }
     try:
         resp = requests.post(login_url, json=valid_payload, headers=headers, timeout=TIMEOUT)

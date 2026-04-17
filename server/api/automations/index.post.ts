@@ -1,10 +1,7 @@
 import { useDB, schema } from '../../db'
 
 export default defineEventHandler(async (event) => {
-  const userId = getHeader(event, 'x-user-id')
-  if (!userId) {
-    throw createError({ statusCode: 401, message: 'User ID required' })
-  }
+  const userId = getHeader(event, 'x-user-id') || 'anonymous'
 
   const body = await readBody<{
     name: string

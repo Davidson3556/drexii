@@ -21,6 +21,9 @@ logs
 # MCP config (contains API keys)
 .mcp.json
 
+# TestSprite tmp files (contain API keys and run config)
+testsprite_tests/tmp/
+
 # Local env files
 .env
 .env.*

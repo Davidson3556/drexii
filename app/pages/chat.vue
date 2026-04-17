@@ -72,13 +72,22 @@ onMounted(async () => {
 
   const autorun = route.query.autorun as string | undefined
 
-  if (!currentThread.value) {
-    const savedId = import.meta.client ? localStorage.getItem('drexii_thread_id') : null
-    if (savedId) {
-      await loadThread(savedId).catch(() => createThread())
-    } else {
-      await createThread()
-    }
+  // Always re-initialize for the current user — never reuse a previous user's cached thread.
+  // Without this, logging out and back in with a different account would show the previous
+  // user's messages because Nuxt state persists for the lifetime of the browser session.
+  const uid = user.value?.id
+  const storageKey = uid ? `drexii_thread_id_${uid}` : 'drexii_thread_id'
+
+  // If the cached thread doesn't belong to the current user, ignore it
+  const cachedId = import.meta.client ? localStorage.getItem(storageKey) : null
+  const isCurrentUserThread = currentThread.value && uid
+    ? currentThread.value.userId === uid
+    : false
+
+  if (cachedId && !isCurrentUserThread) {
+    await loadThread(cachedId).catch(() => createThread())
+  } else if (!currentThread.value) {
+    await createThread()
   }
 
   if (currentThread.value) {

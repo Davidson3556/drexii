@@ -6,6 +6,7 @@
 
 export interface Thread {
   id: string
+  userId: string
   title: string
   createdAt: string
   archivedAt: string | null

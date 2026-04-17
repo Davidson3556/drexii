@@ -12,8 +12,13 @@ const email = ref('')
 const password = ref('')
 const name = ref('')
 const error = ref('')
+const errorShakeKey = ref(0)
 const isLoading = ref(false)
 const showPassword = ref(false)
+
+watch(error, (val) => {
+  if (val) errorShakeKey.value++
+})
 
 // Verification state
 const needsVerification = ref(false)
@@ -127,11 +132,16 @@ async function handleResendCode() {
 }
 
 async function handleOAuth(provider: Parameters<typeof signInWithOAuth>[0]) {
+  // Clear any prior validation errors — OAuth doesn't need email/password
+  error.value = ''
+  isLoading.value = true
   try {
     await signInWithOAuth(provider)
+    // Browser will redirect; if we reach here something is off
   } catch (err: unknown) {
     const e = err as { message?: string }
     error.value = e.message || `Failed to sign in with ${provider}.`
+    isLoading.value = false
   }
 }
 
@@ -390,6 +400,7 @@ function handleSubmit() {
 
           <!-- Resend -->
           <button
+            type="button"
             class="login-text-link w-full text-xs transition-colors text-center"
             @click="handleResendCode"
           >
@@ -402,12 +413,14 @@ function handleSubmit() {
           <!-- Mode Toggle -->
           <div class="login-mode-toggle flex rounded-xl p-0.5 mb-2">
             <button
+              type="button"
               :class="['flex-1 py-2 text-xs font-medium rounded-lg transition-all', mode === 'signin' ? 'login-mode-active' : 'login-mode-inactive']"
               @click="mode = 'signin'; error = ''"
             >
               Sign in
             </button>
             <button
+              type="button"
               :class="['flex-1 py-2 text-xs font-medium rounded-lg transition-all', mode === 'signup' ? 'login-mode-active' : 'login-mode-inactive']"
               @click="mode = 'signup'; error = ''"
             >
@@ -501,7 +514,9 @@ function handleSubmit() {
               <button
                 v-for="provider in oauthProviders"
                 :key="provider.id"
+                type="button"
                 class="login-oauth-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium transition-colors"
+                :disabled="isLoading"
                 @click="handleOAuth(provider.id)"
               >
                 <UIcon
@@ -514,17 +529,23 @@ function handleSubmit() {
           </div>
         </template>
 
-        <!-- Error -->
-        <p
+        <!-- Error banner -->
+        <div
           v-if="error"
-          class="text-xs text-red-400 flex items-center gap-1.5"
+          :key="errorShakeKey"
+          class="login-error"
+          role="alert"
+          aria-live="assertive"
         >
           <UIcon
-            name="i-lucide-circle-alert"
-            class="w-3.5 h-3.5 shrink-0"
+            name="i-lucide-triangle-alert"
+            class="w-4 h-4 shrink-0 login-error-icon"
           />
-          {{ error }}
-        </p>
+          <div class="login-error-body">
+            <span class="login-error-title">Can't {{ mode === 'signup' ? 'create your account' : 'sign you in' }}</span>
+            <span class="login-error-msg">{{ error }}</span>
+          </div>
+        </div>
 
         <!-- Submit -->
         <button
@@ -637,4 +658,64 @@ function handleSubmit() {
   color: rgba(12,12,14,0.6);
 }
 :global(html:not(.dark)) .login-oauth-btn:hover { background: rgba(0,0,0,0.06); }
+
+/* ── Login error banner ────────────────────────────────── */
+.login-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.04) inset;
+  color: rgba(252, 165, 165, 0.95);
+  animation: login-error-shake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+.login-error-icon {
+  color: rgb(248, 113, 113);
+  margin-top: 1px;
+}
+
+.login-error-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.login-error-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(254, 202, 202, 1);
+  letter-spacing: -0.005em;
+}
+
+.login-error-msg {
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(252, 165, 165, 0.85);
+  word-break: break-word;
+}
+
+@keyframes login-error-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(5px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+  90% { transform: translateX(1px); }
+}
+
+:global(html:not(.dark)) .login-error {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: rgba(153, 27, 27, 0.95);
+}
+:global(html:not(.dark)) .login-error-title { color: rgba(127, 29, 29, 1); }
+:global(html:not(.dark)) .login-error-msg { color: rgba(153, 27, 27, 0.85); }
+:global(html:not(.dark)) .login-error-icon { color: rgb(220, 38, 38); }
 </style>

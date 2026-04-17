@@ -1,52 +1,52 @@
 [
   {
     "id": "TC001",
-    "title": "post api auth login with valid credentials",
-    "description": "Test POST /api/auth/login with valid email and password to receive 200 response with ok true and provider insforge, and session cookie set."
+    "title": "post api auth login",
+    "description": "Test user login with valid email and password, expect 200 response with ok true, provider info, and session cookie set."
   },
   {
     "id": "TC002",
-    "title": "post api auth login with missing or invalid credentials",
-    "description": "Test POST /api/auth/login with missing email or password to receive 400 error with message 'email and password are required', and with invalid credentials to receive 401 error 'Invalid credentials'."
+    "title": "post api auth logout",
+    "description": "Test user logout with valid session cookie, expect 200 response with ok true and session cookie cleared."
   },
   {
     "id": "TC003",
-    "title": "post api auth delete account with valid user id",
-    "description": "Test POST /api/auth/delete-account with valid x-user-id header or body.userId to receive 200 response with success true and confirmation message."
+    "title": "get api auth check",
+    "description": "Test session authentication check with valid session cookie, expect 200 response with authenticated true or false."
   },
   {
     "id": "TC004",
-    "title": "post api auth delete account without user id",
-    "description": "Test POST /api/auth/delete-account without x-user-id header or body.userId to receive 401 error 'User ID is required'."
+    "title": "post api auth delete account",
+    "description": "Test account deletion with valid session and userId in body, expect 200 response with ok true; test missing userId or invalid session returns 400 or 401."
   },
   {
     "id": "TC005",
-    "title": "post api threads create new thread",
-    "description": "Test POST /api/threads with optional title to create a new conversation thread and receive 200 response with thread object."
+    "title": "post api threads",
+    "description": "Test creating a new conversation thread with optional x-user-id header and optional title, expect 200 response with created thread object."
   },
   {
     "id": "TC006",
-    "title": "post api threads post message with content",
-    "description": "Test POST /api/threads/:id/messages with valid content to post a message and receive 200 response with message and AI reply, ensuring prompt injection sanitizer is applied."
+    "title": "get api threads",
+    "description": "Test listing all threads for authenticated user, expect 200 response with array of threads."
   },
   {
     "id": "TC007",
-    "title": "post api threads post message with missing content",
-    "description": "Test POST /api/threads/:id/messages with empty or missing content to receive 400 error 'Content required'."
+    "title": "get api threads id",
+    "description": "Test retrieving a single thread and its messages by id for authenticated user, expect 200 with thread and messages; 404 if thread not found."
   },
   {
     "id": "TC008",
-    "title": "post api automations create automation with valid data",
-    "description": "Test POST /api/automations with valid x-user-id header and body containing name, trigger, and instructions to create a new automation and receive 200 response with automation object."
+    "title": "post api threads id messages",
+    "description": "Test posting a user message to a thread with x-user-id header and content, expect 200 with message and AI reply; test error cases for missing content, missing user id, thread not found, and rate limiting."
   },
   {
     "id": "TC009",
-    "title": "post api automations create automation with invalid or missing data",
-    "description": "Test POST /api/automations without x-user-id header to receive 401 error 'User ID required', and with invalid trigger value to receive 400 'Validation error'."
+    "title": "post api automations process",
+    "description": "Test processing automations with optional automationId and context, expect 200 with results array; test rate limit exceeded returns 429."
   },
   {
     "id": "TC010",
-    "title": "post api automations process automation",
-    "description": "Test POST /api/automations/process with optional automationId and context to process scheduled or manual automations and receive 200 response with ok true and processed count."
+    "title": "get api model status",
+    "description": "Test retrieving current AI model provider status, expect 200 with models object and active provider string."
   }
 ]

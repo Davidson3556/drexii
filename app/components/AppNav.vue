@@ -1,14 +1,15 @@
 <script setup lang="ts">
 const route = useRoute()
 const router = useRouter()
-const { isFallback } = useModelStatus()
-const { signOut, user, sendPasswordReset } = useAuth()
+const { isFallback: _isFallback } = useModelStatus()
+const { signOut, user, sendPasswordReset, exchangeResetToken, resetPassword } = useAuth()
+const { resetState: resetThreadState } = useThread()
 
 // ── User dropdown ─────────────────────────────────────────────
 const userDropdownOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
-function toggleDropdown() {
+function _toggleDropdown() {
   userDropdownOpen.value = !userDropdownOpen.value
 }
 
@@ -25,6 +26,7 @@ function onClickOutside(e: MouseEvent) {
 
 async function logout() {
   closeDropdown()
+  resetThreadState()
   await signOut()
   await router.push('/login')
 }
@@ -37,7 +39,24 @@ const passwordLoading = ref(false)
 const passwordSuccess = ref('')
 const passwordError = ref('')
 
-async function handleChangePassword() {
+// Password reset flow: idle → code → newpass → done
+const passwordStep = ref<'idle' | 'code' | 'newpass' | 'done'>('idle')
+const passwordCode = ref('')
+const passwordToken = ref('')
+const newPassword = ref('')
+const newPasswordConfirm = ref('')
+
+function resetPasswordFlow() {
+  passwordStep.value = 'idle'
+  passwordCode.value = ''
+  passwordToken.value = ''
+  newPassword.value = ''
+  newPasswordConfirm.value = ''
+  passwordSuccess.value = ''
+  passwordError.value = ''
+}
+
+async function handleSendPasswordCode() {
   passwordError.value = ''
   passwordSuccess.value = ''
   passwordLoading.value = true
@@ -45,9 +64,56 @@ async function handleChangePassword() {
     const email = user.value?.email
     if (!email) throw new Error('No email found for current user.')
     await sendPasswordReset(email)
-    passwordSuccess.value = 'A password reset link has been sent to your email. Please check your inbox to complete the change.'
+    passwordStep.value = 'code'
+    passwordSuccess.value = `We sent a 6-digit code to ${email}. Enter it below to continue.`
   } catch (err) {
-    passwordError.value = (err as Error).message || 'Failed to initiate password change.'
+    passwordError.value = (err as Error).message || 'Failed to send reset code.'
+  } finally {
+    passwordLoading.value = false
+  }
+}
+
+async function handleVerifyPasswordCode() {
+  passwordError.value = ''
+  if (passwordCode.value.length !== 6) {
+    passwordError.value = 'Please enter the 6-digit code.'
+    return
+  }
+  passwordLoading.value = true
+  try {
+    const email = user.value?.email
+    if (!email) throw new Error('No email found for current user.')
+    const data = await exchangeResetToken(email, passwordCode.value)
+    passwordToken.value = data?.token ?? ''
+    passwordStep.value = 'newpass'
+    passwordSuccess.value = ''
+  } catch (err) {
+    passwordError.value = (err as Error).message || 'Invalid or expired code.'
+    passwordCode.value = ''
+  } finally {
+    passwordLoading.value = false
+  }
+}
+
+async function handleResetPassword() {
+  passwordError.value = ''
+  if (newPassword.value.length < 6) {
+    passwordError.value = 'Password must be at least 6 characters.'
+    return
+  }
+  if (newPassword.value !== newPasswordConfirm.value) {
+    passwordError.value = 'Passwords do not match.'
+    return
+  }
+  passwordLoading.value = true
+  try {
+    await resetPassword(newPassword.value, passwordToken.value)
+    passwordStep.value = 'done'
+    passwordSuccess.value = 'Your password has been updated.'
+    newPassword.value = ''
+    newPasswordConfirm.value = ''
+  } catch (err) {
+    passwordError.value = (err as Error).message || 'Failed to reset password.'
   } finally {
     passwordLoading.value = false
   }
@@ -60,8 +126,14 @@ const deleteError = ref('')
 const showDeleteConfirm = ref(false)
 
 async function handleDeleteAccount() {
-  if (deleteConfirmText.value !== 'DELETE') {
-    deleteError.value = 'Please type DELETE to confirm.'
+  const expectedEmail = user.value?.email?.trim().toLowerCase() || ''
+  const typed = deleteConfirmText.value.trim().toLowerCase()
+  if (!typed) {
+    deleteError.value = 'Please type your email to confirm.'
+    return
+  }
+  if (typed !== expectedEmail) {
+    deleteError.value = 'The email does not match your account email.'
     return
   }
   deleteLoading.value = true
@@ -92,8 +164,7 @@ async function handleDeleteAccount() {
 function openSettings() {
   closeDropdown()
   settingsTab.value = 'password'
-  passwordSuccess.value = ''
-  passwordError.value = ''
+  resetPasswordFlow()
   deleteError.value = ''
   showDeleteConfirm.value = false
   deleteConfirmText.value = ''
@@ -282,7 +353,7 @@ function navigate(link: typeof navLinks[0]) {
 }
 
 const isOnChat = computed(() => route.path === '/chat')
-const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automations', '/memory', '/docs'].includes(route.path))
+const _isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automations', '/memory', '/docs'].includes(route.path))
 </script>
 
 <template>
@@ -347,129 +418,11 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
       >
         Open Chat
       </NuxtLink>
-
-      <!-- App pages: model status + settings -->
-      <template v-if="isOnApp">
-        <div
-          v-if="isFallback"
-          class="status-pill status-pill--fallback"
-          title="Claude is temporarily unavailable. Gemini is handling your requests."
-        >
-          <span class="status-dot status-dot--amber" />
-          <span>Backup AI active</span>
-        </div>
-        <div
-          v-else
-          class="status-pill"
-        >
-          <span class="status-dot status-dot--green" />
-          <span>AI Online</span>
-        </div>
-        <!-- User avatar dropdown -->
-        <div
-          ref="dropdownRef"
-          class="user-dropdown-wrapper"
-        >
-          <button
-            class="user-avatar-btn"
-            :title="`Signed in as ${user?.email ?? ''}`"
-            @click.stop="toggleDropdown"
-          >
-            <img
-              v-if="user?.avatar_url"
-              :src="user.avatar_url"
-              :alt="user?.name ?? 'User'"
-              class="w-full h-full object-cover rounded-full"
-            >
-            <span
-              v-else
-              class="text-xs font-semibold text-white/70"
-            >{{ (user?.name ?? user?.email ?? '?').charAt(0).toUpperCase() }}</span>
-          </button>
-
-          <!-- Dropdown menu -->
-          <Transition name="dropdown">
-            <div
-              v-if="userDropdownOpen"
-              class="user-dropdown"
-            >
-              <!-- User info header -->
-              <div class="dropdown-header">
-                <div class="dropdown-avatar">
-                  <img
-                    v-if="user?.avatar_url"
-                    :src="user.avatar_url"
-                    :alt="user?.name ?? 'User'"
-                    class="w-full h-full object-cover rounded-full"
-                  >
-                  <span
-                    v-else
-                    class="text-sm font-semibold text-white/70"
-                  >
-                    {{ (user?.name ?? user?.email ?? '?').charAt(0).toUpperCase() }}
-                  </span>
-                </div>
-                <div class="dropdown-user-info">
-                  <span class="dropdown-user-name">{{ user?.name || 'User' }}</span>
-                  <span class="dropdown-user-email">{{ user?.email }}</span>
-                </div>
-              </div>
-
-              <div class="dropdown-divider" />
-
-              <!-- Menu items -->
-              <button
-                class="dropdown-item"
-                @click="openSettings"
-              >
-                <UIcon
-                  name="i-lucide-settings"
-                  class="w-4 h-4"
-                />
-                <span>Settings</span>
-              </button>
-
-              <div class="dropdown-divider" />
-
-              <button
-                class="dropdown-item dropdown-item--danger"
-                @click="logout"
-              >
-                <UIcon
-                  name="i-lucide-log-out"
-                  class="w-4 h-4"
-                />
-                <span>Log out</span>
-              </button>
-            </div>
-          </Transition>
-        </div>
-      </template>
     </div>
 
-    <!-- Mobile right: model dot + sidebar toggle (logged-in) or burger (logged-out) -->
+    <!-- Mobile right: burger (logged-out only — logged-in users use sidebar FAB) -->
     <div class="header-right header-right--mobile">
-      <span
-        v-if="isOnApp"
-        class="status-dot-sm"
-        :class="isFallback ? 'status-dot-sm--amber' : 'status-dot-sm--green'"
-      />
-      <!-- Logged-in: sidebar toggle -->
       <button
-        v-if="user"
-        class="sidebar-toggle-btn"
-        :class="{ 'sidebar-toggle-btn--active': sidebarOpen }"
-        aria-label="Toggle app menu"
-        @click.stop="toggleSidebar"
-      >
-        <UIcon
-          name="i-lucide-layout-sidebar"
-          class="w-4 h-4"
-        />
-      </button>
-      <!-- Logged-out: burger -->
-      <button
-        v-else
         class="burger-btn"
         :class="{ 'burger-btn--open': mobileOpen }"
         aria-label="Toggle menu"
@@ -739,13 +692,217 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
             v-if="settingsTab === 'password'"
             class="settings-section"
           >
-            <p class="settings-desc">
-              For security, we'll send a password reset link to your email address.
-              Click the link in the email to set a new password.
-            </p>
-
+            <!-- Step indicator -->
             <div
-              v-if="passwordSuccess"
+              v-if="passwordStep !== 'done'"
+              class="pw-steps"
+            >
+              <div
+                class="pw-step"
+                :class="{ 'pw-step--active': passwordStep === 'idle', 'pw-step--done': passwordStep === 'code' || passwordStep === 'newpass' }"
+              >
+                <span class="pw-step-num">1</span>
+                <span class="pw-step-label">Request</span>
+              </div>
+              <div class="pw-step-line" />
+              <div
+                class="pw-step"
+                :class="{ 'pw-step--active': passwordStep === 'code', 'pw-step--done': passwordStep === 'newpass' }"
+              >
+                <span class="pw-step-num">2</span>
+                <span class="pw-step-label">Verify</span>
+              </div>
+              <div class="pw-step-line" />
+              <div
+                class="pw-step"
+                :class="{ 'pw-step--active': passwordStep === 'newpass' }"
+              >
+                <span class="pw-step-num">3</span>
+                <span class="pw-step-label">New password</span>
+              </div>
+            </div>
+
+            <!-- Step 1: Request code -->
+            <template v-if="passwordStep === 'idle'">
+              <p class="settings-desc">
+                To change your password, we'll send a 6-digit verification code to <strong>{{ user?.email }}</strong>. Enter the code and your new password below.
+              </p>
+
+              <div
+                v-if="passwordError"
+                class="settings-alert settings-alert--error"
+              >
+                <UIcon
+                  name="i-lucide-alert-circle"
+                  class="w-4 h-4 shrink-0"
+                />
+                <span>{{ passwordError }}</span>
+              </div>
+
+              <button
+                class="settings-btn settings-btn--primary"
+                :disabled="passwordLoading"
+                @click="handleSendPasswordCode"
+              >
+                <UIcon
+                  v-if="passwordLoading"
+                  name="i-lucide-loader-2"
+                  class="w-4 h-4 animate-spin"
+                />
+                <UIcon
+                  v-else
+                  name="i-lucide-mail"
+                  class="w-4 h-4"
+                />
+                {{ passwordLoading ? 'Sending…' : 'Send Verification Code' }}
+              </button>
+            </template>
+
+            <!-- Step 2: Enter code -->
+            <template v-else-if="passwordStep === 'code'">
+              <p class="settings-desc">
+                We sent a 6-digit code to <strong>{{ user?.email }}</strong>. Enter it below to continue.
+              </p>
+
+              <div>
+                <label class="pw-label">Verification code</label>
+                <input
+                  v-model="passwordCode"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="6"
+                  placeholder="000000"
+                  class="settings-input pw-code-input"
+                  autocomplete="one-time-code"
+                  @keyup.enter="handleVerifyPasswordCode"
+                >
+              </div>
+
+              <div
+                v-if="passwordError"
+                class="settings-alert settings-alert--error"
+              >
+                <UIcon
+                  name="i-lucide-alert-circle"
+                  class="w-4 h-4 shrink-0"
+                />
+                <span>{{ passwordError }}</span>
+              </div>
+
+              <div class="pw-actions">
+                <button
+                  class="settings-btn settings-btn--ghost"
+                  :disabled="passwordLoading"
+                  @click="handleSendPasswordCode"
+                >
+                  Resend code
+                </button>
+                <button
+                  class="settings-btn settings-btn--primary"
+                  :disabled="passwordLoading || passwordCode.length !== 6"
+                  @click="handleVerifyPasswordCode"
+                >
+                  <UIcon
+                    v-if="passwordLoading"
+                    name="i-lucide-loader-2"
+                    class="w-4 h-4 animate-spin"
+                  />
+                  {{ passwordLoading ? 'Verifying…' : 'Verify Code' }}
+                </button>
+              </div>
+            </template>
+
+            <!-- Step 3: New password -->
+            <template v-else-if="passwordStep === 'newpass'">
+              <p class="settings-desc">
+                Choose a strong new password. Must be at least 6 characters.
+              </p>
+
+              <div>
+                <label class="pw-label">New password</label>
+                <input
+                  v-model="newPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  class="settings-input"
+                  autocomplete="new-password"
+                  @keyup.enter="handleResetPassword"
+                >
+              </div>
+
+              <div>
+                <label class="pw-label">Confirm new password</label>
+                <input
+                  v-model="newPasswordConfirm"
+                  type="password"
+                  placeholder="••••••••"
+                  class="settings-input"
+                  autocomplete="new-password"
+                  @keyup.enter="handleResetPassword"
+                >
+              </div>
+
+              <div
+                v-if="passwordError"
+                class="settings-alert settings-alert--error"
+              >
+                <UIcon
+                  name="i-lucide-alert-circle"
+                  class="w-4 h-4 shrink-0"
+                />
+                <span>{{ passwordError }}</span>
+              </div>
+
+              <div class="pw-actions">
+                <button
+                  class="settings-btn settings-btn--ghost"
+                  :disabled="passwordLoading"
+                  @click="resetPasswordFlow"
+                >
+                  Cancel
+                </button>
+                <button
+                  class="settings-btn settings-btn--primary"
+                  :disabled="passwordLoading || !newPassword || !newPasswordConfirm"
+                  @click="handleResetPassword"
+                >
+                  <UIcon
+                    v-if="passwordLoading"
+                    name="i-lucide-loader-2"
+                    class="w-4 h-4 animate-spin"
+                  />
+                  {{ passwordLoading ? 'Saving…' : 'Update Password' }}
+                </button>
+              </div>
+            </template>
+
+            <!-- Step 4: Done -->
+            <template v-else-if="passwordStep === 'done'">
+              <div class="pw-done">
+                <div class="pw-done-icon">
+                  <UIcon
+                    name="i-lucide-check-circle-2"
+                    class="w-10 h-10 text-green-400"
+                  />
+                </div>
+                <h3 class="pw-done-title">
+                  Password updated
+                </h3>
+                <p class="pw-done-desc">
+                  Your password has been changed successfully. Use your new password next time you sign in.
+                </p>
+                <button
+                  class="settings-btn settings-btn--ghost"
+                  @click="resetPasswordFlow"
+                >
+                  Done
+                </button>
+              </div>
+            </template>
+
+            <!-- Informational success (only visible during code step) -->
+            <div
+              v-if="passwordStep === 'code' && passwordSuccess"
               class="settings-alert settings-alert--success"
             >
               <UIcon
@@ -754,34 +911,6 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
               />
               <span>{{ passwordSuccess }}</span>
             </div>
-            <div
-              v-if="passwordError"
-              class="settings-alert settings-alert--error"
-            >
-              <UIcon
-                name="i-lucide-alert-circle"
-                class="w-4 h-4 shrink-0"
-              />
-              <span>{{ passwordError }}</span>
-            </div>
-
-            <button
-              class="settings-btn settings-btn--primary"
-              :disabled="passwordLoading"
-              @click="handleChangePassword"
-            >
-              <UIcon
-                v-if="passwordLoading"
-                name="i-lucide-loader-2"
-                class="w-4 h-4 animate-spin"
-              />
-              <UIcon
-                v-else
-                name="i-lucide-mail"
-                class="w-4 h-4"
-              />
-              {{ passwordLoading ? 'Sending…' : 'Send Reset Link' }}
-            </button>
           </div>
 
           <!-- Danger Zone tab -->
@@ -820,14 +949,26 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
                 v-else
                 class="delete-confirm"
               >
+                <div class="delete-warn">
+                  <UIcon
+                    name="i-lucide-alert-octagon"
+                    class="w-4 h-4 shrink-0"
+                  />
+                  <span>This will permanently delete your account, threads, workflows, automations, integrations, and memory. This cannot be undone.</span>
+                </div>
                 <p class="delete-confirm-label">
-                  Type <strong>DELETE</strong> to confirm:
+                  To confirm, type your account email
+                  <strong>{{ user?.email }}</strong>
+                  below:
                 </p>
                 <input
                   v-model="deleteConfirmText"
+                  type="email"
                   class="settings-input"
-                  placeholder="Type DELETE"
+                  :placeholder="user?.email || 'your email'"
                   autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
                 >
                 <div
                   v-if="deleteError"
@@ -848,7 +989,7 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
                   </button>
                   <button
                     class="settings-btn settings-btn--danger"
-                    :disabled="deleteLoading || deleteConfirmText !== 'DELETE'"
+                    :disabled="deleteLoading || deleteConfirmText.trim().toLowerCase() !== (user?.email?.trim().toLowerCase() || '__never__')"
                     @click="handleDeleteAccount"
                   >
                     <UIcon
@@ -2008,6 +2149,141 @@ const isOnApp = computed(() => ['/chat', '/integrations', '/workflows', '/automa
 
 .mt-3 {
   margin-top: 12px;
+}
+
+/* Password reset flow */
+.pw-steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 6px;
+}
+.pw-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.32);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.pw-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.pw-step-label {
+  white-space: nowrap;
+}
+.pw-step--active .pw-step-num {
+  background: rgba(232, 175, 72, 0.14);
+  border-color: rgba(232, 175, 72, 0.4);
+  color: rgba(232, 194, 116, 0.95);
+}
+.pw-step--active {
+  color: rgba(255, 255, 255, 0.88);
+}
+.pw-step--done .pw-step-num {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.35);
+  color: rgba(134, 239, 172, 0.95);
+}
+.pw-step--done {
+  color: rgba(255, 255, 255, 0.55);
+}
+.pw-step-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.pw-label {
+  display: block;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 6px;
+}
+
+.pw-code-input {
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.35em;
+  font-size: 18px;
+  padding: 12px 14px;
+}
+
+.pw-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pw-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 12px 4px 4px;
+}
+.pw-done-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  margin-bottom: 6px;
+}
+.pw-done-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: -0.01em;
+}
+.pw-done-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.45);
+  max-width: 320px;
+  margin-bottom: 8px;
+}
+
+.settings-desc strong {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+}
+
+/* Delete warning banner */
+.delete-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  color: rgba(252, 165, 165, 0.9);
+  font-size: 12.5px;
+  line-height: 1.45;
+  margin-bottom: 2px;
+}
+
+.delete-confirm-label strong {
+  display: inline-block;
+  margin: 0 2px;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 600;
+  word-break: break-all;
 }
 
 /* Modal transition */

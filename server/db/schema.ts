@@ -2,6 +2,7 @@ import { pgTable, uuid, text, timestamp, jsonb, integer, varchar, boolean } from
 
 export const threads = pgTable('threads', {
   id: uuid('id').defaultRandom().primaryKey(),
+  userId: varchar('user_id', { length: 255 }).notNull().default('anonymous'),
   title: text('title').notNull().default('New Thread'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   archivedAt: timestamp('archived_at', { withTimezone: true })
@@ -86,6 +87,7 @@ export const userIntegrations = pgTable('user_integrations', {
 
 export const workflows = pgTable('workflows', {
   id: uuid('id').defaultRandom().primaryKey(),
+  userId: varchar('user_id', { length: 255 }).notNull().default('anonymous'),
   name: varchar('name', { length: 100 }).notNull(),
   description: text('description'),
   prompt: text('prompt').notNull(),

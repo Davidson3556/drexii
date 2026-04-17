@@ -49,11 +49,25 @@ export function useThread() {
   const agentSteps = computed(() => state.value.agentSteps)
   const lastMessageContent = computed(() => state.value.lastMessageContent)
 
+  function getUserId(): string | undefined {
+    const { user } = useAuth()
+    return user.value?.id
+  }
+
+  function threadStorageKey(): string {
+    const uid = getUserId()
+    return uid ? `drexii_thread_id_${uid}` : 'drexii_thread_id'
+  }
+
   async function createThread(title?: string): Promise<Thread> {
     state.value.isLoadingThread = true
+    const userId = getUserId()
     try {
+      const headers: Record<string, string> = {}
+      if (userId) headers['x-user-id'] = userId
       const { thread } = await $fetch<{ thread: Thread }>('/api/threads', {
         method: 'POST',
+        headers,
         body: { title }
       })
       state.value.threads.unshift(thread)
@@ -61,7 +75,7 @@ export function useThread() {
       state.value.messages = []
       state.value.error = null
       if (import.meta.client) {
-        localStorage.setItem('drexii_thread_id', thread.id)
+        localStorage.setItem(threadStorageKey(), thread.id)
       }
       return thread
     } finally {
@@ -71,14 +85,18 @@ export function useThread() {
 
   async function loadThread(id: string) {
     state.value.isLoadingThread = true
+    const userId = getUserId()
     try {
-      const data = await $fetch<{ thread: Thread, messages: Message[] }>(`/api/threads/${id}`)
+      const headers: Record<string, string> = {}
+      if (userId) headers['x-user-id'] = userId
+      const data = await $fetch<{ thread: Thread, messages: Message[] }>(`/api/threads/${id}`, { headers })
       state.value.currentThread = data.thread
       state.value.messages = data.messages
       state.value.error = null
     } catch (err) {
       state.value.error = 'Failed to load thread'
       console.error('[useThread] Load error:', err)
+      throw err
     } finally {
       state.value.isLoadingThread = false
     }
@@ -262,6 +280,31 @@ export function useThread() {
     }
   }
 
+  async function loadThreads(): Promise<void> {
+    const userId = getUserId()
+    if (!userId) return
+    try {
+      const { threads: list } = await $fetch<{ threads: Thread[] }>('/api/threads', {
+        headers: { 'x-user-id': userId }
+      })
+      state.value.threads = list
+    } catch (err) {
+      console.error('[useThread] loadThreads error:', err)
+    }
+  }
+
+  function resetState(): void {
+    state.value.currentThread = null
+    state.value.threads = []
+    state.value.messages = []
+    state.value.isStreaming = false
+    state.value.streamingContent = ''
+    state.value.error = null
+    state.value.pendingActions = []
+    state.value.agentSteps = []
+    state.value.lastMessageContent = null
+  }
+
   async function cancelAction(actionId: string) {
     const action = state.value.pendingActions.find(a => a.actionId === actionId)
     state.value.pendingActions = state.value.pendingActions.filter(a => a.actionId !== actionId)
@@ -299,6 +342,8 @@ export function useThread() {
     lastMessageContent,
     createThread,
     loadThread,
+    loadThreads,
+    resetState,
     send,
     confirmAction,
     cancelAction

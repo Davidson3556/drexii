@@ -7,6 +7,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Thread ID is required' })
   }
 
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!UUID_RE.test(id)) {
+    throw createError({ statusCode: 404, message: 'Thread not found' })
+  }
+
   try {
     const db = useDB()
     const [thread] = await db.select()

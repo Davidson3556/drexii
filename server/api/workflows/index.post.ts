@@ -7,6 +7,11 @@ interface WorkflowStep {
 }
 
 export default defineEventHandler(async (event) => {
+  const userId = getHeader(event, 'x-user-id')
+  if (!userId) {
+    throw createError({ statusCode: 401, message: 'User ID required' })
+  }
+
   const body = await readBody<{
     name: string
     description?: string
@@ -37,6 +42,7 @@ export default defineEventHandler(async (event) => {
   const db = useDB()
   const [workflow] = await db.insert(schema.workflows)
     .values({
+      userId,
       name: body.name.trim(),
       description: body.description?.trim() || null,
       prompt

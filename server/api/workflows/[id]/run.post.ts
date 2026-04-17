@@ -5,6 +5,7 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
   if (!id) throw createError({ statusCode: 400, message: 'Workflow ID is required' })
 
+  // x-user-id is optional — look up workflow by id only, use its stored userId
   const db = useDB()
 
   const [workflow] = await db.select()
@@ -16,9 +17,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Workflow not found' })
   }
 
-  // Create a new thread for this workflow run
+  // Create a new thread for this workflow run (scoped to the workflow's owner)
   const [thread] = await db.insert(schema.threads)
-    .values({ title: `Workflow: ${workflow.name}` })
+    .values({ title: `Workflow: ${workflow.name}`, userId: workflow.userId })
     .returning()
 
   // Update run stats

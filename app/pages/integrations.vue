@@ -19,6 +19,7 @@ const setupStep = ref<'form' | 'testing' | 'success' | 'error'>('form')
 const setupError = ref('')
 const formData = ref<Record<string, string>>({})
 const disconnecting = ref<string | null>(null)
+const confirmingDisconnect = ref<string | null>(null)
 
 // Integration definitions
 const integrations = [
@@ -346,9 +347,22 @@ async function testAndSave() {
   }
 }
 
-async function disconnectIntegration(integrationId: string) {
+function askDisconnect(integrationId: string) {
+  confirmingDisconnect.value = integrationId
+}
+
+function cancelDisconnect() {
+  confirmingDisconnect.value = null
+}
+
+async function confirmDisconnect() {
+  const integrationId = confirmingDisconnect.value
+  if (!integrationId) return
   const conn = getConnectedIntegration(integrationId)
-  if (!conn || !user.value?.id) return
+  if (!conn || !user.value?.id) {
+    confirmingDisconnect.value = null
+    return
+  }
 
   disconnecting.value = integrationId
   const intName = integrations.find(i => i.id === integrationId)?.name ?? integrationId
@@ -363,11 +377,16 @@ async function disconnectIntegration(integrationId: string) {
     toast.add({ title: 'Disconnect failed', description: `Could not disconnect ${intName}. Please try again.`, color: 'error' })
   } finally {
     disconnecting.value = null
+    confirmingDisconnect.value = null
   }
 }
 
 const activeIntegrationDef = computed(() =>
   integrations.find(i => i.id === activeSetup.value)
+)
+
+const confirmingIntegrationDef = computed(() =>
+  integrations.find(i => i.id === confirmingDisconnect.value)
 )
 
 const connectedCount = computed(() =>
@@ -405,15 +424,10 @@ onMounted(() => {
       </div>
 
       <!-- Loading -->
-      <div
+      <LoadingScreen
         v-if="isLoading"
-        class="intg-loading"
-      >
-        <UIcon
-          name="i-lucide-loader-2"
-          class="w-5 h-5 animate-spin text-white/30"
-        />
-      </div>
+        message="Loading integrations…"
+      />
 
       <!-- Integration Grid -->
       <div
@@ -470,7 +484,7 @@ onMounted(() => {
               <button
                 class="intg-btn intg-btn--disconnect"
                 :disabled="disconnecting === intg.id"
-                @click="disconnectIntegration(intg.id)"
+                @click="askDisconnect(intg.id)"
               >
                 <UIcon
                   :name="disconnecting === intg.id ? 'i-lucide-loader-2' : 'i-lucide-unplug'"
@@ -640,6 +654,81 @@ onMounted(() => {
               </button>
             </div>
           </template>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Disconnect Confirmation Modal -->
+    <Transition name="modal">
+      <div
+        v-if="confirmingIntegrationDef"
+        class="intg-overlay"
+        @click.self="cancelDisconnect"
+      >
+        <div class="intg-modal intg-modal--confirm">
+          <div class="intg-modal-header">
+            <div class="flex items-center gap-3">
+              <div class="intg-confirm-icon">
+                <UIcon
+                  name="i-lucide-alert-triangle"
+                  class="w-5 h-5 text-red-400"
+                />
+              </div>
+              <div>
+                <h2 class="text-base font-semibold text-white/90">
+                  Disconnect {{ confirmingIntegrationDef.name }}?
+                </h2>
+                <p class="text-xs text-white/35 mt-0.5">
+                  This action can be undone by reconnecting.
+                </p>
+              </div>
+            </div>
+            <button
+              class="intg-modal-close"
+              @click="cancelDisconnect"
+            >
+              <UIcon
+                name="i-lucide-x"
+                class="w-4 h-4"
+              />
+            </button>
+          </div>
+
+          <div class="intg-modal-body">
+            <p class="text-sm text-white/55 leading-relaxed">
+              Drexii will no longer be able to use {{ confirmingIntegrationDef.name }} tools. Any automations or workflows that rely on it will stop working until you reconnect.
+            </p>
+            <p class="text-xs text-white/35 mt-3">
+              Your stored credentials will be removed. You can reconnect anytime by providing them again.
+            </p>
+          </div>
+
+          <div class="intg-modal-footer">
+            <button
+              class="intg-btn intg-btn--ghost"
+              :disabled="disconnecting === confirmingIntegrationDef.id"
+              @click="cancelDisconnect"
+            >
+              Cancel
+            </button>
+            <button
+              class="intg-btn intg-btn--disconnect-confirm"
+              :disabled="disconnecting === confirmingIntegrationDef.id"
+              @click="confirmDisconnect"
+            >
+              <UIcon
+                v-if="disconnecting === confirmingIntegrationDef.id"
+                name="i-lucide-loader-2"
+                class="w-3.5 h-3.5 animate-spin"
+              />
+              <UIcon
+                v-else
+                name="i-lucide-unplug"
+                class="w-3.5 h-3.5"
+              />
+              {{ disconnecting === confirmingIntegrationDef.id ? 'Disconnecting…' : 'Yes, disconnect' }}
+            </button>
+          </div>
         </div>
       </div>
     </Transition>
@@ -849,6 +938,32 @@ onMounted(() => {
 .intg-btn--disconnect:hover:not(:disabled) {
   background: rgba(239, 68, 68, 0.15);
   color: rgba(239, 68, 68, 0.9);
+}
+
+.intg-btn--disconnect-confirm {
+  background: rgba(239, 68, 68, 0.18);
+  color: rgba(248, 113, 113, 0.95);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+.intg-btn--disconnect-confirm:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.28);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.intg-modal--confirm {
+  max-width: 440px;
+}
+
+.intg-confirm-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .intg-btn--ghost {

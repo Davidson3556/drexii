@@ -129,6 +129,7 @@ async function toggleAutomation(id: string) {
 }
 
 async function deleteAutomation(id: string) {
+  if (!confirm('Delete this automation? This cannot be undone.')) return
   try {
     await $fetch(`/api/automations/${id}`, { method: 'DELETE', headers: headers() })
     automations.value = automations.value.filter(a => a.id !== id)
@@ -141,14 +142,54 @@ async function deleteAutomation(id: string) {
 async function runAutomation(id: string) {
   runningId.value = id
   try {
-    await $fetch('/api/automations/process', {
+    const result = await $fetch<{
+      ok: boolean
+      status: 'success' | 'error'
+      output: string
+      toolsUsed: string[]
+      durationMs: number
+    }>('/api/automations/process', {
       method: 'POST',
+      headers: headers(),
       body: { automationId: id, context: `Manual test run at ${new Date().toISOString()}` }
     })
-    toast.add({ title: 'Automation executed', color: 'success' })
+
+    const summary = result.output?.slice(0, 180) || 'No output returned.'
+
+    if (result.status === 'success') {
+      toast.add({
+        title: 'Automation executed',
+        description: summary,
+        color: 'success'
+      })
+    } else {
+      toast.add({
+        title: 'Automation ran with errors',
+        description: summary,
+        color: 'error'
+      })
+    }
+
     await fetchAutomations()
-  } catch {
-    toast.add({ title: 'Automation run failed', color: 'error' })
+    // Auto-open logs panel so the user sees the run
+    if (viewLogsId.value !== id) {
+      await viewLogs(id)
+    } else {
+      // Refresh logs in place
+      logsLoading.value = true
+      try {
+        const data = await $fetch<{ logs: AutomationLog[] }>(`/api/automations/${id}/logs`)
+        logs.value = data.logs
+      } finally {
+        logsLoading.value = false
+      }
+    }
+  } catch (err: unknown) {
+    toast.add({
+      title: 'Automation run failed',
+      description: (err as { message?: string }).message || 'Unknown error',
+      color: 'error'
+    })
   } finally {
     runningId.value = null
   }
@@ -383,12 +424,10 @@ When I get a new email asking about pricing, check our Notion pricing page and r
       </Transition>
 
       <!-- Loading -->
-      <div
+      <LoadingScreen
         v-if="isLoading"
-        class="flex items-center justify-center py-20"
-      >
-        <div class="w-5 h-5 border-2 border-white/20 border-t-amber-500/70 rounded-full animate-spin" />
-      </div>
+        message="Loading automations…"
+      />
 
       <!-- Empty State -->
       <div
@@ -490,7 +529,7 @@ When I get a new email asking about pricing, check our Notion pricing page and r
               </div>
 
               <!-- Actions -->
-              <div class="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="flex items-center gap-2 shrink-0 auto-actions">
                 <button
                   class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5"
                   :class="auto.isActive
@@ -632,5 +671,20 @@ When I get a new email asking about pricing, check our Notion pricing page and r
 .logs-slide-enter-from,
 .logs-slide-leave-to {
   opacity: 0;
+}
+
+.auto-actions {
+  opacity: 1;
+  transition: opacity 0.15s ease;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+@media (min-width: 768px) {
+  .auto-actions {
+    opacity: 0.4;
+  }
+  .group:hover .auto-actions {
+    opacity: 1;
+  }
 }
 </style>

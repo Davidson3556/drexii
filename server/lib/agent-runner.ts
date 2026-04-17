@@ -164,12 +164,13 @@ function evaluateChainCondition(condition: string | null, output: string, status
 
 /**
  * Processes a single automation: runs the agent, logs the result, then fires any chained automations.
+ * Returns the agent result so callers (e.g. manual trigger endpoint) can show it back to the user.
  */
 export async function processAutomation(
   automationId: string,
   triggerContext: string,
   triggerInput: Record<string, unknown> = {}
-): Promise<void> {
+): Promise<AgentRunResult | null> {
   const db = useDB()
 
   const [automation] = await db.select()
@@ -177,7 +178,10 @@ export async function processAutomation(
     .where(eq(schema.automations.id, automationId))
     .limit(1)
 
-  if (!automation || !automation.isActive) return
+  if (!automation) return null
+  const isManual = triggerInput.manual === true
+  // Inactive automations are skipped for scheduled/chained runs, but manual test runs still execute
+  if (!automation.isActive && !isManual) return null
 
   const result = await runAgent(
     automation.userId,
@@ -226,4 +230,6 @@ export async function processAutomation(
       await processAutomation(child.id, chainContext, { chainedFrom: automationId })
     }
   }
+
+  return result
 }
