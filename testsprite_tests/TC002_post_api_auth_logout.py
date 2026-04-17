@@ -1,53 +1,37 @@
 import requests
 
 BASE_URL = "http://localhost:3000"
-LOGIN_PATH = "/api/auth/login"
-LOGOUT_PATH = "/api/auth/logout"
-
-EMAIL = "drexiitest@mailinator.com"
-PASSWORD = "12345678"
+LOGIN_ENDPOINT = "/api/auth/login"
+LOGOUT_ENDPOINT = "/api/auth/logout"
 TIMEOUT = 30
 
 def test_post_api_auth_logout():
+    login_url = BASE_URL + LOGIN_ENDPOINT
+    logout_url = BASE_URL + LOGOUT_ENDPOINT
+    login_payload = {
+        "email": "drexiitest@mailinator.com",
+        "password": "12345678"
+    }
     session = requests.Session()
     try:
         # Login to get session cookie
-        login_payload = {
-            "email": EMAIL,
-            "password": PASSWORD
-        }
-        login_response = session.post(
-            BASE_URL + LOGIN_PATH,
-            json=login_payload,
-            timeout=TIMEOUT
-        )
-        assert login_response.status_code == 200, f"Login failed: {login_response.text}"
-        login_json = login_response.json()
-        assert login_json.get("ok") is True, "Login did not return ok true"
-        assert "provider" in login_json, "Login response missing provider"
+        login_resp = session.post(login_url, json=login_payload, timeout=TIMEOUT)
+        assert login_resp.status_code == 200, f"Login failed with status {login_resp.status_code}"
+        login_data = login_resp.json()
+        assert "ok" in login_data and login_data["ok"] is True, "Login response does not have ok:true"
+        assert "provider" in login_data and isinstance(login_data["provider"], str), "Login response missing provider"
 
-        # Confirm session cookie is set (at least one cookie)
-        assert session.cookies, "Session cookie not set after login"
+        # Logout using session with cookie
+        logout_resp = session.post(logout_url, timeout=TIMEOUT)
+        assert logout_resp.status_code == 200, f"Logout failed with status {logout_resp.status_code}"
+        logout_data = logout_resp.json()
+        assert "ok" in logout_data and logout_data["ok"] is True, "Logout response does not have ok:true"
 
-        # Logout - expect 200 with {ok: true} and session cookie cleared
-        logout_response = session.post(
-            BASE_URL + LOGOUT_PATH,
-            timeout=TIMEOUT
-        )
-        assert logout_response.status_code == 200, f"Logout failed: {logout_response.text}"
-        logout_json = logout_response.json()
-        assert logout_json.get("ok") is True, "Logout did not return ok true"
+        # Check that session cookie is cleared (session.cookies should be empty or expired)
+        cookies = session.cookies.get_dict()
+        # Session cookie names might vary, check no relevant cookies remain
+        assert not cookies, f"Session cookies not cleared after logout: {cookies}"
 
-        # After logout, session cookies should be cleared
-        # Some servers may clear cookies by setting expired cookies; check that session.cookies is empty or no session cookie
-        # Check that all cookies set by server for the domain have expired or session cookie removed
-        is_session_cleared = True
-        for cookie in session.cookies:
-            # If a cookie still valid, session may not be cleared
-            if cookie.name.lower() == "session" or cookie.name.startswith("session") or cookie.value:
-                is_session_cleared = False
-                break
-        assert is_session_cleared, "Session cookie not cleared after logout"
     finally:
         session.close()
 

@@ -4,118 +4,117 @@ import time
 BASE_URL = "http://localhost:3000"
 EMAIL = "drexiitest@mailinator.com"
 PASSWORD = "12345678"
+HEADERS = {"Content-Type": "application/json"}
 TIMEOUT = 30
 
-
-def test_post_api_threads_id_messages():
+def tc008_post_api_threads_id_messages():
     session = requests.Session()
 
-    # Step 1: Login to get session cookie and authentication
+    # Login to get any session cookies if needed
     login_resp = session.post(
         f"{BASE_URL}/api/auth/login",
         json={"email": EMAIL, "password": PASSWORD},
-        timeout=TIMEOUT
-    )
-    assert login_resp.status_code == 200, f"Login failed: {login_resp.text}"
-    login_data = login_resp.json()
-    assert login_data.get("ok") is True, f"Login response missing ok:true: {login_data}"
-    assert "provider" in login_data, f"Login response missing provider: {login_data}"
-
-    headers = {"x-user-id": EMAIL}
-
-    # Step 2: Create a thread (since not provided) to post messages to
-    create_thread_resp = session.post(
-        f"{BASE_URL}/api/threads",
-        headers=headers,
-        json={"title": "Test Thread for TC008"},
+        headers=HEADERS,
         timeout=TIMEOUT,
     )
-    assert create_thread_resp.status_code == 200, f"Create thread failed: {create_thread_resp.text}"
-    create_thread_data = create_thread_resp.json()
-    thread = create_thread_data.get("thread")
-    assert thread and "id" in thread, f"Thread creation response invalid: {create_thread_data}"
-    thread_id = thread["id"]
+    assert login_resp.status_code == 200, f"Login failed: {login_resp.text}"
+    login_json = login_resp.json()
+    assert login_json.get("ok") is True and "provider" in login_json
 
+    x_user_id = EMAIL
+
+    # Create a new thread to use for messages
+    created_thread = None
     try:
-        # --- Test 1: POST message with content and x-user-id header (Happy Path) ---
-        message_content = "Hello, this is a test message."
-        post_message_resp = session.post(
-            f"{BASE_URL}/api/threads/{thread_id}/messages",
-            headers=headers,
-            json={"content": message_content},
+        create_thread_resp = session.post(
+            f"{BASE_URL}/api/threads",
+            json={"title": "TC008 Test Thread"},
+            headers={"x-user-id": x_user_id, "Content-Type": "application/json"},
             timeout=TIMEOUT,
         )
-        assert post_message_resp.status_code == 200, f"Post message failed: {post_message_resp.text}"
-        post_message_data = post_message_resp.json()
-        assert "message" in post_message_data and "reply" in post_message_data, \
-            f"Response missing message or reply: {post_message_data}"
-        assert isinstance(post_message_data["message"], dict), "message is not an object"
-        assert isinstance(post_message_data["reply"], dict), "reply is not an object"
+        assert create_thread_resp.status_code == 200, f"Thread creation failed: {create_thread_resp.text}"
+        thread_json = create_thread_resp.json()
+        assert "thread" in thread_json and "id" in thread_json["thread"]
+        created_thread = thread_json["thread"]
+        thread_id = created_thread["id"]
 
-        # --- Test 2: POST message with missing content (should return 400) ---
+        # 1. Happy case: Post a user message to the thread with valid content and x-user-id
+        message_content = "Hello, AI! Summarize today's news."
+        post_msg_resp = session.post(
+            f"{BASE_URL}/api/threads/{thread_id}/messages",
+            json={"content": message_content},
+            headers={"x-user-id": x_user_id, "Content-Type": "application/json"},
+            timeout=TIMEOUT,
+        )
+        assert post_msg_resp.status_code == 200, f"Valid message post failed: {post_msg_resp.text}"
+        post_msg_json = post_msg_resp.json()
+        assert "message" in post_msg_json and "reply" in post_msg_json
+        # Check that message content matches
+        assert post_msg_json["message"].get("content") == message_content
+        # Check reply has content
+        assert isinstance(post_msg_json["reply"].get("content"), str)
+        assert len(post_msg_json["reply"].get("content")) > 0
+
+        # 2. Error case: Missing content
         missing_content_resp = session.post(
             f"{BASE_URL}/api/threads/{thread_id}/messages",
-            headers=headers,
-            json={},  # no content
+            json={},
+            headers={"x-user-id": x_user_id, "Content-Type": "application/json"},
             timeout=TIMEOUT,
         )
-        assert missing_content_resp.status_code == 400, f"Expected 400 missing content, got: {missing_content_resp.status_code}"
-        missing_content_text = missing_content_resp.text
-        # Expect error message containing "Missing content"
-        assert "Missing content" in missing_content_text or missing_content_text.lower().find("missing content") != -1, f"Expected error message with 'Missing content', got: {missing_content_text}"
+        assert missing_content_resp.status_code == 400, f"Missing content did not error as expected: {missing_content_resp.text}"
+        assert "Missing content" in missing_content_resp.text
 
-        # --- Test 3: POST message missing x-user-id header (should return 401) ---
+        # 3. Error case: Missing x-user-id header (expect 401)
         missing_userid_resp = session.post(
             f"{BASE_URL}/api/threads/{thread_id}/messages",
-            json={"content": "Message without user id"},
+            json={"content": "Test message with no user ID"},
+            headers={"Content-Type": "application/json"},
             timeout=TIMEOUT,
         )
-        assert missing_userid_resp.status_code == 401, f"Expected 401 missing x-user-id, got: {missing_userid_resp.status_code}"
-        missing_userid_text = missing_userid_resp.text
-        # Expect error message containing "User ID required"
-        assert "User ID required" in missing_userid_text or missing_userid_text.lower().find("user id required") != -1, f"Expected error message 'User ID required', got: {missing_userid_text}"
+        assert missing_userid_resp.status_code == 401, f"Missing x-user-id did not return 401: {missing_userid_resp.text}"
+        assert "User ID required" in missing_userid_resp.text
 
-        # --- Test 4: POST message to non-existent thread id (should return 404) ---
-        fake_thread_id = "nonexistent-thread-id-12345"
-        notfound_resp = session.post(
-            f"{BASE_URL}/api/threads/{fake_thread_id}/messages",
-            headers=headers,
-            json={"content": "Message to invalid thread"},
+        # 4. Error case: Thread not found (use made-up UUID)
+        invalid_thread_id = "00000000-0000-0000-0000-000000000000"
+        not_found_resp = session.post(
+            f"{BASE_URL}/api/threads/{invalid_thread_id}/messages",
+            json={"content": "Hello on non-existent thread"},
+            headers={"x-user-id": x_user_id, "Content-Type": "application/json"},
             timeout=TIMEOUT,
         )
-        assert notfound_resp.status_code == 404, f"Expected 404 thread not found, got: {notfound_resp.status_code}"
-        notfound_text = notfound_resp.text
-        assert "Thread not found" in notfound_text or notfound_text.lower().find("thread not found") != -1, f"Expected error message 'Thread not found', got: {notfound_text}"
+        assert not_found_resp.status_code == 404, f"Thread not found did not return 404: {not_found_resp.text}"
+        assert "Thread not found" in not_found_resp.text
 
-        # --- Test 5: POST messages rapidly to trigger rate limit (expect 429 after some threshold) ---
-        # Rapidly send 15 messages; expect 429 after some number (likely 10)
-        rate_limit_triggered = False
-        for i in range(15):
-            resp = session.post(
+        # 5. Error case: Rate limiting (send 11 rapid requests to hit limit)
+        # According to instructions, 429 with 'Rate limit exceeded' after too many requests
+        # First 10 requests may pass or some may hit limit depending on timing;
+        # We'll send 11 and expect the last to 429.
+        rate_limit_hit = False
+        for i in range(11):
+            rl_resp = session.post(
                 f"{BASE_URL}/api/threads/{thread_id}/messages",
-                headers=headers,
-                json={"content": f"Rapid message {i}"},
+                json={"content": f"Rate limit test message {i+1}"},
+                headers={"x-user-id": x_user_id, "Content-Type": "application/json"},
                 timeout=TIMEOUT,
             )
-            if resp.status_code == 429:
-                rate_limit_triggered = True
-                error_text = resp.text
-                assert "Rate limit exceeded" in error_text or error_text.lower().find("rate limit exceeded") != -1, f"Expected 'Rate limit exceeded', got: {error_text}"
+            if rl_resp.status_code == 429:
+                assert "Rate limit exceeded" in rl_resp.text
+                rate_limit_hit = True
                 break
             else:
-                assert resp.status_code == 200, f"Unexpected status code during rapid messages: {resp.status_code}, body: {resp.text}"
+                # For valid responses, expect 200 and valid structure
+                assert rl_resp.status_code == 200, f"Request {i+1} failed unexpectedly: {rl_resp.text}"
+                rl_json = rl_resp.json()
+                assert "message" in rl_json and "reply" in rl_json
+                # Brief delay to not overblast (can be removed if needed)
+                time.sleep(0.05)
 
-        assert rate_limit_triggered, "Rate limit (429) was not triggered after rapid requests"
+        assert rate_limit_hit, "Rate limit 429 not triggered after 11 rapid requests"
 
     finally:
-        # Cleanup: Delete the created thread to keep environment clean
-        # No delete endpoint for threads documented; if exists, it would be something like:
-        # DELETE /api/threads/:id (not in PRD) - so skip cleanup if no endpoint available
-        # Otherwise could logout to clear session
-        try:
-            session.post(f"{BASE_URL}/api/auth/logout", timeout=TIMEOUT)
-        except Exception:
-            pass
+        # Clean up: delete the created thread if possible (not in PRD for delete thread, so skip)
+        # No API endpoint for deleting thread mentioned in PRD, so no delete call.
+        pass
 
-
-test_post_api_threads_id_messages()
+tc008_post_api_threads_id_messages()

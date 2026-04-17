@@ -7,60 +7,73 @@ TIMEOUT = 30
 
 def test_post_api_auth_delete_account():
     session = requests.Session()
-    try:
-        # Step 1: Login to obtain session cookie
-        login_resp = session.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": EMAIL, "password": PASSWORD},
-            timeout=TIMEOUT
-        )
-        assert login_resp.status_code == 200, f"Login failed: {login_resp.text}"
-        login_data = login_resp.json()
-        assert login_data.get("ok") is True, "Login response missing ok true"
-        assert "provider" in login_data, "Login response missing provider"
-        # Session cookie is maintained by session object automatically
+    # Login to get session cookie
+    login_resp = session.post(
+        f"{BASE_URL}/api/auth/login",
+        json={"email": EMAIL, "password": PASSWORD},
+        timeout=TIMEOUT
+    )
+    assert login_resp.status_code == 200, f"Login failed: {login_resp.text}"
+    login_json = login_resp.json()
+    assert login_json.get("ok") is True and "provider" in login_json
 
-        # Step 2: Delete account with valid userId in body and valid session cookie
+    try:
+        # Test delete account with valid session and userId
+        delete_payload = {"userId": EMAIL}
         delete_resp = session.post(
             f"{BASE_URL}/api/auth/delete-account",
-            json={"userId": EMAIL},
+            json=delete_payload,
             timeout=TIMEOUT
         )
         assert delete_resp.status_code == 200, f"Delete account failed: {delete_resp.text}"
-        delete_data = delete_resp.json()
-        assert delete_data.get("ok") is True, "Delete account response missing ok true"
+        delete_json = delete_resp.json()
+        assert delete_json.get("ok") is True
 
-        # Step 3: Attempt delete account with missing userId (expect 400)
-        missing_userid_resp = session.post(
-            f"{BASE_URL}/api/auth/delete-account",
-            json={},
-            timeout=TIMEOUT
-        )
-        assert missing_userid_resp.status_code in (400, 401), (
-            f"Expected 400 or 401 for missing userId but got {missing_userid_resp.status_code}. "
-            f"Response: {missing_userid_resp.text}"
-        )
-
-        # Step 4: Attempt delete account with invalid session (new session, no login)
-        no_session = requests.Session()
-        invalid_session_resp = no_session.post(
-            f"{BASE_URL}/api/auth/delete-account",
-            json={"userId": EMAIL},
-            timeout=TIMEOUT
-        )
-        assert invalid_session_resp.status_code in (400, 401), (
-            f"Expected 400 or 401 for invalid session but got {invalid_session_resp.status_code}. "
-            f"Response: {invalid_session_resp.text}"
-        )
-
+        # Since account is deleted, the session should be invalid now.
+        # To continue testing negative cases, re-login or create a new session?
+        # We'll attempt test on missing userId with a new login session:
     finally:
-        # Cleanup: If account was deleted, cannot logout; if account was not deleted,
-        # try logging out to clean session
-        try:
-            # Attempt logout to clear session if account exists
-            logout_resp = session.post(f"{BASE_URL}/api/auth/logout", timeout=TIMEOUT)
-            # Not asserting logout here because account might be deleted
-        except Exception:
-            pass
+        # Attempt logout to clean session if still valid
+        session.post(f"{BASE_URL}/api/auth/logout", timeout=TIMEOUT)
+
+    # Negative tests: missing userId field with valid session
+    # We need a fresh valid session for this
+    session2 = requests.Session()
+    login_resp2 = session2.post(
+        f"{BASE_URL}/api/auth/login",
+        json={"email": EMAIL, "password": PASSWORD},
+        timeout=TIMEOUT
+    )
+    assert login_resp2.status_code == 200, f"Login failed: {login_resp2.text}"
+    login_json2 = login_resp2.json()
+    assert login_json2.get("ok") is True and "provider" in login_json2
+
+    # Missing userId in body
+    missing_userid_resp = session2.post(
+        f"{BASE_URL}/api/auth/delete-account",
+        json={},  # no userId provided
+        timeout=TIMEOUT
+    )
+    assert missing_userid_resp.status_code == 400, f"Expected 400 Missing userId, got {missing_userid_resp.status_code} {missing_userid_resp.text}"
+
+    # Invalid userId in body (e.g. empty string)
+    invalid_userid_resp = session2.post(
+        f"{BASE_URL}/api/auth/delete-account",
+        json={"userId": ""},
+        timeout=TIMEOUT
+    )
+    # Expect 400 Missing userId or 401 unauthorized according to spec
+    assert invalid_userid_resp.status_code in (400, 401), f"Expected 400 or 401 for invalid userId, got {invalid_userid_resp.status_code} {invalid_userid_resp.text}"
+
+    # Missing session cookie (no auth)
+    no_session_resp = requests.post(
+        f"{BASE_URL}/api/auth/delete-account",
+        json={"userId": EMAIL},
+        timeout=TIMEOUT
+    )
+    assert no_session_resp.status_code == 401, f"Expected 401 Unauthorized without session, got {no_session_resp.status_code} {no_session_resp.text}"
+
+    # Cleanup logout
+    session2.post(f"{BASE_URL}/api/auth/logout", timeout=TIMEOUT)
 
 test_post_api_auth_delete_account()
